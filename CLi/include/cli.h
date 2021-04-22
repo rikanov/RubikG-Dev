@@ -5,7 +5,7 @@
 #include <iostream>
 #include <text_output.h>
 
-const int CURRENT_VERSION_NUMBERS[] = { 2, 0, 0 };
+constexpr int  CURRENT_VERSION_NUMBERS[] = { 2, 0, 0 };
 
 class CLi
 {

@@ -74,8 +74,6 @@ public:
   void print( bool separator = true ) const;
 };
 
-  static const char FChar[] = "*";
-
 /// ----------------------------------- Template definitions starts here ------------------------------------- ///
 
  // Constructors
@@ -265,5 +263,5 @@ Rubik<N>::~Rubik()
   frameworkSpace = nullptr;
 }
 
-#include <rubik_cli.h>
+#include <rubik_print.h>
 #endif

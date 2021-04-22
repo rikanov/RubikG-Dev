@@ -97,14 +97,14 @@ void Insight<N>::print() const
           
           if ( GetCoords <N> ( xCoord, yCoord, side, place ) && xCoord == col % N && yCoord == raw % N )
           {
-            clog_( colorOf( Simplex::GetCube( pos[pid] ).whatIs( side ) ), '*', Color::off );
+            clog_( colorOf( Simplex::GetCube( pos[pid] ).whatIs( side ) ), FChar, Color::off );
             break;
           }
           ++ pid;
        }
        if ( pid == m_size )
        {
-         clog_( Color::dark, '.', Color::off );
+         clog_( Color::dark, FChar, Color::off );
        }
      }
      NL();

@@ -15,7 +15,7 @@ add_library(test  test.h
                   core/u_simplex.cpp 
                   core/u_crotations.cpp
                   core/u_rubik.cpp
-                  engine/u_state.cpp
+                  engine/u_insight.cpp
                  )
 
 

@@ -8,7 +8,9 @@
 
 #include <def_colors.h>
 
-static Color::Modifier Default = Color::off;
+constexpr char FChar[] = { char(254), char(0) };
+
+static const Color::Modifier Default = Color::off;
 
 // clear screen ToDo
 inline void CLS()

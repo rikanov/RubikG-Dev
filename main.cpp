@@ -9,7 +9,11 @@ int main()
   std::cin.get();
   
   UnitTests tests;
-  tests.testCore();
+  bool success = true;
+  
+  success &= tests.testCore();
+  success &= tests.testEngine();
+  
   clog( "Quit." );
   
   return 0;

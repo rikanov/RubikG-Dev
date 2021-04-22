@@ -17,16 +17,16 @@ private:
   
    // Unit tests of base classes (core folder)
   // -----------------------------------------
-  bool unit_Simplex()    const; // simplex.h
-  bool unit_OCube()      const; // oriented_cube.h
-  bool unit_CPositions() const; // cube_positions.h
-  bool unit_CRotations() const; // cube_rotations.h
-  bool unit_Rubik()      const; // rubik.h
-  bool unit_CState()     const; // cube_state.h
-  bool unit_Engine()     const; // engine.h 
+  bool unit_Simplex()    const; // core/simplex.h
+  bool unit_OCube()      const; // core/oriented_cube.h
+  bool unit_CPositions() const; // core/cube_positions.h
+  bool unit_CRotations() const; // core/cube_rotations.h
+  bool unit_Rubik()      const; // core/rubik.h
+  bool unit_Insight()    const; // engine/insight.h 
   
 public:
-  bool testCore() const;
+  bool testCore()   const;
+  bool testEngine() const;
   
 };
 
