@@ -63,13 +63,8 @@ template< size_t N >
 void Insight<N>::print() const
  {
    PosID * pos = new PosID [ m_size ];
-   SetCacheID( pos, m_stateID, m_size, m_prior ); 
-   for ( size_t i = 0; i < m_size; ++i )
-   {
-     clog( CPositions<N>::GetCoord( m_pos[i] ).toString() ,"-->", CPositions<N>::GetCoord( CPositions<N>::GetPosID( m_pos[i], pos[i] ) ).toString() );
-   }
-   clog( "Order: ", distance(), "Prior: ", Simplex::GetCube( m_prior ).toString() );
-  
+   SetCacheID( pos, m_stateID, m_size, m_prior );
+   
    for( size_t raw = 0; raw < 3 * N; ++ raw )
    {
      if ( raw % N == 0 )

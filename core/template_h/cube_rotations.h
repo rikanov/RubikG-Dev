@@ -284,6 +284,11 @@ public:
     }
   }
   
+  static std::string ToString( const RotID rotID )
+  {
+    return CRotations<2*N - 3>::ToString( rotID );
+  }
+
   static RotID GetRotID( Axis axis, Layer layer, Turn turn )
   {
     return CRotations<2*N - 3>::GetRotID( axis, layer, turn );

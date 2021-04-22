@@ -23,16 +23,17 @@ public:
 
   void set( const Rubik<N> & );
 
-  int rotate( Axis axis, Layer layer, Turn turn );
+  int rotate( const Axis axis, const Layer layer, const Turn turn );
+  int rotate( const RotID rotID );
 
-  void step( const size_t id )
-  {
-    rotate( m_map -> router( m_stateID, id ) );
-  }
-  
   CacheID state() const
   {
     return m_stateID;
+  }
+  
+  OCube priorCube() const
+  {
+    return Simplex::GetCube( m_prior );
   }
 
   int distance() const
@@ -76,23 +77,24 @@ void Insight<N>::set( const Rubik<N> & R )
 }
 
 template< size_t N >
-int Insight<N>::rotate( Axis axis, Layer layer, Turn turn )
+int Insight<N>::rotate( const Axis axis, const Layer layer, const Turn turn )
 {
-  clog( "state:", m_stateID );
-  clog_( _crot::ToString( CExtRotations<N>::GetRotID( axis, layer, turn ) ), "-->" );
   const RotID rotID = CExtRotations<N>::GetRotID( axis, layer, turn, Simplex::Inverse( m_prior ) );
-  clog( _crot::ToString( rotID ) );
+
   if ( ( layer  < N && layer         == CPositions<N>::GetLayer( m_pos[0], m_prior, axis ) ) ||
        ( layer >= N && layer - N + 1 >= CPositions<N>::GetLayer( m_pos[0], m_prior, axis ) ) ) 
   {
-    clog_( Simplex::GetCube( m_prior).toString(), "-->" );
-    m_prior = Simplex::Tilt( m_prior, axis, turn ); clog( Simplex::GetCube( m_prior).toString() );
+    m_prior = Simplex::Tilt( m_prior, axis, turn );
   }
     
   m_stateID = m_map -> getState( m_stateID, rotID ) ;
-  print();
-
   return distance();
+}
+
+template< size_t N >
+int Insight<N>::rotate( const RotID rotID )
+{
+  return rotate( _crot::GetAxis( rotID ), _crot::GetLayer( rotID ), _crot::GetTurn( rotID ) );
 }
 
 template< size_t N >
