@@ -6,7 +6,7 @@ bool UnitTests::unit_Insight() const
 {
 
   bool success = true;
-  head( "CacheIDmapper" );
+  head( "CacheIDmapper & Insight" );
 
   tcase( "Memory allocation" );
 
@@ -18,19 +18,19 @@ bool UnitTests::unit_Insight() const
                  CPositions<4>::GetPosID( 2, 0, 0 )
                 };
 
-  Insight<4> baseInsight( toSolve );
-  Insight<4> transInsight( toSolve, Simplex::Tilt( _X, 1 ) );
+  Insight<4> baseInsight_4 ( toSolve );
+  Insight<4> transInsight_4( toSolve, Simplex::Tilt( _X, 1 ) );
 
   Rubik<4> test4;
-  baseInsight.set( test4 );
-  transInsight.set( test4 );
+  baseInsight_4.set ( test4 );
+  transInsight_4.set( test4 );
 
   tail( "Memory allocation", success );
 
   tcase( "Base tests" );
   
   const std::initializer_list<RotID>
-  baseRotations = {
+  baseRotations_4 = {
     CExtRotations<4>::GetRotID( _Z, 4, 1 ),
     CExtRotations<4>::GetRotID( _Z, 4, 3 ),
     CExtRotations<4>::GetRotID( _Y, 4, 1 ), 
@@ -41,8 +41,8 @@ bool UnitTests::unit_Insight() const
     CExtRotations<4>::GetRotID( _Z, 0, 3 ),
     CExtRotations<4>::GetRotID( _Y, 0, 1 ), 
     CExtRotations<4>::GetRotID( _Y, 0, 3 ), 
-    CExtRotations<4>::GetRotID( _X, 0, 1 ), 
-    CExtRotations<4>::GetRotID( _X, 0, 3 ), 
+    CExtRotations<4>::GetRotID( _X, 1, 1 ), 
+    CExtRotations<4>::GetRotID( _X, 1, 3 ), 
     CExtRotations<4>::GetRotID( _Z, 0, 2 ),  
     CExtRotations<4>::GetRotID( _Z, 1, 2 ),  
     CExtRotations<4>::GetRotID( _X, 1, 1 ),  
@@ -63,18 +63,52 @@ bool UnitTests::unit_Insight() const
     CExtRotations<4>::GetRotID( _Z, 4, 2 )
   };
 
-  const CacheID stateResults[] = {
-    0, 0, 129816, 130416, 185712, 185719
+  constexpr int expectedBaseResults_4[] = {
+            0,  1,   0,   //  { _Z, 4, 1 }
+            0,  0,   0,   //  { _Z, 4, 3 }
+         9232,  7,   1,   //  { _Y, 4, 1 }
+            0,  0,   0,   //  { _Y, 4, 3 }
+       129816, 13,   1,   //  { _X, 4, 1 }
+            0,  0,   0,   //  { _X, 4, 3 }
+            0,  1,   0,   //  { _Z, 0, 1 }
+            0,  0,   0,   //  { _Z, 0, 3 }
+        96768,  0,   1,   //  { _Y, 0, 1 }
+            0,  0,   0,   //  { _Y, 0, 3 }
+       129816, 13,   1,   //  { _X, 1, 1 }
+            0,  0,   0,   //  { _X, 1, 3 }
+            0,  3,   0,   //  { _Z, 0, 2 }
+            0,  3,   0,   //  { _Z, 1, 2 }
+       129816,  3,   1,   //  { _X, 1, 1 }
+       130416,  0,   2,   //  { _Z, 0, 2 }
+       185712, 20,   3,   //  { _X, 4, 2 }
+       185728, 20,   4,   //  { _Y, 4, 1 }
+       185719, 20,   4,   //  { _Y, 4, 2 }
+       213943, 20,   5,   //  { _Z, 4, 1 }
+       213823, 20,   6,   //  { _Y, 3, 1 }
+       213943, 20,   5,   //  { _Y, 3, 3 }
+       266943, 13,   5,   //  { _X, 4, 3 }
+       213943, 20,   5,   //  { _X, 4, 1 }
+       185719, 20,   4,   //  { _Z, 4, 3 }
+       185712, 20,   3,   //  { _Y, 4, 1 }
+       130416,  0,   2,   //  { _X, 4, 2 }
+       129816,  3,   1,   //  { _Z, 0, 2 }
+            0,  3,   0,   //  { _X, 1, 3 }
+            0,  0,   0,   //  { _Z, 4, 2 }
   };
 
-  baseInsight.print();
-  for( const RotID rotID : baseRotations )
+  baseInsight_4.print();
+  const int * next = expectedBaseResults_4;
+  for( const RotID rotID : baseRotations_4 )
   {
-    tcase( "Operation", CExtRotations<4>::ToString( rotID ) );
-    baseInsight.rotate( rotID );
-    baseInsight.print();
-    clog( "State:\t", baseInsight.state(), "\tPrior position:\t", baseInsight.priorCube().toString(), "\tDepth:\t", baseInsight.distance() );
-    stamp( true, success );
+    tcase( "Rotation by", CExtRotations<4>::ToString( rotID ) );
+    baseInsight_4.rotate( rotID );
+    baseInsight_4.print();
+    // printf( "%7i,%3i, %3i,   //  %s\n", baseInsight_4.state(), baseInsight_4.prior(), baseInsight_4.distance(), CExtRotations<4>::ToString( rotID ).c_str() );
+    clog_( "State:", baseInsight_4.state(), "\t\tPrior position:", baseInsight_4.priorCube().toString(), "  Depth:", baseInsight_4.distance() );
+    stamp( baseInsight_4.state()    == *( next ++ ) && 
+           baseInsight_4.prior()    == *( next ++ ) && 
+           baseInsight_4.distance() == *( next ++ )
+           , success );
   }
 
   tail( "Base rotations", success );
@@ -82,7 +116,7 @@ bool UnitTests::unit_Insight() const
   tcase( "Transformed tests" );
 
   const std::initializer_list<RotID> 
-  transRotations = { 
+  transRotations_4 = { 
     CExtRotations<4>::GetRotID( _Z, 4, 1 ),
     CExtRotations<4>::GetRotID( _Z, 4, 3 ),
     CExtRotations<4>::GetRotID( _Y, 4, 1 ), 
@@ -99,16 +133,38 @@ bool UnitTests::unit_Insight() const
     CExtRotations<4>::GetRotID( _X, 4, 3 )
   };
 
-  transInsight.print();
-  for( const RotID rotID : transRotations )
+  const int expectedTransResults_4[] = {
+          577,  0,   1,   //  { _Z, 4, 1 }
+            0,  0,   0,   //  { _Z, 4, 3 }
+            0,  7,   0,   //  { _Y, 4, 1 }
+            0,  0,   0,   //  { _Y, 4, 3 }
+       129816, 13,   1,   //  { _X, 4, 1 }
+            0,  0,   0,   //  { _X, 4, 3 }
+            0,  0,   0,   //  { _Y, 1, 2 }
+            0, 23,   0,   //  { _Y, 0, 2 }
+            0, 16,   0,   //  { _Y, 0, 1 }
+            0,  0,   0,   //  { _Y, 0, 1 }
+       129816, 13,   1,   //  { _X, 4, 1 }
+       144243, 13,   2,   //  { _Y, 4, 2 }
+       129816, 13,   1,   //  { _Y, 4, 2 }
+            0,  0,   0,   //  { _X, 4, 3 }
+  };
+
+  transInsight_4.print();
+  next = expectedTransResults_4;
+  for( const RotID rotID : transRotations_4 )
   {
     tcase( "Operation", CExtRotations<4>::ToString( rotID ) );
-    transInsight.rotate( rotID );
-    transInsight.print();
-    clog( "State:\t", transInsight.state(), "\tPrior position:\t", transInsight.priorCube().toString(), "\tDepth:\t", transInsight.distance() );
-    stamp( true, success );
+    transInsight_4.rotate( rotID );
+    transInsight_4.print();
+    // printf( "%7i,%3i, %3i,   //  %s\n", transInsight_4.state(), transInsight_4.prior(), transInsight_4.distance(), CExtRotations<4>::ToString( rotID ).c_str() );
+    clog( "State:", transInsight_4.state(), "\t\tPrior position:", transInsight_4.priorCube().toString(), "  Depth:", transInsight_4.distance() );
+    stamp( transInsight_4.state()    == *( next ++ ) && 
+           transInsight_4.prior()    == *( next ++ ) && 
+           transInsight_4.distance() == *( next ++ )
+           , success );
   }
   
-  finish( "CacheIDmapper", success );
+  finish( "CacheIDmapper & Insight", success );
   return success;
 }

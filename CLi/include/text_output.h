@@ -4,6 +4,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <cstring>
 #include <string>
 
 #include <def_colors.h>

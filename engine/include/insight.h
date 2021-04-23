@@ -31,12 +31,17 @@ public:
     return m_stateID;
   }
   
+  size_t prior() const
+  {
+    return m_prior;
+  }
+
   OCube priorCube() const
   {
     return Simplex::GetCube( m_prior );
   }
 
-  int distance() const
+  size_t distance() const
   {
     return m_map -> distance( m_stateID );
   }
