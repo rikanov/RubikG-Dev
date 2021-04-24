@@ -10,7 +10,7 @@ static void PlayWith( Insight<N> insight, Trial trial, const int * expectation, 
   const int * next = expectation;
   for( const RotID rotID : trial )
   {
-    UnitTests::tcase( "Rotation by", CExtRotations<2>::ToString( rotID ) );
+    UnitTests::tcase( "Rotation by", CExtRotations<N>::ToString( rotID ) );
     insight.rotate( rotID );
     insight.print();
     // printf( "%7i,%3i, %3i,   //  %s\n", baseInsight_4.state(), baseInsight_4.prior(), baseInsight_4.distance(), CExtRotations<4>::ToString( rotID ).c_str() );
@@ -32,76 +32,76 @@ bool UnitTests::unit_Insight() const
   tcase( "Memory allocation" );
 
   SubSpace toSolve_2 = {
-                CPositions<2>::GetPosID( 0, 0, 0 ),
-                CPositions<2>::GetPosID( 0, 0, 1 ),
-                CPositions<2>::GetPosID( 0, 1, 0 ),
-                CPositions<2>::GetPosID( 0, 1, 1 )
-              };
+                  CPositions<2>::GetPosID( 0, 0, 0 ),
+                  CPositions<2>::GetPosID( 0, 0, 1 ),
+                  CPositions<2>::GetPosID( 0, 1, 0 ),
+                  CPositions<2>::GetPosID( 0, 1, 1 )
+                };
 
   SubSpace toSolve_3 = {
                 CPositions<3>::GetPosID( 1, 1, 2 ),
-                CPositions<3>::GetPosID( 1, 0, 2 ),
-                CPositions<3>::GetPosID( 0, 1, 2 ),
-                CPositions<3>::GetPosID( 2, 1, 2 ),
-                CPositions<3>::GetPosID( 1, 2, 2 )
-              };
+                  CPositions<3>::GetPosID( 1, 0, 2 ),
+                  CPositions<3>::GetPosID( 0, 1, 2 ),
+                  CPositions<3>::GetPosID( 2, 1, 2 ),
+                  CPositions<3>::GetPosID( 1, 2, 2 )
+                };
 
   SubSpace toSolve_4 = {
-                CPositions<4>::GetPosID( 1, 1, 0 ),
-                CPositions<4>::GetPosID( 1, 2, 0 ),
-                CPositions<4>::GetPosID( 2, 1, 0 ),
-                CPositions<4>::GetPosID( 2, 2, 0 ),
-                CPositions<4>::GetPosID( 2, 0, 0 )
-              };
+                  CPositions<4>::GetPosID( 1, 1, 0 ),
+                  CPositions<4>::GetPosID( 1, 2, 0 ),
+                  CPositions<4>::GetPosID( 2, 1, 0 ),
+                  CPositions<4>::GetPosID( 2, 2, 0 ),
+                  CPositions<4>::GetPosID( 2, 0, 0 )
+                };
 
   SubSpace toSolve_5 = {
-                CPositions<5>::GetPosID( 0, 0, 0 ),
-                CPositions<5>::GetPosID( 0, 0, 4 ),
-                CPositions<5>::GetPosID( 0, 4, 4 ),
-                CPositions<5>::GetPosID( 0, 4, 0 )
-              };
+                  CPositions<5>::GetPosID( 0, 0, 0 ),
+                  CPositions<5>::GetPosID( 0, 0, 4 ),
+                  CPositions<5>::GetPosID( 0, 4, 4 ),
+                  CPositions<5>::GetPosID( 0, 4, 0 )
+                };
 
   Trial baseTrial_2 = {
-                CExtRotations<2>::GetRotID( _Z, 0, 1 ),
-                CExtRotations<2>::GetRotID( _Z, 1, 3 ),
-                CExtRotations<2>::GetRotID( _Y, 0, 1 ),
-                CExtRotations<2>::GetRotID( _X, 1, 3 ),
-                CExtRotations<2>::GetRotID( _Z, 0, 1 ),
-                CExtRotations<2>::GetRotID( _Z, 1, 1 )
-              };
+                  CExtRotations<2>::GetRotID( _Z, 0, 1 ),
+                  CExtRotations<2>::GetRotID( _Z, 1, 3 ),
+                  CExtRotations<2>::GetRotID( _Y, 0, 1 ),
+                  CExtRotations<2>::GetRotID( _X, 1, 3 ),
+                  CExtRotations<2>::GetRotID( _Z, 0, 1 ),
+                  CExtRotations<2>::GetRotID( _Z, 1, 1 )
+                };
 
   constexpr int expectedBaseResults_2[] = {
-                    0,  1,   0,   //  { _Z, 0, 1 }
-                    0,  0,   0,   //  { _Z, 1, 3 }
-                 9232,  7,   1,   //  { _Y, 0, 1 }
-                    0,  0,   0,   //  { _X, 1, 3 }
-               129816, 13,   1,   //  { _Z, 0, 1 }
-                    0,  0,   0,   //  { _Z, 1, 1 }
-                    0,  1,   0,   //  { _Z, 0, 1 }
-                    0,  0,   0,   //  { _Z, 0, 3 }
-                96768,  0,   1,   //  { _Y, 0, 1 }
-              };
+                        0,  1,   0,   //  { _Z, 0, 1 }
+                        0,  0,   0,   //  { _Z, 1, 3 }
+                     9232,  7,   1,   //  { _Y, 0, 1 }
+                        0,  0,   0,   //  { _X, 1, 3 }
+                   129816, 13,   1,   //  { _Z, 0, 1 }
+                        0,  0,   0,   //  { _Z, 1, 1 }
+                        0,  1,   0,   //  { _Z, 0, 1 }
+                        0,  0,   0,   //  { _Z, 0, 3 }
+                    96768,  0,   1,   //  { _Y, 0, 1 }
+                  };
 
   Trial baseTrial_3 = {
-                CExtRotations<3>::GetRotID( _Z, 0, 1 ),
-                CExtRotations<3>::GetRotID( _Z, 1, 3 ),
-                CExtRotations<3>::GetRotID( _Y, 0, 1 ),
+                CExtRotations<3>::GetRotID( _Z, 2, 1 ),
+                CExtRotations<3>::GetRotID( _X, 1, 2 ),
+                CExtRotations<3>::GetRotID( _Y, 1, 1 ),
                 CExtRotations<3>::GetRotID( _X, 1, 3 ),
-                CExtRotations<3>::GetRotID( _Z, 0, 1 ),
-                CExtRotations<3>::GetRotID( _Z, 1, 1 )
+                CExtRotations<3>::GetRotID( _Y, 0, 1 ),
+                CExtRotations<3>::GetRotID( _Z, 2, 2 )
               };
 
   constexpr int expectedBaseResults_3[] = {
-                      0,  1,   0,   //  { _Z, 0, 1 }
-                      0,  0,   0,   //  { _Z, 1, 3 }
-                   9232,  7,   1,   //  { _Y, 0, 1 }
-                      0,  0,   0,   //  { _X, 1, 3 }
-                 129816, 13,   1,   //  { _Z, 0, 1 }
-                      0,  0,   0,   //  { _Z, 1, 1 }
-                      0,  1,   0,   //  { _Z, 0, 1 }
-                      0,  0,   0,   //  { _Z, 0, 3 }
-                  96768,  0,   1,   //  { _Y, 0, 1 }
-              };
+                        0,  1,   0,   //  { _Z, 0, 1 }
+                        0,  0,   0,   //  { _Z, 1, 3 }
+                     9232,  7,   1,   //  { _Y, 0, 1 }
+                        0,  0,   0,   //  { _X, 1, 3 }
+                   129816, 13,   1,   //  { _Z, 0, 1 }
+                        0,  0,   0,   //  { _Z, 1, 1 }
+                        0,  1,   0,   //  { _Z, 0, 1 }
+                        0,  0,   0,   //  { _Z, 0, 3 }
+                    96768,  0,   1,   //  { _Y, 0, 1 }
+                };
 
   Trial baseTrial_4 = {
                 CExtRotations<4>::GetRotID( _Z, 4, 1 ),
@@ -242,17 +242,14 @@ bool UnitTests::unit_Insight() const
   NL();
 
   tcase( "Base tests" );
-  
   PlayWith <2> ( baseInsight_2, baseTrial_2, expectedBaseResults_2, success );
   PlayWith <3> ( baseInsight_3, baseTrial_3, expectedBaseResults_3, success );
   PlayWith <4> ( baseInsight_4, baseTrial_4, expectedBaseResults_4, success );
-
   tail( "Base rotations", success );
 
   tcase( "Transformed tests" );
-
   PlayWith <4> ( transInsight_4, transRotations_4, expectedTransResults_4, success );
-
+  tcase( "Transformed tests" );
   
   finish( "CacheIDmapper & Insight", success );
   return success;

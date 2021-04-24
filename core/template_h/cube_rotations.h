@@ -223,7 +223,7 @@ std::string CRotations<N>::ToString( Axis A )
   }
 }
 
-template<size_t N>
+template< size_t N >
 std::string CRotations<N>::ToString( Axis axis, Layer layer, Turn turn )
 {
   return std::string( "{ _" + ToString ( axis ) + ", " + std::to_string( layer ) + ", " + std::to_string( turn ) + " }" );
@@ -242,6 +242,8 @@ class CExtRotations
   static constexpr size_t NT = N > 3 ? 2 * N - 3 : N;
 
 public:
+
+  static constexpr size_t AllRotIDs = CRotations<NT>::AllRotIDs;
 
   static void Instance()
   {

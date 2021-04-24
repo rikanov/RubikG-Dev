@@ -58,7 +58,7 @@ public:
 template< size_t N >
 class CacheIDmap
 {
-  using _crot = CRotations< 2 * N - 3 >;
+  using _crot = CExtRotations<N>;
 
   CacheID * m_map;
   DistID  * m_dist;
