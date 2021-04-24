@@ -140,6 +140,7 @@ void CacheIDmap<N>::clean()
   delete[] m_map;
   delete[] m_dist;
   delete[] m_orderedSteps;
+  delete[] m_complexity;
 
   m_map  = nullptr;
   m_dist = nullptr;

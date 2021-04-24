@@ -4,7 +4,7 @@
 using Trial = const std::initializer_list< RotID > &;
 
 template< size_t N >
-static void PlayWith( Insight<N> insight, Trial trial, const int * expectation, bool & success )
+static void PlayWith( Insight<N> & insight, Trial trial, const int * expectation, bool & success )
 {
   insight.print();
   const int * next = expectation;
@@ -13,13 +13,10 @@ static void PlayWith( Insight<N> insight, Trial trial, const int * expectation, 
     UnitTests::tcase( "Rotation by", CExtRotations<N>::ToString( rotID ) );
     insight.rotate( rotID );
     insight.print();
-    // printf( "%7i,%3i, %3i,   //  %s\n", baseInsight_4.state(), baseInsight_4.prior(), baseInsight_4.distance(), CExtRotations<4>::ToString( rotID ).c_str() );
-    clog( "State:", insight.state(), "\t\tPrior position:", insight.priorCube().toString(), "  Depth:", insight.distance() );
-    UnitTests::stamp(
-           insight.state()    == *( next ++ ) &&
-           insight.prior()    == *( next ++ ) &&
-           insight.distance() == *( next ++ )
-           , success );
+    //printf( "%7u,%3u, %3u,   //  %s\n", insight.state(), insight.prior(), insight.distance(), CExtRotations<N>::ToString( rotID ).c_str() );
+    clog_( "State:", insight.state(), "\t\tPrior position:", insight.priorCube().toString(), "  Depth:", insight.distance() );
+
+    UnitTests::stamp( insight.state() == *( next ++ ) && insight.prior() == *( next ++ ) &&  insight.distance() == *( next ++ ), success );
   }
 }
 
@@ -39,7 +36,7 @@ bool UnitTests::unit_Insight() const
                 };
 
   SubSpace toSolve_3 = {
-                CPositions<3>::GetPosID( 1, 1, 2 ),
+                  CPositions<3>::GetPosID( 1, 1, 2 ),
                   CPositions<3>::GetPosID( 1, 0, 2 ),
                   CPositions<3>::GetPosID( 0, 1, 2 ),
                   CPositions<3>::GetPosID( 2, 1, 2 ),
@@ -62,25 +59,22 @@ bool UnitTests::unit_Insight() const
                 };
 
   Trial baseTrial_2 = {
-                  CExtRotations<2>::GetRotID( _Z, 0, 1 ),
-                  CExtRotations<2>::GetRotID( _Z, 1, 3 ),
-                  CExtRotations<2>::GetRotID( _Y, 0, 1 ),
-                  CExtRotations<2>::GetRotID( _X, 1, 3 ),
-                  CExtRotations<2>::GetRotID( _Z, 0, 1 ),
-                  CExtRotations<2>::GetRotID( _Z, 1, 1 )
-                };
+                CExtRotations<2>::GetRotID( _Z, 0, 1 ),
+                CExtRotations<2>::GetRotID( _Z, 1, 3 ),
+                CExtRotations<2>::GetRotID( _Y, 0, 1 ),
+                CExtRotations<2>::GetRotID( _X, 1, 3 ),
+                CExtRotations<2>::GetRotID( _Z, 0, 1 ),
+                CExtRotations<2>::GetRotID( _Z, 1, 1 )
+              };
 
   constexpr int expectedBaseResults_2[] = {
-                        0,  1,   0,   //  { _Z, 0, 1 }
-                        0,  0,   0,   //  { _Z, 1, 3 }
-                     9232,  7,   1,   //  { _Y, 0, 1 }
-                        0,  0,   0,   //  { _X, 1, 3 }
-                   129816, 13,   1,   //  { _Z, 0, 1 }
-                        0,  0,   0,   //  { _Z, 1, 1 }
-                        0,  1,   0,   //  { _Z, 0, 1 }
-                        0,  0,   0,   //  { _Z, 0, 3 }
-                    96768,  0,   1,   //  { _Y, 0, 1 }
-                  };
+                      1154,  1,   1,   //  { _Z, 0, 1 }
+                      1731,  1,   1,   //  { _Z, 1, 3 }
+                      8078,  1,   2,   //  { _Y, 0, 1 }
+                      8462,  1,   3,   //  { _X, 1, 3 }
+                      8508,  3,   4,   //  { _Z, 0, 1 }
+                      8462,  3,   3,   //  { _Z, 1, 1 }
+                };
 
   Trial baseTrial_3 = {
                 CExtRotations<3>::GetRotID( _Z, 2, 1 ),
@@ -92,15 +86,12 @@ bool UnitTests::unit_Insight() const
               };
 
   constexpr int expectedBaseResults_3[] = {
-                        0,  1,   0,   //  { _Z, 0, 1 }
-                        0,  0,   0,   //  { _Z, 1, 3 }
-                     9232,  7,   1,   //  { _Y, 0, 1 }
-                        0,  0,   0,   //  { _X, 1, 3 }
-                   129816, 13,   1,   //  { _Z, 0, 1 }
-                        0,  0,   0,   //  { _Z, 1, 1 }
-                        0,  1,   0,   //  { _Z, 0, 1 }
-                        0,  0,   0,   //  { _Z, 0, 3 }
-                    96768,  0,   1,   //  { _Y, 0, 1 }
+                        0,  1,   0,   //  { _Z, 2, 1 }
+                   317975, 21,   1,   //  { _X, 1, 2 }
+                   323375,  8,   2,   //  { _Y, 1, 1 }
+                   322775,  8,   3,   //  { _X, 1, 3 }
+                   322775,  8,   3,   //  { _Y, 0, 1 }
+                     8855,  8,   3,   //  { _Z, 2, 2 }
                 };
 
   Trial baseTrial_4 = {
@@ -137,37 +128,37 @@ bool UnitTests::unit_Insight() const
               };
 
   constexpr int expectedBaseResults_4[] = {
-                      0,  1,   0,   //  { _Z, 4, 1 }
-                      0,  0,   0,   //  { _Z, 4, 3 }
-                   9232,  7,   1,   //  { _Y, 4, 1 }
-                      0,  0,   0,   //  { _Y, 4, 3 }
-                 129816, 13,   1,   //  { _X, 4, 1 }
-                      0,  0,   0,   //  { _X, 4, 3 }
-                      0,  1,   0,   //  { _Z, 0, 1 }
-                      0,  0,   0,   //  { _Z, 0, 3 }
-                  96768,  0,   1,   //  { _Y, 0, 1 }
-                      0,  0,   0,   //  { _Y, 0, 3 }
-                 129816, 13,   1,   //  { _X, 1, 1 }
-                      0,  0,   0,   //  { _X, 1, 3 }
-                      0,  3,   0,   //  { _Z, 0, 2 }
-                      0,  3,   0,   //  { _Z, 1, 2 }
-                 129816,  3,   1,   //  { _X, 1, 1 }
-                 130416,  0,   2,   //  { _Z, 0, 2 }
-                 185712, 20,   3,   //  { _X, 4, 2 }
-                 185728, 20,   4,   //  { _Y, 4, 1 }
-                 185719, 20,   4,   //  { _Y, 4, 2 }
-                 213943, 20,   5,   //  { _Z, 4, 1 }
-                 213823, 20,   6,   //  { _Y, 3, 1 }
-                 213943, 20,   5,   //  { _Y, 3, 3 }
-                 266943, 13,   5,   //  { _X, 4, 3 }
-                 213943, 20,   5,   //  { _X, 4, 1 }
-                 185719, 20,   4,   //  { _Z, 4, 3 }
-                 185712, 20,   3,   //  { _Y, 4, 1 }
-                 130416,  0,   2,   //  { _X, 4, 2 }
-                 129816,  3,   1,   //  { _Z, 0, 2 }
-                      0,  3,   0,   //  { _X, 1, 3 }
-                      0,  0,   0,   //  { _Z, 4, 2 }
-            };
+                        0,  1,   0,   //  { _Z, 4, 1 }
+                        0,  0,   0,   //  { _Z, 4, 3 }
+                     9232,  7,   1,   //  { _Y, 4, 1 }
+                        0,  0,   0,   //  { _Y, 4, 3 }
+                   129816, 13,   1,   //  { _X, 4, 1 }
+                        0,  0,   0,   //  { _X, 4, 3 }
+                        0,  1,   0,   //  { _Z, 0, 1 }
+                        0,  0,   0,   //  { _Z, 0, 3 }
+                    96768,  0,   1,   //  { _Y, 0, 1 }
+                        0,  0,   0,   //  { _Y, 0, 3 }
+                   129816, 13,   1,   //  { _X, 1, 1 }
+                        0,  0,   0,   //  { _X, 1, 3 }
+                        0,  3,   0,   //  { _Z, 0, 2 }
+                        0,  3,   0,   //  { _Z, 1, 2 }
+                   129816,  3,   1,   //  { _X, 1, 1 }
+                   130416,  0,   2,   //  { _Z, 0, 2 }
+                   185712, 20,   3,   //  { _X, 4, 2 }
+                   185728, 20,   4,   //  { _Y, 4, 1 }
+                   185719, 20,   4,   //  { _Y, 4, 2 }
+                   213943, 20,   5,   //  { _Z, 4, 1 }
+                   213823, 20,   6,   //  { _Y, 3, 1 }
+                   213943, 20,   5,   //  { _Y, 3, 3 }
+                   266943, 13,   5,   //  { _X, 4, 3 }
+                   213943, 20,   5,   //  { _X, 4, 1 }
+                   185719, 20,   4,   //  { _Z, 4, 3 }
+                   185712, 20,   3,   //  { _Y, 4, 1 }
+                   130416,  0,   2,   //  { _X, 4, 2 }
+                   129816,  3,   1,   //  { _Z, 0, 2 }
+                        0,  3,   0,   //  { _X, 1, 3 }
+                        0,  0,   0,   //  { _Z, 4, 2 }
+              };
 
   Trial transRotations_4 = {
                 CExtRotations<4>::GetRotID( _Z, 4, 1 ),

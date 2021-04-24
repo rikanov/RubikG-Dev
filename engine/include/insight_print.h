@@ -109,4 +109,5 @@ void Insight<N>::print( const bool details ) const
      }
      NL();
    }
+   delete[] pos;
  }

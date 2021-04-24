@@ -53,7 +53,7 @@ template< size_t N >
 Insight<N>::Insight( SubSpace P, const CubeID cid )
   : m_size  ( P.size() )
 {
-  CacheIDmapper<N> mapBuilder;
+  CacheIDmapper<N> * mapBuilder = new CacheIDmapper<N>;
   CacheIDmap<N>    * map = new CacheIDmap<N>();
 
   PosID * pos = new PosID [ P.size() ];
@@ -62,10 +62,11 @@ Insight<N>::Insight( SubSpace P, const CubeID cid )
   {
     pos[ i++ ] = CPositions<N>::GetPosID( p, cid );
   }
-  mapBuilder.initialPosition( pos, P.size() );
-  mapBuilder.createMap( *map );
+  mapBuilder -> initialPosition( pos, P.size() );
+  mapBuilder -> createMap( *map );
   m_map = map;
   m_pos = pos;
+  delete mapBuilder;
 }
 
 template< size_t N >
