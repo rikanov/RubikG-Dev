@@ -61,6 +61,7 @@ private:
 
 public:
   CacheIDmapper();
+  CacheIDmapper( const CacheIDmapper & ) = delete;
   ~CacheIDmapper();
 
   void initialPosition( const PosID * pos, const size_t size );

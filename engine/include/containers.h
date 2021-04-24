@@ -70,6 +70,7 @@ class CacheIDmap
 
 public:
   CacheIDmap();
+  CacheIDmap( const CacheIDmap & ) = delete;
   ~CacheIDmap();
 
   void init ( const size_t size );
