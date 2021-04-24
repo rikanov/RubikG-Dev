@@ -60,11 +60,16 @@ static bool GetCoords( Layer & xCoord, Layer & yCoord, const Orient side, const 
 }
 
 template< size_t N >
-void Insight<N>::print() const
+void Insight<N>::print( const bool details ) const
  {
    PosID * pos = new PosID [ m_size ];
    SetCacheID( pos, m_stateID, m_size, m_prior );
-   
+
+   for( size_t m = 0; details && m < m_size; ++ m )
+   {
+     clog( CPositions<N>::GetCoord( m_pos[m] ).toString(), "-->",  CPositions<N>::GetCoord( CPositions<N>::GetPosID( m_pos[m], pos[m] ) ).toString() );
+   }
+
    for( size_t raw = 0; raw < 3 * N; ++ raw )
    {
      if ( raw % N == 0 )

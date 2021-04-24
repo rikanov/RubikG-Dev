@@ -7,7 +7,9 @@
 class UnitTests
 {
 private:
-  
+public:
+ // Common
+//--------
   static void head   ( const std::string& unit );
   static void tcase  ( const std::string& unit, const std::string& msg1 = "", const std::string& msg2 = "" );
   static void tail   ( const std::string& unit, bool success );
@@ -15,8 +17,15 @@ private:
   static void stamp  ( bool success, bool& result );
   static void done   ();
   
+ // Timer
+//-------
+  static void   timerON  ();
+  static void   timerOFF ();
+  static double ellapsed ();
+
+private:
    // Unit tests of base classes (core folder)
-  // -----------------------------------------
+  //------------------------------------------
   bool unit_Simplex()       const; // core/simplex.h
   bool unit_OCube()         const; // core/oriented_cube.h
   bool unit_CPositions()    const; // core/cube_positions.h
@@ -25,7 +34,7 @@ private:
   bool unit_Rubik()         const; // core/rubik.h
    
    // Unit tests of engines (engine folder)
-  // -----------------------------------------
+  //---------------------------------------
   bool unit_Insight()       const; // engine/insight.h 
   
 public:

@@ -103,6 +103,7 @@ private:
   static RotID Random();
   static std::string ToString( Axis  );
   static std::string ToString( RotID );
+  static std::string ToString( Axis, Layer, Turn );
 };
 template< size_t N >
 CRotations<N> * CRotations<N>::Singleton = nullptr;
@@ -222,16 +223,23 @@ std::string CRotations<N>::ToString( Axis A )
   }
 }
 
+template<size_t N>
+std::string CRotations<N>::ToString( Axis axis, Layer layer, Turn turn )
+{
+  return std::string( "{ _" + ToString ( axis ) + ", " + std::to_string( layer ) + ", " + std::to_string( turn ) + " }" );
+}
+
+
 template< size_t N >
 std::string CRotations<N>::ToString( RotID rotID )  
 {
-  return std::string( "{ _" + ToString ( GetAxis ( rotID ) ) + ", " + std::to_string( GetLayer ( rotID ) ) + ", " + std::to_string( GetTurn ( rotID ) ) + " }" );
+  return ToString ( GetAxis ( rotID ), GetLayer ( rotID ), GetTurn ( rotID ) );
 }
 
 template< size_t N >
 class CExtRotations
 {
-  static constexpr size_t NT = 2 * N - 3;
+  static constexpr size_t NT = N > 3 ? 2 * N - 3 : N;
 
 public:
 

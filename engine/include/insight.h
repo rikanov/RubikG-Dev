@@ -7,7 +7,7 @@
 template< size_t N >
 class Insight
 {
-  using _crot = CRotations< 2 * N - 3 >;
+  using _crot = CExtRotations<N>;
 
   CacheID       m_stateID;
   CubeID        m_prior;
@@ -46,7 +46,7 @@ public:
     return m_map -> distance( m_stateID );
   }
 
-  void print() const;
+  void print( const bool details = false ) const;
 };
 
 template< size_t N >
