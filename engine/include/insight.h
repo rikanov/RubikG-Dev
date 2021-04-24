@@ -20,6 +20,7 @@ class Insight
 public:
   Insight( SubSpace P, const CubeID cid = 0 );
   ~Insight();
+  Insight( const Insight<N> & ) = delete;
 
   void set( const Rubik<N> & );
 
