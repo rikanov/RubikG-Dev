@@ -300,6 +300,11 @@ public:
     return CRotations<NT>::ToString( rotID );
   }
 
+  static std::string ToString( const Axis axis, const Layer layer, const Turn turn )
+  {
+    return CRotations<NT>::ToString( axis, layer, turn );
+  }
+
   static RotID GetRotID( Axis axis, Layer layer, Turn turn )
   {
     return CRotations<NT>::GetRotID( axis, layer, turn );
@@ -316,8 +321,7 @@ public:
     Axis  axis  = GetAxis ( rotID );
     Layer layer = GetLayer( rotID );
     Turn  turn  = GetTurn ( rotID );
-    Transform( axis, layer, turn, cubeID );
-    return GetRotID( axis, layer, turn );
+    return GetRotID( axis, layer, turn, cubeID );
   }
 
   static Axis GetAxis( const RotID rotID )

@@ -14,6 +14,7 @@ class Insight
 
   const size_t   m_size;
   const CubeID * m_priorCache;
+  const RotID  * m_transRotation;
 
   const PosID  * m_pos;
 
@@ -21,6 +22,7 @@ class Insight
 
   void initMap( SubSpace, const CubeID );
   void initPrior();
+  void initRotIDs();
 
 public:
   Insight( SubSpace P, const CubeID cid = 0 );
@@ -66,7 +68,9 @@ Insight<N>::Insight( SubSpace P, const CubeID cid )
 {
   initMap( P, cid );
   initPrior();
+  initRotIDs();
 }
+
 template<size_t N> void Insight<N>::initMap( SubSpace P, const CubeID cid )
 {
   CacheIDmapper<N> * mapBuilder = new CacheIDmapper<N>;
@@ -109,6 +113,20 @@ void Insight<N>::initPrior()
   m_priorCache = priorCache;
 }
 
+template<size_t N>
+void Insight<N>::initRotIDs()
+{
+  RotID * transRotation = new RotID [ 24 * _crot::AllRotIDs ];
+  all_rot( axis, layer, turn, _crot::NT )
+  {
+    all_cubeid( cid )
+    {
+      transRotation[ cid * _crot::AllRotIDs + _crot::GetRotID( axis, layer, turn ) ] = _crot::GetRotID( axis, layer, turn, Simplex::Inverse( cid ) );
+    }
+  }
+  m_transRotation = transRotation;
+}
+
 template< size_t N >
 void Insight<N>::set( const Rubik<N> & R )
 {
@@ -125,17 +143,17 @@ void Insight<N>::set( const Rubik<N> & R )
 template< size_t N >
 int Insight<N>::rotate( const Axis axis, const Layer layer, const Turn turn )
 {
-  const RotID rotID = CExtRotations<N>::GetRotID( axis, layer, turn, Simplex::Inverse( m_prior ) );
-
-  m_prior   = m_priorCache[ 24 * rotID + m_prior ] ;
-  m_stateID = m_map -> getState( m_stateID, rotID ) ;
-  return distance();
+  return rotate( _crot::GetRotID( axis, layer, turn ) );
 }
 
 template< size_t N >
 int Insight<N>::rotate( const RotID rotID )
 {
-  return rotate( _crot::GetAxis( rotID ), _crot::GetLayer( rotID ), _crot::GetTurn( rotID ) );
+  const RotID rotIDt = m_transRotation[ m_prior * _crot::AllRotIDs + rotID ];
+
+  m_prior   = m_priorCache[ 24 * rotIDt + m_prior ] ;
+  m_stateID = m_map -> getState( m_stateID, rotIDt ) ;
+  return distance();
 }
 
 template< size_t N >
@@ -144,6 +162,7 @@ Insight<N>::~Insight()
   delete   m_map;
   delete[] m_pos;
   delete[] m_priorCache;
+  delete[] m_transRotation;
 }
 
 #include <insight_print.h>
