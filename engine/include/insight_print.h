@@ -1,3 +1,6 @@
+#ifndef INSIGHT_PRINT_H_INCLUDED
+#define INSIGHT_PRINT_H_INCLUDED
+
 #include <insight.h>
 
 static constexpr Orient _side[ 3 ][ 4 ] = { 
@@ -60,16 +63,16 @@ static bool GetCoords( Layer & xCoord, Layer & yCoord, const Orient side, const 
 }
 
 template< size_t N >
-void Insight<N>::print() const
+void Insight<N>::print( const bool details ) const
  {
    PosID * pos = new PosID [ m_size ];
-   SetCacheID( pos, m_stateID, m_size, m_prior ); 
-   for ( size_t i = 0; i < m_size; ++i )
+   SetCacheID( pos, m_stateID, m_size, m_prior );
+
+   for( size_t m = 0; details && m < m_size; ++ m )
    {
-     clog( CPositions<N>::GetCoord( m_pos[i] ).toString() ,"-->", CPositions<N>::GetCoord( CPositions<N>::GetPosID( m_pos[i], pos[i] ) ).toString() );
+     clog( CPositions<N>::GetCoord( m_pos[m] ).toString(), "-->",  CPositions<N>::GetCoord( CPositions<N>::GetPosID( m_pos[m], pos[m] ) ).toString() );
    }
-   clog( "Order: ", distance(), "Prior: ", Simplex::GetCube( m_prior ).toString() );
-  
+
    for( size_t raw = 0; raw < 3 * N; ++ raw )
    {
      if ( raw % N == 0 )
@@ -109,4 +112,7 @@ void Insight<N>::print() const
      }
      NL();
    }
+   delete[] pos;
  }
+
+#endif // INSIGHT_PRINT_H_INCLUDED

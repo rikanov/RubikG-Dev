@@ -31,6 +31,11 @@ void init()
   CRotations<4>::Instance();
   CRotations<5>::Instance();
 
+  CExtRotations<2>::Instance();
+  CExtRotations<3>::Instance();
+  CExtRotations<4>::Instance();
+  CExtRotations<5>::Instance();
+
   CPositions<2>::Instance();
   CPositions<3>::Instance();
   CPositions<4>::Instance();

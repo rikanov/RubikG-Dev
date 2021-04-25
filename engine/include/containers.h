@@ -58,7 +58,7 @@ public:
 template< size_t N >
 class CacheIDmap
 {
-  using _crot = CRotations< 2 * N - 3 >;
+  using _crot = CExtRotations<N>;
 
   CacheID * m_map;
   DistID  * m_dist;
@@ -70,6 +70,7 @@ class CacheIDmap
 
 public:
   CacheIDmap();
+  CacheIDmap( const CacheIDmap & ) = delete;
   ~CacheIDmap();
 
   void init ( const size_t size );
@@ -140,6 +141,7 @@ void CacheIDmap<N>::clean()
   delete[] m_map;
   delete[] m_dist;
   delete[] m_orderedSteps;
+  delete[] m_complexity;
 
   m_map  = nullptr;
   m_dist = nullptr;

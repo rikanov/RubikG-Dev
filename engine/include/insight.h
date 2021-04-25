@@ -7,7 +7,7 @@
 template< size_t N >
 class Insight
 {
-  using _crot = CRotations< 2 * N - 3 >;
+  using _crot = CExtRotations<N>;
 
   CacheID       m_stateID;
   CubeID        m_prior;
@@ -20,34 +20,41 @@ class Insight
 public:
   Insight( SubSpace P, const CubeID cid = 0 );
   ~Insight();
+  Insight( const Insight<N> & ) = delete;
 
   void set( const Rubik<N> & );
 
-  int rotate( Axis axis, Layer layer, Turn turn );
+  int rotate( const Axis axis, const Layer layer, const Turn turn );
+  int rotate( const RotID rotID );
 
-  void step( const size_t id )
-  {
-    rotate( m_map -> router( m_stateID, id ) );
-  }
-  
   CacheID state() const
   {
     return m_stateID;
   }
+  
+  size_t prior() const
+  {
+    return m_prior;
+  }
 
-  int distance() const
+  OCube priorCube() const
+  {
+    return Simplex::GetCube( m_prior );
+  }
+
+  size_t distance() const
   {
     return m_map -> distance( m_stateID );
   }
 
-  void print() const;
+  void print( const bool details = false ) const;
 };
 
 template< size_t N >
 Insight<N>::Insight( SubSpace P, const CubeID cid )
   : m_size  ( P.size() )
 {
-  CacheIDmapper<N> mapBuilder;
+  CacheIDmapper<N> * mapBuilder = new CacheIDmapper<N>;
   CacheIDmap<N>    * map = new CacheIDmap<N>();
 
   PosID * pos = new PosID [ P.size() ];
@@ -56,10 +63,11 @@ Insight<N>::Insight( SubSpace P, const CubeID cid )
   {
     pos[ i++ ] = CPositions<N>::GetPosID( p, cid );
   }
-  mapBuilder.initialPosition( pos, P.size() );
-  mapBuilder.createMap( *map );
+  mapBuilder -> initialPosition( pos, P.size() );
+  mapBuilder -> createMap( *map );
   m_map = map;
   m_pos = pos;
+  delete mapBuilder;
 }
 
 template< size_t N >
@@ -76,23 +84,24 @@ void Insight<N>::set( const Rubik<N> & R )
 }
 
 template< size_t N >
-int Insight<N>::rotate( Axis axis, Layer layer, Turn turn )
+int Insight<N>::rotate( const Axis axis, const Layer layer, const Turn turn )
 {
-  clog( "state:", m_stateID );
-  clog_( _crot::ToString( CExtRotations<N>::GetRotID( axis, layer, turn ) ), "-->" );
   const RotID rotID = CExtRotations<N>::GetRotID( axis, layer, turn, Simplex::Inverse( m_prior ) );
-  clog( _crot::ToString( rotID ) );
+
   if ( ( layer  < N && layer         == CPositions<N>::GetLayer( m_pos[0], m_prior, axis ) ) ||
        ( layer >= N && layer - N + 1 >= CPositions<N>::GetLayer( m_pos[0], m_prior, axis ) ) ) 
   {
-    clog_( Simplex::GetCube( m_prior).toString(), "-->" );
-    m_prior = Simplex::Tilt( m_prior, axis, turn ); clog( Simplex::GetCube( m_prior).toString() );
+    m_prior = Simplex::Tilt( m_prior, axis, turn );
   }
     
   m_stateID = m_map -> getState( m_stateID, rotID ) ;
-  print();
-
   return distance();
+}
+
+template< size_t N >
+int Insight<N>::rotate( const RotID rotID )
+{
+  return rotate( _crot::GetAxis( rotID ), _crot::GetLayer( rotID ), _crot::GetTurn( rotID ) );
 }
 
 template< size_t N >

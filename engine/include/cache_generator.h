@@ -40,7 +40,7 @@ template< size_t N >
 class CacheIDmapper
 {
 
-  using _crot = CRotations< 2 * N - 3 >;
+  using _crot = CExtRotations< N >;
 
 protected:
   size_t m_size; // number of cubies in the subspace
@@ -61,6 +61,7 @@ private:
 
 public:
   CacheIDmapper();
+  CacheIDmapper( const CacheIDmapper & ) = delete;
   ~CacheIDmapper();
 
   void initialPosition( const PosID * pos, const size_t size );
@@ -95,7 +96,7 @@ void CacheIDmapper<N>::initialPosition( const PosID * pos, const size_t size )
   m_size    = size;
   m_parent  = new CubeID [ size ];
   m_child   = new CubeID [ size ];
-  m_qeueu    = new Qeueu ( size - 1 );
+  m_qeueu   = new Qeueu ( size - 1 );
   
   m_position = pos;
   acceptID( 0 ) ;
@@ -130,6 +131,10 @@ void CacheIDmapper<N>::addLayerRotations( CacheIDmap<N> & result )
 template< size_t N >
 void CacheIDmapper<N>::addSliceRotations( CacheIDmap<N> & result )
 {
+  if ( N < 4 )
+  {
+    return;
+  }
   for( Axis axis: { _X, _Y, _Z } )
   {
     for( Turn turn : { 1, 2, 3 } )
