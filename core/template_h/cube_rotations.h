@@ -239,10 +239,9 @@ std::string CRotations<N>::ToString( RotID rotID )
 template< size_t N >
 class CExtRotations
 {
-  static constexpr size_t NT = N > 3 ? 2 * N - 3 : N;
-
 public:
 
+  static constexpr size_t NT = N > 3 ? 2 * N - 3 : N;
   static constexpr size_t AllRotIDs = CRotations<NT>::AllRotIDs;
 
   static void Instance()

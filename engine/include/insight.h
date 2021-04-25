@@ -9,13 +9,16 @@ class Insight
 {
   using _crot = CExtRotations<N>;
 
-  CacheID       m_stateID;
-  CubeID        m_prior;
-
-  const size_t  m_size;
-  const PosID * m_pos;
+  CacheID        m_stateID;
+  CubeID         m_prior;
+  const CubeID * m_priorCache;
+  const size_t   m_size;
+  const PosID  * m_pos;
 
   const CacheIDmap<N> * m_map;
+
+  void initMap( SubSpace, const CubeID );
+  void initPrior();
 
 public:
   Insight( SubSpace P, const CubeID cid = 0 );
@@ -54,6 +57,11 @@ template< size_t N >
 Insight<N>::Insight( SubSpace P, const CubeID cid )
   : m_size  ( P.size() )
 {
+  initMap( P, cid );
+  initPrior();
+}
+template<size_t N> void Insight<N>::initMap( SubSpace P, const CubeID cid )
+{
   CacheIDmapper<N> * mapBuilder = new CacheIDmapper<N>;
   CacheIDmap<N>    * map = new CacheIDmap<N>();
 
@@ -68,6 +76,30 @@ Insight<N>::Insight( SubSpace P, const CubeID cid )
   m_map = map;
   m_pos = pos;
   delete mapBuilder;
+}
+
+template< size_t N >
+void Insight<N>::initPrior()
+{
+  CubeID * priorCache = new CubeID [ _crot::AllRotIDs * 24 ];
+  all_rot( axis, layer, turn, _crot::NT )
+  {
+    all_cubeid( prior )
+    {
+      const RotID rotID = CExtRotations<N>::GetRotID( axis, layer, turn, Simplex::Inverse( prior ) );
+
+      if ( ( layer  < N && layer         == CPositions<N>::GetLayer( m_pos[0], prior, axis ) ) ||
+           ( layer >= N && layer - N + 1 >= CPositions<N>::GetLayer( m_pos[0], prior, axis ) ) )
+      {
+        priorCache[ 24 * rotID + prior ] = Simplex::Tilt( prior, axis, turn );
+      }
+      else
+      {
+        priorCache[ 24 * rotID + prior ] = prior;
+      }
+    }
+  }
+  m_priorCache = priorCache;
 }
 
 template< size_t N >
@@ -88,12 +120,7 @@ int Insight<N>::rotate( const Axis axis, const Layer layer, const Turn turn )
 {
   const RotID rotID = CExtRotations<N>::GetRotID( axis, layer, turn, Simplex::Inverse( m_prior ) );
 
-  if ( ( layer  < N && layer         == CPositions<N>::GetLayer( m_pos[0], m_prior, axis ) ) ||
-       ( layer >= N && layer - N + 1 >= CPositions<N>::GetLayer( m_pos[0], m_prior, axis ) ) ) 
-  {
-    m_prior = Simplex::Tilt( m_prior, axis, turn );
-  }
-    
+  m_prior   = m_priorCache[ 24 * rotID + m_prior ] ;
   m_stateID = m_map -> getState( m_stateID, rotID ) ;
   return distance();
 }
@@ -109,6 +136,7 @@ Insight<N>::~Insight()
 {
   delete   m_map;
   delete[] m_pos;
+  delete[] m_priorCache;
 }
 
 #include <insight_print.h>
