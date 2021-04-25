@@ -11,8 +11,10 @@ class Insight
 
   CacheID        m_stateID;
   CubeID         m_prior;
-  const CubeID * m_priorCache;
+
   const size_t   m_size;
+  const CubeID * m_priorCache;
+
   const PosID  * m_pos;
 
   const CacheIDmap<N> * m_map;
@@ -48,6 +50,11 @@ public:
   size_t distance() const
   {
     return m_map -> distance( m_stateID );
+  }
+
+  size_t weight() const
+  {
+    return m_map -> weight( m_stateID );
   }
 
   void print( const bool details = false ) const;

@@ -65,6 +65,7 @@ class CacheIDmap
 
   RotID  * m_orderedSteps;
   DistID * m_complexity;
+  size_t * m_weight;
 
   void clean();
 
@@ -101,6 +102,11 @@ public:
     return m_dist[ cacheID ];
   }
 
+  size_t weight( CacheID cacheID ) const
+  {
+    return m_weight[ cacheID ];
+  }
+
 };
 
 template< size_t N > CacheIDmap<N>::CacheIDmap()
@@ -108,6 +114,7 @@ template< size_t N > CacheIDmap<N>::CacheIDmap()
   ,  m_dist ( nullptr )
   ,  m_orderedSteps ( nullptr )
   ,  m_complexity ( nullptr )
+  ,  m_weight ( nullptr )
 {
   _crot::Instance();
 }
@@ -121,6 +128,7 @@ void CacheIDmap<N>::init( const size_t size )
 
   m_orderedSteps = new RotID  [ _pow24[ size - 1 ] * _crot::AllRotIDs ];
   m_complexity   = new DistID [ _pow24[ size - 1 ] ] {};
+  m_weight       = new size_t [ _pow24[ size - 1 ] ] {};
 }
 
 template< size_t N >
@@ -130,9 +138,12 @@ void CacheIDmap<N>::connect( const CacheID start, const Axis axis, const Layer l
   {
     m_dist[ result ] = m_dist[ start ] + 1;
   }
-
+  if ( m_dist[ start ] + 1 == m_dist[ result ] )
+  {
+    m_weight[ result ] += m_weight[ start ] > 0 ? m_weight[ start ] : 1;
+  }
   m_map[ result * _crot::AllRotIDs + _crot::GetRotID( axis, layer, 4-turn ) ] = start;
-  m_orderedSteps[ result * _crot::AllRotIDs + m_complexity[ result ] ++ ] = _crot::GetRotID( axis, layer, 4-turn );  
+  m_orderedSteps[ result * _crot::AllRotIDs + m_complexity[ result ] ++ ] = _crot::GetRotID( axis, layer, 4-turn );
 }
 
 template< size_t N >
@@ -142,6 +153,7 @@ void CacheIDmap<N>::clean()
   delete[] m_dist;
   delete[] m_orderedSteps;
   delete[] m_complexity;
+  delete[] m_weight;
 
   m_map  = nullptr;
   m_dist = nullptr;

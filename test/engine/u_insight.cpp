@@ -13,7 +13,7 @@ static void PlayWith( Insight<N> & insight, const int * test, bool & success )
     UnitTests::tcase( "Rotation by", CExtRotations<N>::ToString( rotID ) );
     insight.rotate( rotID );
     insight.print();
-    clog_( "State:", insight.state(), "\t\tPrior position:", insight.priorCube().toString(), "  Depth:", insight.distance() );
+    clog_( "State:", insight.state(), "\t\tPrior position:", insight.priorCube().toString(), "  Depth:", insight.distance(), " Weight: ", insight.weight() );
 
     UnitTests::stamp( insight.state() == *( next ++ ) && insight.prior() == *( next ++ ) &&  insight.distance() == *( next ++ ), success );
   }
