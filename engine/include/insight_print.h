@@ -1,3 +1,6 @@
+#ifndef INSIGHT_PRINT_H_INCLUDED
+#define INSIGHT_PRINT_H_INCLUDED
+
 #include <insight.h>
 
 static constexpr Orient _side[ 3 ][ 4 ] = { 
@@ -111,3 +114,5 @@ void Insight<N>::print( const bool details ) const
    }
    delete[] pos;
  }
+
+#endif // INSIGHT_PRINT_H_INCLUDED
