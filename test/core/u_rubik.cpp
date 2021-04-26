@@ -50,15 +50,44 @@ bool UnitTests::unit_Rubik() const
   Rubik<5> test6(test3,test4);
   test6.print();
   success &= test6.integrity();
-  success &= test6 == Rubik<5>(); // solved
+  success &= test6.isSolved(); // solved
   
   tcase( "Test case 7", " combine of T3 + T5", "solved cube" );
   Rubik<5> test7(test3,test5);
   test7.print();
   success &= test7.integrity();
-  success &= test7 == Rubik<5>(); // solved
+  success &= test7.isSolved(); // solved
   
-  tcase( "Test case 8", "integrity test of 4 x 4 cubes");
+  tcase( "Test case 9", "slice rotations");
+  Rubik<4> sliceTest;
+  sliceTest.rotate( CExtRotations<4>::GetRotID( _X, 4, 2 ), extended );
+  clog( CExtRotations<4>::ToString( _X, 4, 2 ) );
+  sliceTest.print();
+  sliceTest.rotate( CExtRotations<4>::GetRotID( _Y, 4, 2 ), extended );
+  clog( CExtRotations<4>::ToString( _Y, 4, 2 ) );
+  sliceTest.print();
+  sliceTest.rotate( CExtRotations<4>::GetRotID( _Z, 4, 1 ), extended );
+  clog( CExtRotations<4>::ToString( _Z, 4, 1 ) );
+  sliceTest.print();
+  sliceTest.rotate( CExtRotations<4>::GetRotID( _Z, 0, 3 ), extended );
+  clog( CExtRotations<4>::ToString( _Z, 0, 3 ) );
+  sliceTest.print();
+  sliceTest.rotate( CExtRotations<4>::GetRotID( _Z, 1, 3 ), extended );
+  clog( CExtRotations<4>::ToString( _Z, 1, 3 ) );
+  sliceTest.print();
+  sliceTest.rotate( CExtRotations<4>::GetRotID( _Y, 4, 2 ), extended );
+  clog( CExtRotations<4>::ToString( _Y, 4, 2 ) );
+  sliceTest.print();
+  sliceTest.rotate( CExtRotations<4>::GetRotID( _X, 0, 2 ), extended );
+  clog( CExtRotations<4>::ToString( _X, 0, 2 ) );
+  sliceTest.print();
+  sliceTest.rotate( CExtRotations<4>::GetRotID( _X, 1, 2 ), extended );
+  clog( CExtRotations<4>::ToString( _X, 1, 2 ) );
+  sliceTest.print();
+
+  success &= sliceTest.isSolved();
+
+  tcase( "Test case 10", "integrity test of 4 x 4 cubes");
   Rubik<4> test8A, test8B, test8C;
   const int num = 10;
   int counter = 0;

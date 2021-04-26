@@ -41,16 +41,16 @@ public:
   // Operations
   Rubik<N> inverse    ( void ) const;
   void     rotate     ( const Axis, const Layer, const Turn turn = 1 );
-  void     rotate     ( const RotID rotID );
+  void     rotate     ( const RotID rotID, const RotStyle RS = normal );
   void     shuffle    ( int depth = 0 );
   
   static Rubik<N> Transform  ( const Rubik<N>& A, const Rubik<N>& C ) { return Rubik<N>( A.inverse(), C ); } // transform( A, C ) returns with B where A + B = C
   
   // Operators
-  const  bool      operator== ( const Rubik<N>& X ) ;
-  const  Rubik<N>& operator=  ( const Rubik<N>& B ) ;
-  const  Rubik<N>  operator+  ( const Rubik<N>& B ) { return Rubik<N> ( *this, B ); }
-  const  Rubik<N>  operator-  ( const Rubik<N>& B ) { return Transform( B, *this ); }
+  bool      operator== ( const Rubik<N>& X ) const;
+  Rubik<N>  operator+  ( const Rubik<N>& B ) { return Rubik<N> ( *this, B ); }
+  Rubik<N>  operator-  ( const Rubik<N>& B ) { return Transform( B, *this ); }
+  const Rubik<N>& operator=  ( const Rubik<N>& B ) ;
   // Destructor
   ~Rubik( );
   
@@ -64,7 +64,8 @@ public:
   
   Coord   whatIs    ( Coord C )  const { return CPositions<N>::getCoord( whatIs ( CPositions<N>::GetPosID( C ) ) ); }
   Coord   whereIs   ( Coord C )  const { return CPositions<N>::getCoord( whereIs( CPositions<N>::GetPosID( C ) ) ); }
-  bool    integrity ( void    )  const ;
+  bool    integrity ( void  )  const ;
+  bool    isSolved  ( void  )  const;
   Orient  getOrient ( const Orient front, const Orient up, int x, int y) const; // left-bottom corner: x = 0, y = 0
   
   // Printer
@@ -129,11 +130,23 @@ const Rubik<N>& Rubik<N>::operator = ( const Rubik<N>& C )
 
 // equlity
 template< size_t N >
-const bool Rubik<N>::operator == ( const Rubik<N>& C )
+bool Rubik<N>::operator == ( const Rubik<N>& C ) const
 {
   for ( int i = 0; i < Fsize; ++ i )
   {
     if ( frameworkSpace[i] != C.frameworkSpace[i] )
+      return false;
+  }
+  return true;
+}
+
+// solved
+template< size_t N >
+bool Rubik<N>::isSolved() const
+{
+  for ( int i = 0; i < Fsize; ++ i )
+  {
+    if ( frameworkSpace[i] != 0 )
       return false;
   }
   return true;
@@ -173,12 +186,29 @@ void Rubik<N>::rotate( const Axis axis, const Layer layer, const Turn turn )
 }
 
 // rotation by using RotID
-template< size_t N > void Rubik<N>::rotate( const RotID rotID )
+template< size_t N > void Rubik<N>::rotate( const RotID rotID, const RotStyle RS )
 {
-  const Axis  axis  = CRotations<N>::GetAxis  ( rotID );
-  const Layer layer = CRotations<N>::GetLayer ( rotID );
-  const Turn  turn  = CRotations<N>::GetTurn  ( rotID );
-  rotate( axis, layer, turn ); 
+  if ( RS == normal )
+  {
+    const Axis  axis  = CRotations<N>::GetAxis  ( rotID );
+    const Layer layer = CRotations<N>::GetLayer ( rotID );
+    const Turn  turn  = CRotations<N>::GetTurn  ( rotID );
+    rotate( axis, layer, turn ); 
+  }
+  else // RS == extended
+  {
+    const Axis  axis  = CExtRotations<N>::GetAxis  ( rotID );
+    const Layer layer = CExtRotations<N>::GetLayer ( rotID );
+    const Turn  turn  = CExtRotations<N>::GetTurn  ( rotID );
+    if ( layer < N )
+    {
+      rotate( axis, layer, turn );
+    }
+    else for ( Layer next = 0; next <= layer - ( N - 1 ); ++ next )
+    {
+      rotate( axis, next, turn );
+    }
+  }
 }
 
 template< size_t N > 
