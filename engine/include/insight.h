@@ -49,6 +49,11 @@ public:
     return Simplex::GetCube( m_prior );
   }
 
+  const RotID * router() const
+  {
+    return m_map -> router();
+  }
+
   size_t distance() const
   {
     return m_map -> distance( m_stateID );
@@ -67,8 +72,8 @@ Insight<N>::Insight( SubSpace P, const CubeID cid )
   : m_size  ( P.size() )
 {
   initMap( P, cid );
-  initPrior();
   initRotIDs();
+  initPrior();
 }
 
 template<size_t N> void Insight<N>::initMap( SubSpace P, const CubeID cid )
@@ -97,7 +102,7 @@ void Insight<N>::initPrior()
   {
     all_cubeid( prior )
     {
-      const RotID rotID = CExtRotations<N>::GetRotID( axis, layer, turn, Simplex::Inverse( prior ) );
+      const RotID rotID = m_transRotation[ prior * _crot::AllRotIDs + _crot::GetRotID( axis, layer, turn ) ];
 
       if ( ( layer  < N && layer         == CPositions<N>::GetLayer( m_pos[0], prior, axis ) ) ||
            ( layer >= N && layer - N + 1 >= CPositions<N>::GetLayer( m_pos[0], prior, axis ) ) )
@@ -119,9 +124,9 @@ void Insight<N>::initRotIDs()
   RotID * transRotation = new RotID [ 24 * _crot::AllRotIDs ];
   all_rot( axis, layer, turn, _crot::NT )
   {
-    all_cubeid( cid )
+    all_cubeid( prior )
     {
-      transRotation[ cid * _crot::AllRotIDs + _crot::GetRotID( axis, layer, turn ) ] = _crot::GetRotID( axis, layer, turn, Simplex::Inverse( cid ) );
+      transRotation[ prior * _crot::AllRotIDs + _crot::GetRotID( axis, layer, turn ) ] = _crot::GetRotID( axis, layer, turn, Simplex::Inverse( prior ) );
     }
   }
   m_transRotation = transRotation;

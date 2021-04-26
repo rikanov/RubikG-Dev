@@ -92,9 +92,9 @@ public:
     return m_complexity[ id ];
   }
 
-  RotID router( const CacheID cacheID, const int id ) const
+  const RotID * router( const CacheID cacheID ) const
   {
-    return m_orderedSteps[ cacheID * _crot::AllRotIDs + id ] ;
+    return m_orderedSteps + cacheID * _crot::AllRotIDs;
   }
 
   int distance( CacheID cacheID ) const
