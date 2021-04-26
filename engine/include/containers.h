@@ -102,6 +102,12 @@ public:
     return m_dist[ cacheID ];
   }
 
+  int gradient( const CacheID cacheID, const RotID rotID ) const
+  {
+    return m_dist[ cacheID ] - m_dist[ getState(cacheID, rotID ) ];
+  }
+
+
   size_t weight( CacheID cacheID ) const
   {
     return m_weight[ cacheID ];

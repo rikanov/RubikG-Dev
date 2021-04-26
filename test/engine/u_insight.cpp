@@ -195,7 +195,6 @@ bool UnitTests::unit_Insight() const
       40,      0,  0,  0,   //  { _Y, 6, 1 }
 };
   timerON();
-
  // Rubik 2x2
 //-----------
   Rubik<2> test_2;
