@@ -1,5 +1,5 @@
 /*
- * Cube positions: this singleton class makes a graph to determine cublet positions in an N x N Rubics cube according to the rotation state of the cubes so each node has 24 branches
+ * Cube positions: this singleton class creates a graph to determine cublet positions in an N x N Rubiks cube according to the rotation state of the cubes so each node has 24 branches
  *
  * Copyright (C) 2020  Robert Ikanov <robert.ikanov@gmail.com>
  *

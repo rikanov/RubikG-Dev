@@ -64,10 +64,6 @@ public:
     return m_map -> weight( m_stateID );
   }
 
-  int gradient( const RotID rotID ) const
-  {
-    return distance() - m_map -> gradient( m_stateID, rotID );
-  }
   void print( const bool details = false ) const;
 };
 

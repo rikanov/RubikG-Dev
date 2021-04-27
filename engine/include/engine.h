@@ -15,14 +15,7 @@ class Engine
   bool rotate( const RotID rotID )
   {
     for ( Insight<N> * p = m_insights; p < m_lastInsight; ++ p )
-    {
       p->rotate( rotID );
-      if ( p->distance() > m_highest->distance() )
-      {
-        return false;
-      }
-    }
-    return true;
   }
 
   size_t weight() const
@@ -35,7 +28,7 @@ class Engine
     return result;
   }
 
-  void run( Insight<N> * );
+  size_t seek();
 
 public:
   Engine( Rubik<N> & );
@@ -56,36 +49,51 @@ template<size_t N> Engine<N>::Engine( Rubik <N> & rubik )
 template< size_t N >
 void Engine<N>::operator << ( Insight<N> & next )
 {
+  next.set( m_rubik );
   *( m_lastInsight ++ ) = &next;
 }
 
 template< size_t N >
 void Engine<N>::operator << ( Insight<N> * next )
 {
+  next -> set( m_rubik );
   *( m_lastInsight ++ ) = next;
 }
 
 template< size_t N >
 void Engine<N>::exec()
 {
-  Insight<N> * highest = *m_insights;
+  m_highest = *m_insights;
   for ( Insight<N> * p = m_insights + 1; p < m_lastInsight; ++ p )
   {
-    if ( p -> distance() > highest -> distance() )
-      highest = p;
+    if ( p -> distance() > m_highest -> distance() )
+      m_highest = p;
   }
+  seek();
 }
 
 template< size_t N >
-void Engine<N>::run( Insight<N> * highest )
+size_t Engine<N>::seek()
 {
-  for( const RotID * rot = highest -> router(); highest->gradient( *rot ) > 0 ; ++ rot  )
+  size_t result = m_highest -> weight();
+  for( const RotID * rot = m_highest -> router(); w > 0 && m_highest -> gradient( *rot ) > 0 ; ++ rot  )
   {
-    if ( rotate( rot ) )
+    rotate( rot );
+    const size_t wBranch = ( m_highest -> distance() > 0 ) ? seek() : weight() ;
+    
+    if ( result > wBranch )
     {
-      ;
+      result = wBranch;
     }
+    
+    if ( result == 0 )
+    {
+      break;
+    }
+
+    rotate(  );
   }
+  return result;
 }
 
 #endif  //  ! ENGINE__H_INCLUDED
