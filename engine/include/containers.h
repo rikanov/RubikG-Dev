@@ -122,7 +122,6 @@ template< cube_size N > CacheIDmap<N>::CacheIDmap()
   ,  m_complexity ( nullptr )
   ,  m_weight ( nullptr )
 {
-  _crot::Instance();
 }
 
 template< cube_size N >

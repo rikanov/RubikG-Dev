@@ -16,26 +16,12 @@ void exit()
   CPositions<4>::OnExit();
   CPositions<5>::OnExit();
 
-  CRotations<2>::OnExit();
-  CRotations<3>::OnExit();
-  CRotations<4>::OnExit();
-  CRotations<5>::OnExit();
   Simplex::OnExit();
 }
 
 void init()
 {
   Simplex::Instance();
-  CRotations<2>::Instance();
-  CRotations<3>::Instance();
-  CRotations<4>::Instance();
-  CRotations<5>::Instance();
-
-  CExtRotations<2>::Instance();
-  CExtRotations<3>::Instance();
-  CExtRotations<4>::Instance();
-  CExtRotations<5>::Instance();
-
   CPositions<2>::Instance();
   CPositions<3>::Instance();
   CPositions<4>::Instance();
