@@ -9,7 +9,7 @@ static constexpr Orient _side[ 3 ][ 4 ] = {
       { _NF,  _D, _NF, _NF }
  };
 
-template< size_t N >
+template< cube_size N >
 static bool GetCoords( Layer & xCoord, Layer & yCoord, const Orient side, const PosID place )
 {
   switch( side )
@@ -62,7 +62,7 @@ static bool GetCoords( Layer & xCoord, Layer & yCoord, const Orient side, const 
   return true;
 }
 
-template< size_t N >
+template< cube_size N >
 void Insight<N>::print( const bool details ) const
  {
    PosID * pos = new PosID [ m_size ];

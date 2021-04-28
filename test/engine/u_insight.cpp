@@ -1,7 +1,7 @@
 #include <test.h>
 #include <insight.h>
 
-template< size_t N >
+template< cube_size N >
 static void PlayWith( Insight<N> & insight, const int * test, bool & success )
 {
   insight.print();

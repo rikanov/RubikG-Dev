@@ -3,7 +3,7 @@
 
 #include <insight.h>
 
-template< size_t N >
+template< cube_size N >
 class Engine
 {
   static constexpr size_t s_Size = CPositions<N>::GetSize();
@@ -39,28 +39,29 @@ public:
   void exec();
 };
 
-template<size_t N> Engine<N>::Engine( Rubik <N> & rubik )
+template< cube_size N > 
+Engine<N>::Engine( Rubik <N> & rubik )
   : m_insights( new Insight<N> * [ s_Size ]{} )
   , m_lastInsight( m_insights )
   , m_rubik( rubik )
 {
 }
 
-template< size_t N >
+template< cube_size N >
 void Engine<N>::operator << ( Insight<N> & next )
 {
   next.set( m_rubik );
   *( m_lastInsight ++ ) = &next;
 }
 
-template< size_t N >
+template< cube_size N >
 void Engine<N>::operator << ( Insight<N> * next )
 {
   next -> set( m_rubik );
   *( m_lastInsight ++ ) = next;
 }
 
-template< size_t N >
+template< cube_size N >
 void Engine<N>::exec()
 {
   m_highest = *m_insights;
@@ -72,7 +73,7 @@ void Engine<N>::exec()
   seek();
 }
 
-template< size_t N >
+template< cube_size N >
 size_t Engine<N>::seek()
 {
   size_t result = m_highest -> weight();

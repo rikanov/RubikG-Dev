@@ -4,7 +4,7 @@
 #include <cache_generator.h>
 #include <rubik.h>
 
-template< size_t N >
+template< cube_size N >
 class Insight
 {
   using _crot = CExtRotations<N>;
@@ -67,7 +67,7 @@ public:
   void print( const bool details = false ) const;
 };
 
-template< size_t N >
+template< cube_size N >
 Insight<N>::Insight( SubSpace P, const CubeID cid )
   : m_size  ( P.size() )
 {
@@ -76,7 +76,8 @@ Insight<N>::Insight( SubSpace P, const CubeID cid )
   initPrior();
 }
 
-template<size_t N> void Insight<N>::initMap( SubSpace P, const CubeID cid )
+template< cube_size N > 
+void Insight<N>::initMap( SubSpace P, const CubeID cid )
 {
   CacheIDmapper<N> * mapBuilder = new CacheIDmapper<N>;
   CacheIDmap<N>    * map = new CacheIDmap<N>();
@@ -94,7 +95,7 @@ template<size_t N> void Insight<N>::initMap( SubSpace P, const CubeID cid )
   delete mapBuilder;
 }
 
-template< size_t N >
+template< cube_size N >
 void Insight<N>::initPrior()
 {
   CubeID * priorCache = new CubeID [ _crot::AllRotIDs * 24 ];
@@ -118,7 +119,7 @@ void Insight<N>::initPrior()
   m_priorCache = priorCache;
 }
 
-template<size_t N>
+template< cube_size N >
 void Insight<N>::initRotIDs()
 {
   RotID * transRotation = new RotID [ 24 * _crot::AllRotIDs ];
@@ -132,7 +133,7 @@ void Insight<N>::initRotIDs()
   m_transRotation = transRotation;
 }
 
-template< size_t N >
+template< cube_size N >
 void Insight<N>::set( const Rubik<N> & R )
 {
   m_prior = R.getCubeID( m_pos[0] );
@@ -145,13 +146,13 @@ void Insight<N>::set( const Rubik<N> & R )
   delete[] subset;
 }
 
-template< size_t N >
+template< cube_size N >
 int Insight<N>::rotate( const Axis axis, const Layer layer, const Turn turn )
 {
   return rotate( _crot::GetRotID( axis, layer, turn ) );
 }
 
-template< size_t N >
+template< cube_size N >
 int Insight<N>::rotate( const RotID rotID )
 {
   const RotID rotIDt = m_transRotation[ m_prior * _crot::AllRotIDs + rotID ];
@@ -161,7 +162,7 @@ int Insight<N>::rotate( const RotID rotID )
   return distance();
 }
 
-template< size_t N >
+template< cube_size N >
 Insight<N>::~Insight()
 {
   delete   m_map;

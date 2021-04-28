@@ -55,7 +55,7 @@ public:
   }
 };
 
-template< size_t N >
+template< cube_size N >
 class CacheIDmap
 {
   using _crot = CExtRotations<N>;
@@ -115,7 +115,7 @@ public:
 
 };
 
-template< size_t N > CacheIDmap<N>::CacheIDmap()
+template< cube_size N > CacheIDmap<N>::CacheIDmap()
   :  m_map  ( nullptr )
   ,  m_dist ( nullptr )
   ,  m_orderedSteps ( nullptr )
@@ -125,7 +125,7 @@ template< size_t N > CacheIDmap<N>::CacheIDmap()
   _crot::Instance();
 }
 
-template< size_t N >
+template< cube_size N >
 void CacheIDmap<N>::init( const size_t size )
 {
   clean();
@@ -137,7 +137,7 @@ void CacheIDmap<N>::init( const size_t size )
   m_weight       = new size_t [ _pow24[ size - 1 ] ] {};
 }
 
-template< size_t N >
+template< cube_size N >
 void CacheIDmap<N>::connect( const CacheID start, const Axis axis, const Layer layer, const Turn turn, const CacheID result, const bool first )
 {
   if ( first )
@@ -152,7 +152,7 @@ void CacheIDmap<N>::connect( const CacheID start, const Axis axis, const Layer l
   m_orderedSteps[ result * _crot::AllRotIDs + m_complexity[ result ] ++ ] = _crot::GetRotID( axis, layer, 4-turn );
 }
 
-template< size_t N >
+template< cube_size N >
 void CacheIDmap<N>::clean()
 {
   delete[] m_map;
@@ -166,7 +166,7 @@ void CacheIDmap<N>::clean()
   m_orderedSteps = nullptr;
 }
 
-template< size_t N >
+template< cube_size N >
 CacheIDmap<N>::~CacheIDmap()
 {
   clean();

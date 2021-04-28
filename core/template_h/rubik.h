@@ -24,7 +24,7 @@
 #include <cube_positions.h>
 
 /// ----------------------------------- Template declarations starts here ------------------------------------- ///
-template< size_t N >
+template< cube_size N >
 class Rubik
 {
   static constexpr int Fsize = CPositions<N>::GetSize();
@@ -81,7 +81,7 @@ public:
 //  ------------
 
 // default
-template< size_t N >
+template< cube_size N >
 Rubik<N>::Rubik( )
  : frameworkSpace( new CubeID [ Fsize ] () )
 {
@@ -89,7 +89,7 @@ Rubik<N>::Rubik( )
 }
 
 // Conmposition of two cubes --> construct a new one
-template< size_t N >
+template< cube_size N >
 Rubik<N>::Rubik( const Rubik<N> & cf1, const Rubik<N> & cf2 )
  : frameworkSpace( new CubeID [ Fsize ] )
 {
@@ -101,7 +101,7 @@ Rubik<N>::Rubik( const Rubik<N> & cf1, const Rubik<N> & cf2 )
 }
 
 // copy
-template< size_t N > 
+template< cube_size N > 
 Rubik<N>::Rubik( const Rubik<N>& C )
  : frameworkSpace( new CubeID [ Fsize ] )
 {
@@ -109,7 +109,7 @@ Rubik<N>::Rubik( const Rubik<N>& C )
     frameworkSpace[i] = C.frameworkSpace[i];
 }
 
-template< size_t N >
+template< cube_size N >
 Rubik<N>::Rubik( Rubik<N> && f )
 { 
   frameworkSpace = f.frameworkSpace;
@@ -120,7 +120,7 @@ Rubik<N>::Rubik( Rubik<N> && f )
 //  ----------
 
 // assignement
-template< size_t N >
+template< cube_size N >
 const Rubik<N>& Rubik<N>::operator = ( const Rubik<N>& C )
 {
   for ( int i = 0; i < Fsize; ++ i )
@@ -129,7 +129,7 @@ const Rubik<N>& Rubik<N>::operator = ( const Rubik<N>& C )
 }
 
 // equlity
-template< size_t N >
+template< cube_size N >
 bool Rubik<N>::operator == ( const Rubik<N>& C ) const
 {
   for ( int i = 0; i < Fsize; ++ i )
@@ -141,7 +141,7 @@ bool Rubik<N>::operator == ( const Rubik<N>& C ) const
 }
 
 // solved
-template< size_t N >
+template< cube_size N >
 bool Rubik<N>::isSolved() const
 {
   for ( int i = 0; i < Fsize; ++ i )
@@ -153,7 +153,7 @@ bool Rubik<N>::isSolved() const
 }
 
 // inverse
-template< size_t N > 
+template< cube_size N > 
 Rubik<N> Rubik<N>::inverse() const
 {
   Rubik<N> inv;
@@ -167,7 +167,7 @@ Rubik<N> Rubik<N>::inverse() const
 }
 
 // clockwise rotation one layer (side) with 90 degree turns
-template< size_t N > 
+template< cube_size N > 
 void Rubik<N>::rotate( const Axis axis, const Layer layer, const Turn turn )
 {
   const int cubes = CPositions<N>::LayerSize( layer );
@@ -186,7 +186,7 @@ void Rubik<N>::rotate( const Axis axis, const Layer layer, const Turn turn )
 }
 
 // rotation by using RotID
-template< size_t N > void Rubik<N>::rotate( const RotID rotID, const RotStyle RS )
+template< cube_size N > void Rubik<N>::rotate( const RotID rotID, const RotStyle RS )
 {
   if ( RS == normal )
   {
@@ -211,7 +211,7 @@ template< size_t N > void Rubik<N>::rotate( const RotID rotID, const RotStyle RS
   }
 }
 
-template< size_t N > 
+template< cube_size N > 
 void Rubik<N>::shuffle( int depth )
 {
   static std::random_device randomDevice;
@@ -226,13 +226,13 @@ void Rubik<N>::shuffle( int depth )
 
  // Query functions
 //  ---------------
-template< size_t N >
+template< cube_size N >
 PosID Rubik<N>::whatIs( PosID id ) const
 { 
   return CPositions<N>::GetPosID( id, Simplex::Inverse( frameworkSpace [ id ] ) ); 
 }
 
-template< size_t N >
+template< cube_size N >
 PosID Rubik<N>::whereIs( PosID id ) const
 { 
   CubeID rot = 0; 
@@ -243,7 +243,7 @@ PosID Rubik<N>::whereIs( PosID id ) const
   return CPositions<N>::GetPosID( id, rot );
 }
 
-template< size_t N >
+template< cube_size N >
 Orient Rubik<N>::getOrient ( const Orient right, const Orient up, int x, int y ) const
 {
   if ( Coaxial ( right, up ) || x < 0 || x >= N || y < 0 || y >= N ) // invalid setting
@@ -259,7 +259,7 @@ Orient Rubik<N>::getOrient ( const Orient right, const Orient up, int x, int y )
   return getCube ( index ).whatIs( orient );
 }
 
-template< size_t N > 
+template< cube_size N > 
 bool Rubik<N>::integrity() const
 {
   static const Orient orientations [6][2] = { { _F, _U }, { _R, _U }, { _B, _U }, { _L, _U }, { _R, _B }, { _R, _F } };
@@ -286,7 +286,7 @@ bool Rubik<N>::integrity() const
 
  // Destructor
 //  ----------
-template< size_t N >
+template< cube_size N >
 Rubik<N>::~Rubik()
 {
   delete[] frameworkSpace;
