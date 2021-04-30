@@ -28,6 +28,7 @@ typedef uint8_t byte;
 
  // ID types
 //  --------
+typedef uint8_t        cube_size;
 typedef uint_fast8_t  CubeID;
 typedef uint8_t       RotID;
 typedef uint8_t       PosID;

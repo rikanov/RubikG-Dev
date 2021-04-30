@@ -36,7 +36,7 @@ void SetCacheID( CubeID * P, CacheID cacheID, const size_t size, const CubeID pr
   }
 }
 
-template< size_t N >
+template< cube_size N >
 class CacheIDmapper
 {
 
@@ -79,7 +79,7 @@ private:
 
 };
 
-template< size_t N > CacheIDmapper<N>::CacheIDmapper()
+template< cube_size N > CacheIDmapper<N>::CacheIDmapper()
 : m_size ( 0 )
 , m_position ( nullptr )
 , m_qeueu    ( nullptr )
@@ -88,7 +88,7 @@ template< size_t N > CacheIDmapper<N>::CacheIDmapper()
 {
 }
 
-template< size_t N >
+template< cube_size N >
 void CacheIDmapper<N>::initialPosition( const PosID * pos, const size_t size )
 {
   clean();
@@ -103,7 +103,7 @@ void CacheIDmapper<N>::initialPosition( const PosID * pos, const size_t size )
 }
 
 
-template< size_t N >
+template< cube_size N >
 void CacheIDmapper<N>::createMap( CacheIDmap<N> & result )
 {
   result.init( m_size );
@@ -116,7 +116,7 @@ void CacheIDmapper<N>::createMap( CacheIDmap<N> & result )
   clean();
 }
 
-template< size_t N >
+template< cube_size N >
 void CacheIDmapper<N>::addLayerRotations( CacheIDmap<N> & result )
 {
   all_rot( axis, layer, turn, N )
@@ -128,7 +128,7 @@ void CacheIDmapper<N>::addLayerRotations( CacheIDmap<N> & result )
   }
 }
 
-template< size_t N >
+template< cube_size N >
 void CacheIDmapper<N>::addSliceRotations( CacheIDmap<N> & result )
 {
   if ( N < 4 )
@@ -151,7 +151,7 @@ void CacheIDmapper<N>::addSliceRotations( CacheIDmap<N> & result )
   }
 }
 
-template< size_t N >
+template< cube_size N >
 void CacheIDmapper<N>::nextChild ( const Axis axis, const Layer layer, const Turn turn )
 {
   for( size_t posIndex = 0; posIndex < m_size; ++ posIndex )
@@ -163,13 +163,13 @@ void CacheIDmapper<N>::nextChild ( const Axis axis, const Layer layer, const Tur
   }
 }
 
-template< size_t N >
+template< cube_size N >
 void CacheIDmapper<N>::setParent()
 {
   SetCacheID ( m_parent, m_parentID, m_size );
 }
 
-template< size_t N >
+template< cube_size N >
 void CacheIDmapper<N>::cloneParent()
 {
   for( size_t i = 0; i < m_size; ++i )
@@ -178,7 +178,7 @@ void CacheIDmapper<N>::cloneParent()
   }
 }
 
-template< size_t N >
+template< cube_size N >
 void CacheIDmapper<N>::clean()
 {
   delete[] m_parent;
@@ -190,7 +190,7 @@ void CacheIDmapper<N>::clean()
   m_qeueu  = nullptr;
 }
 
-template< size_t N >
+template< cube_size N >
 CacheIDmapper<N>::~CacheIDmapper()
 {
   clean();

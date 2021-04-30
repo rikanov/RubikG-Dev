@@ -4,21 +4,24 @@
 #include <cache_generator.h>
 #include <rubik.h>
 
-template< size_t N >
+template< cube_size N >
 class Insight
 {
   using _crot = CExtRotations<N>;
 
   CacheID        m_stateID;
   CubeID         m_prior;
-  const CubeID * m_priorCache;
+
   const size_t   m_size;
+  const CubeID * m_priorCache;
+  const RotID  * m_transRotation;
   const PosID  * m_pos;
 
   const CacheIDmap<N> * m_map;
 
   void initMap( SubSpace, const CubeID );
   void initPrior();
+  void initRotIDs();
 
 public:
   Insight( SubSpace P, const CubeID cid = 0 );
@@ -45,7 +48,7 @@ public:
     return Simplex::GetCube( m_prior );
   }
 
-  size_t distance() const
+  DistID distance() const
   {
     return m_map -> distance( m_stateID );
   }
@@ -53,14 +56,17 @@ public:
   void print( const bool details = false ) const;
 };
 
-template< size_t N >
+template< cube_size N >
 Insight<N>::Insight( SubSpace P, const CubeID cid )
   : m_size  ( P.size() )
 {
   initMap( P, cid );
+  initRotIDs();
   initPrior();
 }
-template<size_t N> void Insight<N>::initMap( SubSpace P, const CubeID cid )
+
+template< cube_size N > 
+void Insight<N>::initMap( SubSpace P, const CubeID cid )
 {
   CacheIDmapper<N> * mapBuilder = new CacheIDmapper<N>;
   CacheIDmap<N>    * map = new CacheIDmap<N>();
@@ -78,7 +84,7 @@ template<size_t N> void Insight<N>::initMap( SubSpace P, const CubeID cid )
   delete mapBuilder;
 }
 
-template< size_t N >
+template< cube_size N >
 void Insight<N>::initPrior()
 {
   CubeID * priorCache = new CubeID [ _crot::AllRotIDs * 24 ];
@@ -86,7 +92,7 @@ void Insight<N>::initPrior()
   {
     all_cubeid( prior )
     {
-      const RotID rotID = CExtRotations<N>::GetRotID( axis, layer, turn, Simplex::Inverse( prior ) );
+      const RotID rotID = m_transRotation[ prior * _crot::AllRotIDs + _crot::GetRotID( axis, layer, turn ) ];
 
       if ( ( layer  < N && layer         == CPositions<N>::GetLayer( m_pos[0], prior, axis ) ) ||
            ( layer >= N && layer - N + 1 >= CPositions<N>::GetLayer( m_pos[0], prior, axis ) ) )
@@ -102,41 +108,56 @@ void Insight<N>::initPrior()
   m_priorCache = priorCache;
 }
 
-template< size_t N >
+template< cube_size N >
+void Insight<N>::initRotIDs()
+{
+  RotID * transRotation = new RotID [ 24 * _crot::AllRotIDs ];
+  all_rot( axis, layer, turn, _crot::NT )
+  {
+    all_cubeid( prior )
+    {
+      transRotation[ prior * _crot::AllRotIDs + _crot::GetRotID( axis, layer, turn ) ] = _crot::GetRotID( axis, layer, turn, Simplex::Inverse( prior ) );
+    }
+  }
+  m_transRotation = transRotation;
+}
+
+template< cube_size N >
 void Insight<N>::set( const Rubik<N> & R )
 {
-  m_prior = R.getCubeID( m_pos[0] );
   CubeID * subset = new CubeID [ m_size ];
   for( size_t posIndex = 0; posIndex < m_size; ++ posIndex )
   {
-    subset[ posIndex ] = R.getCubeID( m_pos[ posIndex ] );
+    subset[ posIndex ] = R.transpose( m_pos[ posIndex ] );
   }
+  m_prior = subset[0];
   m_stateID = GetCacheID( subset, m_size );
   delete[] subset;
 }
 
-template< size_t N >
+template< cube_size N >
 int Insight<N>::rotate( const Axis axis, const Layer layer, const Turn turn )
 {
-  const RotID rotID = CExtRotations<N>::GetRotID( axis, layer, turn, Simplex::Inverse( m_prior ) );
+  return rotate( _crot::GetRotID( axis, layer, turn ) );
+}
 
-  m_prior   = m_priorCache[ 24 * rotID + m_prior ] ;
-  m_stateID = m_map -> getState( m_stateID, rotID ) ;
+template< cube_size N >
+int Insight<N>::rotate( const RotID rotID )
+{
+  const RotID rotIDt = m_transRotation[ m_prior * _crot::AllRotIDs + rotID ];
+
+  m_prior   = m_priorCache[ 24 * rotIDt + m_prior ] ;
+  m_stateID = m_map -> getState( m_stateID, rotIDt ) ;
   return distance();
 }
 
-template< size_t N >
-int Insight<N>::rotate( const RotID rotID )
-{
-  return rotate( _crot::GetAxis( rotID ), _crot::GetLayer( rotID ), _crot::GetTurn( rotID ) );
-}
-
-template< size_t N >
+template< cube_size N >
 Insight<N>::~Insight()
 {
   delete   m_map;
   delete[] m_pos;
   delete[] m_priorCache;
+  delete[] m_transRotation;
 }
 
 #include <insight_print.h>
