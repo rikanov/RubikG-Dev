@@ -15,7 +15,6 @@ class Insight
   const size_t   m_size;
   const CubeID * m_priorCache;
   const RotID  * m_transRotation;
-
   const PosID  * m_pos;
 
   const CacheIDmap<N> * m_map;
@@ -49,19 +48,9 @@ public:
     return Simplex::GetCube( m_prior );
   }
 
-  const RotID * router() const
-  {
-    return m_map -> router();
-  }
-
-  size_t distance() const
+  DistID distance() const
   {
     return m_map -> distance( m_stateID );
-  }
-
-  size_t weight() const
-  {
-    return m_map -> weight( m_stateID );
   }
 
   void print( const bool details = false ) const;
@@ -136,12 +125,12 @@ void Insight<N>::initRotIDs()
 template< cube_size N >
 void Insight<N>::set( const Rubik<N> & R )
 {
-  m_prior = R.getCubeID( m_pos[0] );
   CubeID * subset = new CubeID [ m_size ];
   for( size_t posIndex = 0; posIndex < m_size; ++ posIndex )
   {
-    subset[ posIndex ] = R.getCubeID( m_pos[ posIndex ] );
+    subset[ posIndex ] = R.transpose( m_pos[ posIndex ] );
   }
+  m_prior = subset[0];
   m_stateID = GetCacheID( subset, m_size );
   delete[] subset;
 }

@@ -10,7 +10,9 @@ bool UnitTests::unit_CRotations() const
   all_rot( axis, layer, turn, 5 )
   {
     const RotID rotID = CRotations<5>::GetRotID( axis, layer, turn );
-    clog_( Color::gray, (int) rotID, Color::white, "-->\t", Color::bold, CRotations<5>::ToString( rotID ) );
+  const RotID low  = rotID - rotID % ( 5 * 3 );
+  const RotID high = rotID % 3 == 0 ? rotID : rotID + 3 - rotID % 3;
+    clog_( Color::gray, (int) rotID, Color::white, "-->\t", Color::bold, CRotations<5>::ToString( rotID ), low, high );
     bool s = ( axis == CRotations<5>::GetAxis( rotID ) ) && ( layer == CRotations<5>::GetLayer( rotID ) ) && ( turn == CRotations<5>::GetTurn( rotID ) );
     stamp( s, success );
   }

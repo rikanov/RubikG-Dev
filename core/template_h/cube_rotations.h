@@ -173,9 +173,19 @@ public:
     return CRotations<NT>::ToString( axis, layer, turn );
   }
 
-  static RotID GetRotID( Axis axis, Layer layer, Turn turn )
+  static RotID GetRotID( const Axis axis, const Layer layer, const Turn turn )
   {
     return CRotations<NT>::GetRotID( axis, layer, turn );
+  }
+
+  static RotID GetInvRotID( const Axis axis, const Layer layer, const Turn turn )
+  {
+    return CRotations<NT>::GetInvRotID( axis, layer, turn );
+  }
+
+  static RotID GetInvRotID( const RotID rotID )
+  {
+    return CRotations<NT>::GetInvRotID( rotID );
   }
 
   static RotID GetRotID( Axis axis, Layer layer, Turn turn, const CubeID cubeID )

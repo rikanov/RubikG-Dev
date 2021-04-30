@@ -6,29 +6,30 @@
 template< cube_size N >
 class Engine
 {
+  using _crot = CExtRotations<N>;
+
   static constexpr size_t s_Size = CPositions<N>::GetSize();
   Insight <N> ** m_insights;
   Insight <N> ** m_lastInsight;
-  Insight <N> *  m_highest;
   Rubik   <N> &  m_rubik;
 
-  bool rotate( const RotID rotID )
+  RotID * m_stackPointer;
+  RotID   m_rotStack[200];
+  void rotate( const RotID rotID )
   {
-    for ( Insight<N> * p = m_insights; p < m_lastInsight; ++ p )
-      p->rotate( rotID );
+    for ( Insight<N> ** p = m_insights; p < m_lastInsight; ++ p )
+      (*p) -> rotate( rotID );
   }
 
-  size_t weight() const
+  bool solvable( const DistID depth ) const
   {
-    size_t result = 0;
-    for ( Insight<N> * p = m_insights; p < m_lastInsight; ++ p )
+    for ( Insight<N> ** p = m_insights; p < m_lastInsight; ++ p )
     {
-      result += p -> weight();
+      if ( ( *p ) -> distance() > depth )
+        return false;
     }
-    return result;
+    return true;
   }
-
-  size_t seek();
 
 public:
   Engine( Rubik<N> & );
@@ -36,7 +37,8 @@ public:
   void operator << ( Insight<N> & );
   void operator << ( Insight<N> * );
 
-  void exec();
+  void run  ( const int depth );
+  bool exec ( const int depth, const Axis refA, const Layer refL );
 };
 
 template< cube_size N > 
@@ -61,40 +63,53 @@ void Engine<N>::operator << ( Insight<N> * next )
   *( m_lastInsight ++ ) = next;
 }
 
-template< cube_size N >
-void Engine<N>::exec()
+template<cube_size N>
+bool Engine<N>::exec( const int depth, const Axis refA, const Layer refL )
 {
-  m_highest = *m_insights;
-  for ( Insight<N> * p = m_insights + 1; p < m_lastInsight; ++ p )
+  if ( solvable( 0 ) ) // is it already solved?
   {
-    if ( p -> distance() > m_highest -> distance() )
-      m_highest = p;
+    return true;
   }
-  seek();
+  if ( depth == 0 )
+  {
+    return false;
+  }
+  ++ m_stackPointer;
+  for( Axis axis : { _X, _Y, _Z } )
+  {
+    for( Layer layer = axis == refA ? refL + 1 : 0; layer < _crot::NT; ++ layer )
+    {
+      const RotID rotID = _crot::GetRotID( axis, layer, 1 );
+      RotID turned =  rotID;
+      for( Turn turn: { 1, 2, 3} )
+      {
+        rotate( rotID );
+        *m_stackPointer = turned ++;
+        if ( solvable( depth -1) && exec( depth - 1, axis, layer ) )
+        {
+          return true;
+        }
+      }
+      rotate( rotID ); // fourth turn --> revert
+    }
+  }
+  -- m_stackPointer;
+  return false;
 }
 
 template< cube_size N >
-size_t Engine<N>::seek()
+void Engine<N>::run( const int depth )
 {
-  size_t result = m_highest -> weight();
-  for( const RotID * rot = m_highest -> router(); w > 0 && m_highest -> gradient( *rot ) > 0 ; ++ rot  )
-  {
-    rotate( rot );
-    const size_t wBranch = ( m_highest -> distance() > 0 ) ? seek() : weight() ;
-    
-    if ( result > wBranch )
+  m_stackPointer = m_rotStack - 1;
+  for ( int d = 0; d < depth; ++ d)
+  {clog( "D: ", d );
+    if ( exec( d, _NA, 0 ) )
     {
-      result = wBranch;
-    }
-    
-    if ( result == 0 )
-    {
+      *( m_stackPointer + 1 ) = 0; // termination sign
+      m_rubik.rotate( m_rotStack );
       break;
     }
-
-    rotate(  );
   }
-  return result;
 }
 
 #endif  //  ! ENGINE__H_INCLUDED

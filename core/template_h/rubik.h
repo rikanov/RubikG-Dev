@@ -42,6 +42,7 @@ public:
   Rubik<N> inverse    ( void ) const;
   void     rotate     ( const Axis, const Layer, const Turn turn = 1 );
   void     rotate     ( const RotID rotID, const RotStyle RS = normal );
+  void     rotate     ( const RotID * rotIDs, const RotStyle RS = normal );
   void     shuffle    ( int depth = 0 );
   
   static Rubik<N> Transform  ( const Rubik<N>& A, const Rubik<N>& C ) { return Rubik<N>( A.inverse(), C ); } // transform( A, C ) returns with B where A + B = C
@@ -59,9 +60,10 @@ public:
   CubeID  getCubeID    ( PosID id )            const { return frameworkSpace[id];                                   }
   OCube   getCube      ( PosID id )            const { return Simplex::GetCube( getCubeID ( id ) );                 }
   
-  inline PosID whatIs  ( PosID id ) const ;
-  inline PosID whereIs ( PosID id ) const ;
-  
+  inline PosID whatIs    ( PosID id ) const ;
+  inline PosID whereIs   ( PosID id ) const ;
+  inline RotID transpose ( PosID id ) const ;
+
   Coord   whatIs    ( Coord C )  const { return CPositions<N>::getCoord( whatIs ( CPositions<N>::GetPosID( C ) ) ); }
   Coord   whereIs   ( Coord C )  const { return CPositions<N>::getCoord( whereIs( CPositions<N>::GetPosID( C ) ) ); }
   bool    integrity ( void  )  const ;
@@ -186,7 +188,8 @@ void Rubik<N>::rotate( const Axis axis, const Layer layer, const Turn turn )
 }
 
 // rotation by using RotID
-template< cube_size N > void Rubik<N>::rotate( const RotID rotID, const RotStyle RS )
+template< cube_size N >
+void Rubik<N>::rotate( const RotID rotID, const RotStyle RS )
 {
   if ( RS == normal )
   {
@@ -209,6 +212,18 @@ template< cube_size N > void Rubik<N>::rotate( const RotID rotID, const RotStyle
       rotate( axis, next, turn );
     }
   }
+}
+
+template< cube_size N >
+void Rubik<N>::rotate(const RotID* rotIDs, const RotStyle RS)
+{
+  clog_( "Rotate:" );
+  for ( const RotID * P = rotIDs; *P != 0; ++ P )
+  {
+    clog_( std::to_string( *P ) );
+    rotate( *P, RS ); clog( RS == normal ? CRotations<N>::ToString( *P ) : CExtRotations<N>::ToString( *P ) );
+  }
+  NL();
 }
 
 template< cube_size N > 
@@ -241,6 +256,17 @@ PosID Rubik<N>::whereIs( PosID id ) const
     ++ rot;
   }
   return CPositions<N>::GetPosID( id, rot );
+}
+
+template< cube_size N >
+RotID Rubik<N>::transpose( PosID id ) const
+{
+  CubeID rot = 0;
+  while ( frameworkSpace[ CPositions<N>::GetPosID( id, rot ) ] != rot )
+  {
+    ++ rot;
+  }
+  return rot;
 }
 
 template< cube_size N >

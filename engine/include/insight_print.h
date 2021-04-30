@@ -72,7 +72,6 @@ void Insight<N>::print( const bool details ) const
    {
      clog( CPositions<N>::GetCoord( m_pos[m] ).toString(), "-->",  CPositions<N>::GetCoord( CPositions<N>::GetPosID( m_pos[m], pos[m] ) ).toString() );
    }
-
    for( size_t raw = 0; raw < 3 * N; ++ raw )
    {
      if ( raw % N == 0 )
@@ -113,6 +112,7 @@ void Insight<N>::print( const bool details ) const
      NL();
    }
    delete[] pos;
+   clog( "Prior:", Simplex::GetCube( m_prior ).toString() );
  }
 
 #endif // INSIGHT_PRINT_H_INCLUDED

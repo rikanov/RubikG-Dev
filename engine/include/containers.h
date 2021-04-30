@@ -2,6 +2,7 @@
 #define CONTAINERS__H
 
 #include <initializer_list>
+#include <base_types.h>
 
 constexpr size_t _pow24[] = { 1, 24, 576, 13824, 331776, 7962624 };
 
@@ -63,10 +64,6 @@ class CacheIDmap
   CacheID * m_map;
   DistID  * m_dist;
 
-  RotID  * m_orderedSteps;
-  DistID * m_complexity;
-  size_t * m_weight;
-
   void clean();
 
 public:
@@ -87,30 +84,9 @@ public:
     return m_map[ rotID + _crot::AllRotIDs * cacheID ];
   }
 
-  size_t complexity( const CacheID id ) const
-  {
-    return m_complexity[ id ];
-  }
-
-  const RotID * router( const CacheID cacheID ) const
-  {
-    return m_orderedSteps + cacheID * _crot::AllRotIDs;
-  }
-
   int distance( CacheID cacheID ) const
   {
     return m_dist[ cacheID ];
-  }
-
-  int gradient( const CacheID cacheID, const RotID rotID ) const
-  {
-    return m_dist[ cacheID ] - m_dist[ getState(cacheID, rotID ) ];
-  }
-
-
-  size_t weight( CacheID cacheID ) const
-  {
-    return m_weight[ cacheID ];
   }
 
 };
@@ -118,9 +94,6 @@ public:
 template< cube_size N > CacheIDmap<N>::CacheIDmap()
   :  m_map  ( nullptr )
   ,  m_dist ( nullptr )
-  ,  m_orderedSteps ( nullptr )
-  ,  m_complexity ( nullptr )
-  ,  m_weight ( nullptr )
 {
 }
 
@@ -130,10 +103,6 @@ void CacheIDmap<N>::init( const size_t size )
   clean();
   m_map  = new CacheID [ _pow24[ size - 1 ] * _crot::AllRotIDs ];
   m_dist = new DistID  [ _pow24[ size - 1 ] ] {};
-
-  m_orderedSteps = new RotID  [ _pow24[ size - 1 ] * _crot::AllRotIDs ];
-  m_complexity   = new DistID [ _pow24[ size - 1 ] ] {};
-  m_weight       = new size_t [ _pow24[ size - 1 ] ] {};
 }
 
 template< cube_size N >
@@ -143,12 +112,7 @@ void CacheIDmap<N>::connect( const CacheID start, const Axis axis, const Layer l
   {
     m_dist[ result ] = m_dist[ start ] + 1;
   }
-  if ( m_dist[ start ] + 1 == m_dist[ result ] )
-  {
-    m_weight[ result ] += m_weight[ start ] > 0 ? m_weight[ start ] : 1;
-  }
-  m_map[ result * _crot::AllRotIDs + _crot::GetRotID( axis, layer, 4-turn ) ] = start;
-  m_orderedSteps[ result * _crot::AllRotIDs + m_complexity[ result ] ++ ] = _crot::GetRotID( axis, layer, 4-turn );
+  m_map[ result * _crot::AllRotIDs + _crot::GetInvRotID( axis, layer, turn ) ] = start;
 }
 
 template< cube_size N >
@@ -156,13 +120,8 @@ void CacheIDmap<N>::clean()
 {
   delete[] m_map;
   delete[] m_dist;
-  delete[] m_orderedSteps;
-  delete[] m_complexity;
-  delete[] m_weight;
-
   m_map  = nullptr;
   m_dist = nullptr;
-  m_orderedSteps = nullptr;
 }
 
 template< cube_size N >
