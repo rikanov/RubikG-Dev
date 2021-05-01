@@ -34,7 +34,7 @@ void UnitTests::stamp( bool success, bool& result )
   {
     clog( Color::red, Color::bold, Color::flash, "NO OK!", Color::off );
   }
-  result = success;
+  result &= success;
 }
 
 void UnitTests::finish(const std::string& unit, bool success)
