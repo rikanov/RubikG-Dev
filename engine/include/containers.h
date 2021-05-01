@@ -21,10 +21,10 @@ public:
   
   Qeueu( const int& size )
   : m_size( size )
-  , m_qeueudCubes( new CacheID [ _pow24[ size ] ] )
+  , m_qeueudCubes( new CacheID [ _pow24[ size ] + 1 ] )
   {
     m_qeuIn = m_qeuOut = m_qeueudCubes;
-    m_used = new bool [ _pow24[ m_size ] ] { false };
+    m_used = new bool [ _pow24[ m_size ] + 1 ] { false };
   }
 
   bool operator << ( const CacheID& id )
