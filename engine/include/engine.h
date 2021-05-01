@@ -33,6 +33,7 @@ class Engine
 
 public:
   Engine( Rubik<N> & );
+  ~Engine();
 
   void operator << ( Insight<N> & );
   void operator << ( Insight<N> * );
@@ -52,14 +53,12 @@ Engine<N>::Engine( Rubik <N> & rubik )
 template< cube_size N >
 void Engine<N>::operator << ( Insight<N> & next )
 {
-  next.set( m_rubik );
   *( m_lastInsight ++ ) = &next;
 }
 
 template< cube_size N >
 void Engine<N>::operator << ( Insight<N> * next )
 {
-  next -> set( m_rubik );
   *( m_lastInsight ++ ) = next;
 }
 
@@ -100,9 +99,13 @@ bool Engine<N>::exec( const int depth, const Axis refA, const Layer refL )
 template< cube_size N >
 void Engine<N>::run( const int depth )
 {
+  for( auto P = m_insights; P != m_lastInsight; ++ P )
+  {
+    ( *P ) -> set( m_rubik );
+  }
   m_stackPointer = m_rotStack - 1;
   for ( int d = 0; d < depth; ++ d)
-  {clog( "D: ", d );
+  {
     if ( exec( d, _NA, 0 ) )
     {
       *( m_stackPointer + 1 ) = 0; // termination sign
@@ -110,6 +113,12 @@ void Engine<N>::run( const int depth )
       break;
     }
   }
+}
+
+template< cube_size N >
+Engine<N>::~Engine()
+{
+  delete[] m_insights;
 }
 
 #endif  //  ! ENGINE__H_INCLUDED
