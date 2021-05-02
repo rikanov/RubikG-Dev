@@ -27,6 +27,17 @@ public:
     m_used = new bool [ _pow24[ m_size ] + 1 ] { false };
   }
 
+  void push_back( const CacheID& id )
+  {
+    m_used[ id ] = true;
+    *( m_qeuIn ++ ) = id;
+  }
+
+  CacheID at( const size_t id ) const
+  {
+    return *( m_qeuOut + id );
+  }
+
   bool operator << ( const CacheID& id )
   {
     if ( m_used[ id ] == false )

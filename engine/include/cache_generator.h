@@ -58,6 +58,7 @@ private:
   void setParent();
   void cloneParent();
   void nextChild( const Axis axis, const Layer layer, const Turn turn );
+  void roll( const size_t );
 
 public:
   CacheIDmapper();
@@ -68,6 +69,7 @@ public:
 
   bool acceptID ( CacheID cacheID )   { return *m_qeueu << cacheID;         }
   bool accept   ( const CubeID * P )  { return *m_qeueu << getCacheID( P ); }
+  void useSolid ();
   
   void createMap( CacheIDmap<N> & result );
   
@@ -94,12 +96,62 @@ void CacheIDmapper<N>::initialPosition( const PosID * pos, const size_t size )
   clean();
 
   m_size    = size;
-  m_parent  = new CubeID [ size ];
-  m_child   = new CubeID [ size ];
+  m_parent  = new CubeID [ size ]{};
+  m_child   = new CubeID [ size ]{};
   m_qeueu   = new Qeueu ( size - 1 );
   
   m_position = pos;
   acceptID( 0 ) ;
+  useSolid();
+}
+
+template< cube_size N >
+void CacheIDmapper<N>::useSolid()
+{
+  clog( "add new",m_qeueu -> count() );
+  for( int i = 0; i < m_qeueu -> count(); ++ i )
+  {
+    m_parentID = m_qeueu -> at( i ); clog( "parentID:", m_parentID, m_size );
+    setParent();
+    roll( 1 ); // the id = 0 prior cube stills in solved position
+  }
+  clog( "counter:" ,m_qeueu -> count() );
+}
+
+template< cube_size N >
+void CacheIDmapper<N>::roll( const size_t id )
+{
+  if ( id == m_size )
+  {
+    clog( "new", GetCacheID( m_parent, m_size ) );
+    *m_qeueu << GetCacheID( m_parent, m_size );
+    return;
+  }
+  const Coord pos = CPositions<N>::GetCoord( m_position[id] );
+  int type = ( pos.x == 0 || pos.x == N - 1 ) + ( pos.y == 0 || pos.y == N - 1 ) + ( pos.z == 0 || pos.z == N - 1 ); clog( id, ':', pos.toString(), "type:", type );
+  if ( type > 1 )
+  {
+    roll( id + 1 );
+    return;
+  }
+  CubeID toRoll;
+  if ( pos.x == 0 || pos.x == N - 1 )
+  {
+    toRoll = Simplex::Tilt( _X );
+  }
+  if ( pos.y == 0 || pos.y == N - 1 )
+  {
+    toRoll = Simplex::Tilt( _Y );
+  }
+  if ( pos.z == 0 || pos.z == N - 1 )
+  {
+    toRoll = Simplex::Tilt( _Z );
+  };
+  for( Turn turn : { 1, 2, 3, 4 } ) // fourth axial rotation = revert rolls
+  {
+    m_parent[id] = Simplex::Composition( m_parent[id], toRoll );
+    roll( id + 1 );
+  }
 }
 
 
