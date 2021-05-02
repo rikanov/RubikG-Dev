@@ -1,7 +1,7 @@
 #include <test.h>
 #include <insight.h>
 
-template< size_t N >
+template< cube_size N >
 static void PlayWith( Insight<N> & insight, const int * test, bool & success )
 {
   insight.print();
@@ -13,8 +13,6 @@ static void PlayWith( Insight<N> & insight, const int * test, bool & success )
     UnitTests::tcase( "Rotation by", CExtRotations<N>::ToString( rotID ) );
     insight.rotate( rotID );
     insight.print();
-    clog_( "State:", insight.state(), "\t\tPrior position:", insight.priorCube().toString(), "  Depth:", insight.distance() );
-
     UnitTests::stamp( insight.state() == *( next ++ ) && insight.prior() == *( next ++ ) &&  insight.distance() == *( next ++ ), success );
   }
 }
@@ -195,7 +193,6 @@ bool UnitTests::unit_Insight() const
       40,      0,  0,  0,   //  { _Y, 6, 1 }
 };
   timerON();
-
  // Rubik 2x2
 //-----------
   Rubik<2> test_2;

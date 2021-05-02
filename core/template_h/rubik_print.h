@@ -4,20 +4,20 @@
  // Printer
 //  -------
 
-template< size_t N >
+template< cube_size N >
 void Rubik<N>::show( Orient F ) const
 {
   std::cout << colorOf( F ) << FChar << ' ';
 }
 
-template< size_t N >
+template< cube_size N >
 void Rubik<N>::show( Orient right, Orient up, Layer x, Layer y ) const
 {
   const Orient F = getOrient( right, up, x, y );
   show( F );
 }
 
-template< size_t N >
+template< cube_size N >
 void Rubik<N>::print( Orient right, Orient up ) const
 {
   std::cout << std::endl;
@@ -32,7 +32,7 @@ void Rubik<N>::print( Orient right, Orient up ) const
   NL();
 }
 
-template< size_t N >
+template< cube_size N >
 void Rubik<N>::print( bool separator ) const
 {
   const int SideSize = separator ? N + 1 : N; 

@@ -1,5 +1,5 @@
 /*
- * Cube positions: this singleton class makes a graph to determine cublet positions in an N x N Rubics cube according to the rotation state of the cubes so each node has 24 branches
+ * Cube positions: this singleton class creates a graph to determine cublet positions in an N x N Rubiks cube according to the rotation state of the cubes so each node has 24 branches
  *
  * Copyright (C) 2020  Robert Ikanov <robert.ikanov@gmail.com>
  *
@@ -26,7 +26,7 @@
 static constexpr bool SHOW_LOG = false; // setting true is only for debuging purposes
 
 /// ----------------------------------- Template declarations starts here ------------------------------------- ///
-template< size_t N >
+template< cube_size N >
 class CPositions
 {
   static constexpr size_t FrameworkSize [] = { 0, 1, 8 - 0, 27 - 1, 64 - 8, 125 - 27, 216 - 64, 341 - 125, 512 - 216, 721 - 341, 1000 - 512 }; //  N > 1 :  N ^ 3 - ( N - 2 ) ^ 3
@@ -76,10 +76,10 @@ public:
 };
 
 /// ----------------------------------- Template definitions starts here ------------------------------------- ///
-template< size_t N >
+template< cube_size N >
 CPositions<N> * CPositions<N>::Singleton = nullptr;
 
-template< size_t N >
+template< cube_size N >
 CPositions<N>:: CPositions( )
 {
   Singleton = this;
@@ -90,7 +90,7 @@ CPositions<N>:: CPositions( )
 //    start from ( x y z ) 
 //    take a turn corresponding to rot value
 //    return the given ( x' y' z' ) vector
-template< size_t N > 
+template< cube_size N > 
 Coord CPositions<N>::rotate( Layer x, Layer y, Layer z, CubeID id)
 {
   Coord result;
@@ -109,7 +109,7 @@ Coord CPositions<N>::rotate( Layer x, Layer y, Layer z, CubeID id)
   return result;
 }
 
-template< size_t N >
+template< cube_size N >
 void CPositions<N>::initIndices()
 {
   int index = 0,
@@ -136,7 +136,7 @@ void CPositions<N>::initIndices()
   } // GetPosID() is fully working now
 }
 
-template< size_t N >
+template< cube_size N >
 void CPositions<N>::initPositions()
 {
   initIndices();

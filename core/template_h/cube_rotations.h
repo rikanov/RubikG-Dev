@@ -1,22 +1,3 @@
-/*
- * In brief: simple auxiliary template functions to handle basic rotation IDs in order to reach lower memory usage
- *
- * Copyright (C) 2020  Robert Ikanov <robert.ikanov@gmail.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 #ifndef CUBE_ROTATIONS__H
 #define CUBE_ROTATIONS__H
 
@@ -33,7 +14,13 @@
 // ID = 3 * N * Axis + 3 * Layer + Turn 
 // ID < 3 * N * 3
 
-static inline Orient GetBaseOrient( Axis axis )
+enum RotStyle
+{
+  normal,
+  extended
+};
+
+static Orient GetBaseOrient( Axis axis )
 {
   switch( axis )
   {
@@ -48,98 +35,31 @@ static inline Orient GetBaseOrient( Axis axis )
   }
 }
 
-template< size_t N >
+template< cube_size N >
 class CRotations
 {
 
 public:
   static constexpr size_t AllRotIDs = 3 * N * 3 + 1;
 
-private:
-  static CRotations<N> * Singleton;
+  static RotID GetInvRotID ( const RotID rotID )                          { return rotID + 2 - 2 * ( ( rotID - 1 ) % 3 ); }
+  static RotID GetInvRotID ( const Axis A, const Layer L, const Turn T )  { return A * 3 * N + L * 3 + 4 - T;             }
+  static RotID GetRotID    ( const Axis A, const Layer L, const Turn T )  { return A * 3 * N + L * 3 + T ;                }
+  static RotID GetRotID    ( const RotID R, const CubeID C ); 
 
-  std::random_device                 m_randomDevice;
-  std::default_random_engine         m_randomEngine;
-  std::uniform_int_distribution<int> m_distribution; 
-
-  RotID  m_rotID  [ 3 /*axes*/][ N /*layers*/ ][ 4 /*turns*/ ] = {};
-  RotID  m_tRotID [ AllRotIDs ][ 24 ] = {};
-  Axis   m_axis   [ AllRotIDs ]       = {};
-  Layer  m_layer  [ AllRotIDs ]       = {};
-  Turn   m_turn   [ AllRotIDs ]       = {};
-  
-  CRotations()
-    : m_randomEngine( m_randomDevice() )
-    , m_distribution( 1, (int) 3 * N * 3 )
-  {}
-
-  void  init();
-  void  transformRotIDs();
-
-  RotID   getRotID ( RotID R, CubeID C )                 const  { return m_tRotID[R][C];                    }
-  RotID   getRotID ( Axis A, Layer L, Turn T )           const  { return m_rotID [A][L][T];                 }
-  RotID   getRotID ( Axis A, Layer L, Turn T, CubeID C ) const  { return getRotID( getRotID( A, L, T), C ); }
-
-  Axis    getAxis  ( RotID rotID ) const  { return m_axis  [ rotID ]; }
-  Layer   getLayer ( RotID rotID ) const  { return m_layer [ rotID ]; }
-  Turn    getTurn  ( RotID rotID ) const  { return m_turn  [ rotID ]; }
-  
-  public:
-
-  static void Instance();
-  static void OnExit();
-
-  static RotID GetInvRotID ( Axis A, Layer L, Turn T )           { return Singleton -> getRotID( A, L, 4 - T ); }
-  static RotID GetRotID    ( Axis A, Layer L, Turn T )           { return Singleton -> getRotID( A, L, T );     }
-  static RotID GetRotID    ( Axis A, Layer L, Turn T, CubeID C ) { return Singleton -> getRotID( A, L, T, C );  }
-  static RotID GetRotID    ( RotID R, CubeID C )                 { return Singleton -> getRotID( R, C );        }
-
-  static Axis  GetAxis  ( RotID rotID )  { return Singleton -> getAxis  ( rotID ); }
-  static Layer GetLayer ( RotID rotID )  { return Singleton -> getLayer ( rotID ); }
-  static Turn  GetTurn  ( RotID rotID )  { return Singleton -> getTurn  ( rotID ); }
+  static Axis  GetAxis  ( const RotID rotID )  { return static_cast< Axis > ( ( rotID - 1 ) / ( 3 * N ) ); }
+  static Layer GetLayer ( const RotID rotID )  { return ( ( rotID - 1 ) /3 ) % N;                          }
+  static Turn  GetTurn  ( const RotID rotID )  { return ( rotID - 1 ) % 3 + 1;                             }
 
   static void Transform( Axis & axis, Layer & layer, Turn & turn, const CubeID cubeID );
 
   static RotID Random();
-  static std::string ToString( Axis  );
-  static std::string ToString( RotID );
-  static std::string ToString( Axis, Layer, Turn );
+  static std::string ToString( const Axis  );
+  static std::string ToString( const RotID );
+  static std::string ToString( const Axis, const Layer, const Turn );
 };
-template< size_t N >
-CRotations<N> * CRotations<N>::Singleton = nullptr;
 
-template< size_t N >
-void CRotations<N>::Instance()
-{
-  if ( nullptr == Singleton )
-  {
-    Singleton = new CRotations<N>();
-    Singleton -> init();
-  }
-}
-
-template< size_t N >
-void CRotations<N>::OnExit()
-{
-  delete Singleton;
-  Singleton = nullptr;
-}
-
-template< size_t N >
-void CRotations<N>::init()
-{
-  RotID rotID = 0;
-  all_rot( axis, layer, turn, N )
-  {
-    m_rotID [axis][layer][turn] = ++ rotID;
-    m_axis  [rotID] = axis;
-    m_layer [rotID] = layer;
-    m_turn  [rotID] = turn;
-    transformRotIDs();
-  }
-}
-
-template< size_t N >
+template< cube_size N >
 void CRotations<N>::Transform( Axis & axis, Layer & layer, Turn & turn, const CubeID cubeID )
 {
   const Orient base  = GetBaseOrient( axis );
@@ -182,33 +102,30 @@ void CRotations<N>::Transform( Axis & axis, Layer & layer, Turn & turn, const Cu
   }
 }
 
-template< size_t N >
-void CRotations<N>::transformRotIDs()
+template< cube_size N >
+RotID CRotations<N>::GetRotID( const RotID rotID, const CubeID cubeID )
 {
-  all_rot( axis, layer, turn, N )
-  {
-    const RotID  rotID = GetRotID( axis, layer, turn);
-    const Orient base  = GetBaseOrient( axis );
-    all_cubeid( cubeID )
-    {
-      Orient trans = Simplex::GetCube( cubeID ).whereIs( base );
-      Axis  tAxis  = axis;
-      Layer tLayer = layer;
-      Turn  tTurn  = turn;
-      Transform( axis, layer, turn, cubeID );
-      m_tRotID[ rotID ][ cubeID ] = GetRotID( tAxis, tLayer, tTurn );
-    }
-  }
+  RotID R = rotID - 1;
+  Turn  turn  = R % 3 + 1;
+  R /= 3;
+  Layer layer = R % N;
+  Axis  axis  = static_cast< Axis > ( R / N );
+  Transform( axis, layer, turn, cubeID );
+  return GetRotID( axis, layer, turn ); 
 }
 
-template< size_t N >
+template< cube_size N >
 RotID CRotations<N>::Random()
 {
-  return CRotations<N>::Singleton -> m_distribution( CRotations<N>::Singleton -> m_randomEngine );
+ static std::random_device                 randomDevice;
+ static std::default_random_engine         randomEngine( randomDevice() );
+ static std::uniform_int_distribution<int> distribution( 1, AllRotIDs - 1 ); 
+
+  return distribution( randomEngine );
 }
 
-template< size_t N >
-std::string CRotations<N>::ToString( Axis A )
+template< cube_size N >
+std::string CRotations<N>::ToString( const Axis A )
 {
   switch ( A )
   {
@@ -223,20 +140,20 @@ std::string CRotations<N>::ToString( Axis A )
   }
 }
 
-template< size_t N >
-std::string CRotations<N>::ToString( Axis axis, Layer layer, Turn turn )
+template< cube_size N >
+std::string CRotations<N>::ToString( const Axis axis, const Layer layer, const Turn turn )
 {
   return std::string( "{ _" + ToString ( axis ) + ", " + std::to_string( layer ) + ", " + std::to_string( turn ) + " }" );
 }
 
 
-template< size_t N >
-std::string CRotations<N>::ToString( RotID rotID )  
+template< cube_size N >
+std::string CRotations<N>::ToString( const RotID rotID )  
 {
   return ToString ( GetAxis ( rotID ), GetLayer ( rotID ), GetTurn ( rotID ) );
 }
 
-template< size_t N >
+template< cube_size N >
 class CExtRotations
 {
 public:
@@ -244,65 +161,31 @@ public:
   static constexpr size_t NT = N > 3 ? 2 * N - 3 : N;
   static constexpr size_t AllRotIDs = CRotations<NT>::AllRotIDs;
 
-  static void Instance()
-  {
-    CRotations<NT>::Instance();
-  }
-
-  static void Transform( Axis & axis, Layer & layer, Turn & turn, const CubeID cubeID )
-  {
-    if ( layer < N )
-    {
-      CRotations<N>::Transform( axis, layer, turn, cubeID );
-      return;
-    }
-
-    const Orient base  = GetBaseOrient( axis );
-    const Orient trans = Simplex::GetCube( cubeID ).whereIs( base );
-
-    switch( trans )
-    {
-      case _L:
-        axis = _X;
-        break;
-
-      case _D:
-        axis = _Y;
-        break;
-
-      case _B:
-        axis = _Z;
-        break;
-
-      case _R:
-        axis  = _X;
-        layer = 3 * N - 4 - layer;
-        break;
-
-      case _U:
-        axis  = _Y;
-        layer = 3 * N - 4 - layer;
-        break;
-
-      case _F:
-        axis  = _Z;
-        layer = 3 * N - 4 - layer;
-        break;
-
-      default:
-        clog( "invalid Orient to get axis" );
-        return;
-    }
-  }
+  static void Transform( Axis & axis, Layer & layer, Turn & turn, const CubeID cubeID );
   
   static std::string ToString( const RotID rotID )
   {
     return CRotations<NT>::ToString( rotID );
   }
 
-  static RotID GetRotID( Axis axis, Layer layer, Turn turn )
+  static std::string ToString( const Axis axis, const Layer layer, const Turn turn )
+  {
+    return CRotations<NT>::ToString( axis, layer, turn );
+  }
+
+  static RotID GetRotID( const Axis axis, const Layer layer, const Turn turn )
   {
     return CRotations<NT>::GetRotID( axis, layer, turn );
+  }
+
+  static RotID GetInvRotID( const Axis axis, const Layer layer, const Turn turn )
+  {
+    return CRotations<NT>::GetInvRotID( axis, layer, turn );
+  }
+
+  static RotID GetInvRotID( const RotID rotID )
+  {
+    return CRotations<NT>::GetInvRotID( rotID );
   }
 
   static RotID GetRotID( Axis axis, Layer layer, Turn turn, const CubeID cubeID )
@@ -316,8 +199,7 @@ public:
     Axis  axis  = GetAxis ( rotID );
     Layer layer = GetLayer( rotID );
     Turn  turn  = GetTurn ( rotID );
-    Transform( axis, layer, turn, cubeID );
-    return GetRotID( axis, layer, turn );
+    return GetRotID( axis, layer, turn, cubeID );
   }
 
   static Axis GetAxis( const RotID rotID )
@@ -336,5 +218,52 @@ public:
   }
 
 };
+
+template< cube_size N >
+void CExtRotations<N>::Transform( Axis & axis, Layer & layer, Turn & turn, const CubeID cubeID )
+{
+  if ( layer < N )
+  {
+    CRotations<N>::Transform( axis, layer, turn, cubeID );
+    return;
+  }
+
+  const Orient base  = GetBaseOrient( axis );
+  const Orient trans = Simplex::GetCube( cubeID ).whereIs( base );
+
+  switch( trans )
+  {
+    case _L:
+      axis = _X;
+      break;
+
+    case _D:
+      axis = _Y;
+      break;
+
+    case _B:
+      axis = _Z;
+      break;
+
+    case _R:
+      axis  = _X;
+      layer = 3 * N - 4 - layer;
+      break;
+
+    case _U:
+      axis  = _Y;
+      layer = 3 * N - 4 - layer;
+      break;
+
+    case _F:
+      axis  = _Z;
+      layer = 3 * N - 4 - layer;
+      break;
+
+    default:
+      clog( "invalid Orient to get axis" );
+      return;
+  }
+}
 
 #endif // ! CUBE_ROTATIONS__H

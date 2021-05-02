@@ -10,7 +10,9 @@ bool UnitTests::unit_CExtRotations() const
   all_rot( axis, layer, turn, 5 )
   {
     const RotID rotID = CExtRotations<4>::GetRotID( axis, layer, turn );
-    clog_( Color::gray, (int) rotID, Color::white, "-->\t", Color::bold, CRotations<5>::ToString( rotID ) );
+  const RotID low  = rotID - rotID % ( 5 * 3 );
+  const RotID high = rotID % 3 == 0 ? rotID : rotID + 3 - rotID % 3;
+    clog_( Color::gray, (int) rotID, Color::white, "-->\t", Color::bold, CRotations<5>::ToString( rotID ), (int) low, (int) high );
     bool s = ( axis == CExtRotations<4>::GetAxis( rotID ) ) && ( layer == CExtRotations<4>::GetLayer( rotID ) ) && ( turn == CExtRotations<4>::GetTurn( rotID ) );
     stamp( s, success );
   }
