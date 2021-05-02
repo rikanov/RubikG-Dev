@@ -17,7 +17,8 @@ class Insight
   const RotID  * m_transRotation;
   const PosID  * m_pos;
 
-  const CacheIDmap<N> * m_map;
+  mutable const RotID  * m_nextSuggested;
+  const CacheIDmap<N>  * m_map;
 
   void initMap( SubSpace, const CubeID );
   void initPrior();
@@ -51,6 +52,17 @@ public:
   DistID distance() const
   {
     return m_map -> distance( m_stateID );
+  }
+
+  RotID start() const
+  {
+    m_nextSuggested = m_map -> router( m_stateID );
+    return next();
+  }
+
+  RotID next() const
+  {
+    return  *m_nextSuggested == 0 ? 0 : _crot::GetRotID( *( m_nextSuggested ++ ), m_prior);
   }
 
   void print( const bool details = false ) const;

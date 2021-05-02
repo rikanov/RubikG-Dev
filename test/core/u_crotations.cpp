@@ -10,9 +10,7 @@ bool UnitTests::unit_CRotations() const
   all_rot( axis, layer, turn, 5 )
   {
     const RotID rotID = CRotations<5>::GetRotID( axis, layer, turn );
-  const RotID low  = rotID - rotID % ( 5 * 3 );
-  const RotID high = rotID % 3 == 0 ? rotID : rotID + 3 - rotID % 3;
-    clog_( Color::gray, (int) rotID, Color::white, "-->\t", Color::bold, CRotations<5>::ToString( rotID ), low, high );
+    clog_( Color::gray, (int) rotID, Color::white, "-->\t", Color::bold, CRotations<5>::ToString( rotID ) );
     bool s = ( axis == CRotations<5>::GetAxis( rotID ) ) && ( layer == CRotations<5>::GetLayer( rotID ) ) && ( turn == CRotations<5>::GetTurn( rotID ) );
     stamp( s, success );
   }
@@ -41,30 +39,31 @@ bool UnitTests::unit_CRotations() const
   
   const RotID expected[] = {
   // [_X1] aka RFD(13):
-    36, 33, 31, 27, 26, 12,  9,  7,  3,  2, 13, 16, 18, 22, 23,
+     1,  4,  6, 10, 11, 36, 33, 31, 27, 26, 13, 16, 18, 22, 23,
   
   // [_X2] aka RDB(20):
-    36, 33, 31, 27, 26,  1,  4,  6, 10, 11, 24, 21, 19, 15, 14,
+     1,  4,  6, 10, 11, 24, 21, 19, 15, 14, 36, 33, 31, 27, 26,
   
   // [_X3] aka RBU( 9):
-     1,  4,  6, 10, 11, 24, 21, 19, 15, 14, 36, 33, 31, 27, 26,
-  // [_Y1] aka BUR( 7):
      1,  4,  6, 10, 11, 25, 28, 30, 34, 35, 24, 21, 19, 15, 14,
+
+  // [_Y1] aka BUR( 7):
+    25, 28, 30, 34, 35, 13, 16, 18, 22, 23, 12,  9,  7,  3,  2,
   
   // [_Y2] aka LUB(23):
-    25, 28, 30, 34, 35, 12,  9,  7,  3,  2, 24, 21, 19, 15, 14,
-  
-  // [_Y3] aka FUL(16):
     12,  9,  7,  3,  2, 13, 16, 18, 22, 23, 36, 33, 31, 27, 26,
   
+  // [_Y3] aka FUL(16):
+    36, 33, 31, 27, 26, 13, 16, 18, 22, 23,  1,  4,  6, 10, 11,
+  
   // [_Z1] aka ULF( 1):
-     1,  4,  6, 10, 11, 13, 16, 18, 22, 23, 25, 28, 30, 34, 35,
+    24, 21, 19, 15, 14,  1,  4,  6, 10, 11, 25, 28, 30, 34, 35,
   
   // [_Z2] aka LDF( 3):
-     1,  4,  6, 10, 11, 13, 16, 18, 22, 23, 25, 28, 30, 34, 35,
+    12,  9,  7,  3,  2, 24, 21, 19, 15, 14, 25, 28, 30, 34, 35,
   
   //[_Z3] aka DRF( 2):
-    24, 21, 19, 15, 14,  1,  4,  6, 10, 11, 25, 28, 30, 34, 35
+    13, 16, 18, 22, 23, 12,  9,  7,  3,  2, 25, 28, 30, 34, 35
   };
   const RotID * nextExpected = expected;
   const std::string sign[] = { "_X", "_Y", "_Z" };

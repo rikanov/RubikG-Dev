@@ -217,10 +217,9 @@ void Rubik<N>::rotate( const RotID rotID, const RotStyle RS )
 template< cube_size N >
 void Rubik<N>::rotate(const RotID* rotIDs, const RotStyle RS)
 {
-  clog_( "Rotate:" );
+  clog( "\nRotations:" );
   for ( const RotID * P = rotIDs; *P != 0; ++ P )
   {
-    clog_( std::to_string( *P ) );
     rotate( *P, RS ); clog( RS == normal ? CRotations<N>::ToString( *P ) : CExtRotations<N>::ToString( *P ) );
   }
   NL();
