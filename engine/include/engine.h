@@ -13,6 +13,7 @@ class Engine
   Insight <N> ** m_lastInsight;
   Rubik   <N> &  m_rubik;
 
+  DistID  m_depth;
   RotID * m_stackPointer;
   RotID   m_rotStack[200];
   void rotate( const RotID rotID )
@@ -21,15 +22,26 @@ class Engine
       (*p) -> rotate( rotID );
   }
 
-  bool solvable( const DistID depth ) const
+  Insight<N> * getGuide() const
   {
     for ( Insight<N> ** p = m_insights; p < m_lastInsight; ++ p )
     {
-      if ( ( *p ) -> distance() > depth )
+      if ( ( *p ) -> distance() >= m_depth )
+        return *p;
+    }
+    return nullptr;
+  }
+  bool isSolved() const
+  {
+    for ( Insight<N> ** p = m_insights; p < m_lastInsight; ++ p )
+    {
+      if ( ( *p ) -> distance() > 0 )
         return false;
     }
     return true;
   }
+
+  bool guidedSearch( Insight<N> * );
 
 public:
   Engine( Rubik<N> & );
@@ -39,7 +51,7 @@ public:
   void operator << ( Insight<N> * );
 
   void run  ( const int depth );
-  bool exec ( const int depth, const Axis refA, const Layer refL );
+  bool exec ( const Axis refA, const Layer refL );
 };
 
 template< cube_size N > 
@@ -62,18 +74,43 @@ void Engine<N>::operator << ( Insight<N> * next )
   *( m_lastInsight ++ ) = next;
 }
 
-template<cube_size N>
-bool Engine<N>::exec( const int depth, const Axis refA, const Layer refL )
+template< cube_size N >
+bool Engine<N>::guidedSearch( Insight<N> * insight )
 {
-  if ( solvable( 0 ) ) // is it already solved?
-  {
-    return true;
-  }
-  if ( depth == 0 )
+  if ( insight == nullptr || insight -> distance() > m_depth )
   {
     return false;
   }
+  if ( insight -> distance() == 0 )
+  {
+    return isSolved();
+  }
+  --m_depth;
+  ++m_stackPointer;
+  for( RotID next = insight -> start(); next != 0; next = insight -> next() )
+  {
+    *m_stackPointer = next;
+    rotate( next );
+    if ( guidedSearch( insight ) )
+    {
+      return true;
+    }
+    rotate( _crot::GetInvRotID( next ) ); // revert
+  }
+  --m_stackPointer;
+  ++m_depth;
+  return false;
+}
+
+template< cube_size N >
+bool Engine<N>::exec( const Axis refA, const Layer refL )
+{
+  if ( getGuide() )
+  {
+    return guidedSearch( getGuide() );
+  }
   ++ m_stackPointer;
+  -- m_depth;
   for( Axis axis : { _X, _Y, _Z } )
   {
     for( Layer layer = axis == refA ? refL + 1 : 0; layer < _crot::NT; ++ layer )
@@ -84,7 +121,7 @@ bool Engine<N>::exec( const int depth, const Axis refA, const Layer refL )
       {
         rotate( rotID );
         *m_stackPointer = turned ++;
-        if ( solvable( depth -1) && exec( depth - 1, axis, layer ) )
+        if ( exec( axis, layer ) )
         {
           return true;
         }
@@ -92,6 +129,7 @@ bool Engine<N>::exec( const int depth, const Axis refA, const Layer refL )
       rotate( rotID ); // fourth turn --> revert
     }
   }
+  ++ m_depth;
   -- m_stackPointer;
   return false;
 }
@@ -106,7 +144,8 @@ void Engine<N>::run( const int depth )
   m_stackPointer = m_rotStack - 1;
   for ( int d = 0; d < depth; ++ d)
   {
-    if ( exec( d, _NA, 0 ) )
+    m_depth = d;
+    if ( exec( _NA, 0 ) )
     {
       *( m_stackPointer + 1 ) = 0; // termination sign
       m_rubik.rotate( m_rotStack );

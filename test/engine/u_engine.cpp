@@ -92,7 +92,7 @@ bool UnitTests::unit_Engine() const
   testCube3.print();
 
   testEngine2 << step_10;
-  testEngine2.run( 10 );
+  testEngine2.run( 9 );
   testCube3.print();
 
   stamp(true, success );
