@@ -59,6 +59,7 @@ private:
   void cloneParent();
   void nextChild( const Axis axis, const Layer layer, const Turn turn );
   void roll( const size_t );
+  void roll( const size_t, const Axis toRoll );
 
 public:
   CacheIDmapper();
@@ -69,6 +70,7 @@ public:
 
   bool acceptID ( CacheID cacheID )   { return *m_qeueu << cacheID;         }
   bool accept   ( const CubeID * P )  { return *m_qeueu << getCacheID( P ); }
+  void accept   ( const Axis axis );
   void useSolid ();
   
   void createMap( CacheIDmap<N> & result );
@@ -108,14 +110,42 @@ void CacheIDmapper<N>::initialPosition( const PosID * pos, const size_t size )
 template< cube_size N >
 void CacheIDmapper<N>::useSolid()
 {
-  clog( "add new",m_qeueu -> count() );
   for( int i = 0; i < m_qeueu -> count(); ++ i )
   {
-    m_parentID = m_qeueu -> at( i ); clog( "parentID:", m_parentID, m_size );
+    m_parentID = m_qeueu -> at( i );
     setParent();
-    roll( 1 ); // the id = 0 prior cube stills in solved position
+    roll( 0 ); // the id = 0 prior cube stills in solved position
   }
-  clog( "counter:" ,m_qeueu -> count() );
+}
+
+template< cube_size N >
+void CacheIDmapper<N>::accept( const Axis axis )
+{
+  if ( axis == _NA )
+  {
+    return;
+  }
+  for( int i = 0; i < m_qeueu -> count(); ++ i )
+  {
+    m_parentID = m_qeueu -> at( i );
+    setParent();
+    roll( 0, axis ); // the id = 0 prior cube stills in solved position
+  }
+}
+
+template< cube_size N >
+void CacheIDmapper<N>::roll(const size_t id, const Axis toRoll)
+{
+  if ( id == m_size )
+  {
+    *m_qeueu << GetCacheID( m_parent, m_size );
+    return;
+  }
+  for( Turn turn : { 1, 2, 3, 4 } ) // fourth axial rotation = revert rolls
+  {
+    m_parent[id] = Simplex::Composition( m_parent[id], toRoll );
+    roll( id + 1, toRoll );
+  }
 }
 
 template< cube_size N >
@@ -123,12 +153,11 @@ void CacheIDmapper<N>::roll( const size_t id )
 {
   if ( id == m_size )
   {
-    clog( "new", GetCacheID( m_parent, m_size ) );
     *m_qeueu << GetCacheID( m_parent, m_size );
     return;
   }
   const Coord pos = CPositions<N>::GetCoord( m_position[id] );
-  int type = ( pos.x == 0 || pos.x == N - 1 ) + ( pos.y == 0 || pos.y == N - 1 ) + ( pos.z == 0 || pos.z == N - 1 ); clog( id, ':', pos.toString(), "type:", type );
+  int type = ( pos.x == 0 || pos.x == N - 1 ) + ( pos.y == 0 || pos.y == N - 1 ) + ( pos.z == 0 || pos.z == N - 1 );
   if ( type > 1 )
   {
     roll( id + 1 );

@@ -36,15 +36,21 @@ bool UnitTests::unit_Engine() const
 
   };
 
-  SubSpace halfCross = {
+  SubSpace lastEdges = {
                   CPositions<3>::GetPosID( 0, 1, 0 ),
+                  CPositions<3>::GetPosID( 0, 1, 1 ),
                   CPositions<3>::GetPosID( 1, 0, 0 ),
-                  CPositions<3>::GetPosID( 0, 1, 1 )
+                  CPositions<3>::GetPosID( 1, 0, 1 ),
+                  CPositions<3>::GetPosID( 2, 1, 0 ),
+                  CPositions<3>::GetPosID( 1, 2, 0 )
   };
-
-  SubSpace oneCorner = {
+  SubSpace lastCorners = {
                   CPositions<3>::GetPosID( 0, 0, 0 ),
                   CPositions<3>::GetPosID( 0, 0, 1 ),
+                  CPositions<3>::GetPosID( 0, 2, 1 ),
+                  CPositions<3>::GetPosID( 0, 2, 0 ),
+                  CPositions<3>::GetPosID( 2, 0, 0 ),
+                  CPositions<3>::GetPosID( 2, 2, 0 )
   };
 
 
@@ -56,13 +62,11 @@ bool UnitTests::unit_Engine() const
   Insight<3> step_3 ( cornerBlock, Simplex::Tilt( _Z, 1 ) );
   Insight<3> step_4 ( cornerBlock, Simplex::Tilt( _Z, 2 ) );
   Insight<3> step_5 ( cornerBlock, Simplex::Tilt( _Z, 3 ) );
-  Insight<3> addCache ( edgePool );
-  Insight<3> step_6 ( halfCross,   Simplex::Tilt( _Z, 2 ) );
-  Insight<3> step_7 ( halfCross );
-  Insight<3> step_8 ( oneCorner );
-  Insight<3> step_9 ( oneCorner, Simplex::Tilt( _Z, 2 ) );
-  Insight<3> step_12( corners,   Simplex::Tilt( _Y, 2 ) );
-  Insight<3> step_11( cross,     Simplex::Tilt( _Y, 2 ) );
+ // Insight<3> addCache ( edgePool );
+  Insight<3> step_6 ( cross,   Simplex::Tilt( _X, 2 ), _Z );
+  Insight<3> step_7 ( corners, Simplex::Tilt( _X, 2 ), _Z );
+  Insight<3> step_8 ( lastEdges );
+  Insight<3> step_9 ( lastCorners );
   timerOFF();
   clog( Color::cyan, "Ellapsed time:", Color::white, Color::bold, ellapsed(), Color::off );
 
@@ -76,35 +80,31 @@ bool UnitTests::unit_Engine() const
   Engine<3>  testEngine2( testCube3 );
   testEngine2 << step_1;
   testEngine2 << step_2;
-  testEngine2.run( 12 );
+  testEngine2.run( 11 );
   testCube3.print();
   testEngine2 << step_3;
-  testEngine2.run( 12 );
+  testEngine2.run( 11 );
   testCube3.print();
   testEngine2 << step_4;
-  testEngine2.run( 12 );
+  testEngine2.run( 11 );
   testCube3.print();
   testEngine2 << step_5;
-  testEngine2.run( 12 );
+  testEngine2.run( 11 );
   testCube3.print();
 
-  testEngine2 << addCache;
-  testEngine2.run( 12 ); // it does nothing right now
-  testCube3.print();
+ // testEngine2 << addCache;
+ // testEngine2.run( 11 ); // it does nothing right now
+ //  testCube3.print();
   testEngine2 << step_6;
-  testEngine2.run( 12 );
+  testEngine2.run( 11 );
   testCube3.print();
   testEngine2 << step_7;
-  testEngine2.run( 12 );
+  testEngine2.run( 11 );
   testCube3.print();
   testEngine2 << step_8;
   testEngine2.run( 12 );
   testCube3.print();
   testEngine2 << step_9;
-  testEngine2.run( 12 );
-  testCube3.print();
-
-  testEngine2 << step_12;
   testEngine2.run( 12 );
   testCube3.print();
 

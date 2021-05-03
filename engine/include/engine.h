@@ -31,11 +31,12 @@ class Engine
     }
     return nullptr;
   }
-  bool isSolved() const
+
+  bool isSolvable() const
   {
     for ( Insight<N> ** p = m_insights; p < m_lastInsight; ++ p )
     {
-      if ( ( *p ) -> distance() > 0 )
+      if ( ( *p ) -> distance() > m_depth )
         return false;
     }
     return true;
@@ -77,14 +78,16 @@ void Engine<N>::operator << ( Insight<N> * next )
 template< cube_size N >
 bool Engine<N>::guidedSearch( Insight<N> * insight )
 {
-  if ( insight == nullptr || insight -> distance() > m_depth )
+  if ( insight == nullptr || ! isSolvable() )
   {
     return false;
   }
+
   if ( insight -> distance() == 0 )
   {
-    return isSolved();
+    return true;
   }
+
   --m_depth;
   ++m_stackPointer;
   for( RotID next = insight -> start(); next != 0; next = insight -> next() )
@@ -99,6 +102,7 @@ bool Engine<N>::guidedSearch( Insight<N> * insight )
   }
   --m_stackPointer;
   ++m_depth;
+
   return false;
 }
 

@@ -4,6 +4,7 @@
 #include <cache_generator.h>
 #include <rubik.h>
 
+
 template< cube_size N >
 class Insight
 {
@@ -20,12 +21,12 @@ class Insight
   mutable const RotID  * m_nextSuggested;
   const CacheIDmap<N>  * m_map;
 
-  void initMap( SubSpace, const CubeID );
+  void initMap( SubSpace, const CubeID, const Axis toRoll );
   void initPrior();
   void initRotIDs();
 
 public:
-  Insight( SubSpace P, const CubeID cid = 0 );
+  Insight( SubSpace P, const CubeID cid = 0, const Axis toRoll = _NA );
   ~Insight();
   Insight( const Insight<N> & ) = delete;
 
@@ -69,16 +70,16 @@ public:
 };
 
 template< cube_size N >
-Insight<N>::Insight( SubSpace P, const CubeID cid )
+Insight<N>::Insight( SubSpace P, const CubeID cid, const Axis toRoll )
   : m_size  ( P.size() )
 {
-  initMap( P, cid );
+  initMap( P, cid, toRoll );
   initRotIDs();
   initPrior();
 }
 
 template< cube_size N > 
-void Insight<N>::initMap( SubSpace P, const CubeID cid )
+void Insight<N>::initMap( SubSpace P, const CubeID cid, const Axis toRoll )
 {
   CacheIDmapper<N> * mapBuilder = new CacheIDmapper<N>;
   CacheIDmap<N>    * map = new CacheIDmap<N>();
@@ -90,6 +91,7 @@ void Insight<N>::initMap( SubSpace P, const CubeID cid )
     pos[ i++ ] = CPositions<N>::GetPosID( p, cid );
   }
   mapBuilder -> initialPosition( pos, P.size() );
+  mapBuilder -> accept( toRoll) ;
   mapBuilder -> createMap( *map );
   m_map = map;
   m_pos = pos;
