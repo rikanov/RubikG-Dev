@@ -12,13 +12,15 @@ bool UnitTests::unit_Engine() const
                   CPositions<3>::GetPosID( 1, 1, 2 ),
                   CPositions<3>::GetPosID( 0, 1, 2 ),
                   CPositions<3>::GetPosID( 2, 1, 2 ),
-                  CPositions<3>::GetPosID( 1, 2, 2 )
+                  CPositions<3>::GetPosID( 1, 2, 2 ),
+           //       CPositions<3>::GetPosID( 2, 2, 2 )
   };
   SubSpace corners = {
                   CPositions<3>::GetPosID( 0, 0, 2 ),
                   CPositions<3>::GetPosID( 0, 2, 2 ),
                   CPositions<3>::GetPosID( 2, 0, 2 ),
                   CPositions<3>::GetPosID( 2, 2, 2 ),
+                  CPositions<3>::GetPosID( 1, 1, 2 ),
                   CPositions<3>::GetPosID( 1, 1, 2 )
   };
   SubSpace cornerBlock = {
@@ -36,6 +38,7 @@ bool UnitTests::unit_Engine() const
 
   };
 
+
   SubSpace lastEdges = {
                   CPositions<3>::GetPosID( 0, 1, 0 ),
                   CPositions<3>::GetPosID( 0, 1, 1 ),
@@ -47,8 +50,8 @@ bool UnitTests::unit_Engine() const
   SubSpace lastCorners = {
                   CPositions<3>::GetPosID( 0, 0, 0 ),
                   CPositions<3>::GetPosID( 0, 0, 1 ),
-                  CPositions<3>::GetPosID( 0, 2, 1 ),
                   CPositions<3>::GetPosID( 0, 2, 0 ),
+                  CPositions<3>::GetPosID( 0, 2, 1 ),
                   CPositions<3>::GetPosID( 2, 0, 0 ),
                   CPositions<3>::GetPosID( 2, 2, 0 )
   };
@@ -58,15 +61,16 @@ bool UnitTests::unit_Engine() const
 
   timerON();
   Insight<3> step_1 ( cross );
-  Insight<3> step_2 ( cornerBlock );
-  Insight<3> step_3 ( cornerBlock, Simplex::Tilt( _Z, 1 ) );
-  Insight<3> step_4 ( cornerBlock, Simplex::Tilt( _Z, 2 ) );
-  Insight<3> step_5 ( cornerBlock, Simplex::Tilt( _Z, 3 ) );
+  Insight<3> test   ( cornerBlock );
+  Insight<3> step_2 ( test, 0 );
+  Insight<3> step_3 ( test, Simplex::Tilt( _Z, 1 ) );
+  Insight<3> step_4 ( test, Simplex::Tilt( _Z, 2 ) );
+  Insight<3> step_5 ( test, Simplex::Tilt( _Z, 3 ) );
  // Insight<3> addCache ( edgePool );
-  Insight<3> step_6 ( cross,   Simplex::Tilt( _X, 2 ), _Z );
-  Insight<3> step_7 ( corners, Simplex::Tilt( _X, 2 ), _Z );
+ /* Insight<3> step_6 ( cross,   Simplex::Tilt( _X, 2 ),  _Z );
+  Insight<3> step_7 ( corners, Simplex::Tilt( _X, 2 ),  _Z );
   Insight<3> step_8 ( lastEdges );
-  Insight<3> step_9 ( lastCorners );
+  Insight<3> step_9 ( lastCorners );*/
   timerOFF();
   clog( Color::cyan, "Ellapsed time:", Color::white, Color::bold, ellapsed(), Color::off );
 
@@ -95,7 +99,7 @@ bool UnitTests::unit_Engine() const
  // testEngine2 << addCache;
  // testEngine2.run( 11 ); // it does nothing right now
  //  testCube3.print();
-  testEngine2 << step_6;
+/*  testEngine2 << step_6;
   testEngine2.run( 11 );
   testCube3.print();
   testEngine2 << step_7;
@@ -106,7 +110,7 @@ bool UnitTests::unit_Engine() const
   testCube3.print();
   testEngine2 << step_9;
   testEngine2.run( 12 );
-  testCube3.print();
+  testCube3.print(); */
 
   stamp(true, success );
   finish( "Search-engine", success );
