@@ -4,6 +4,7 @@
 #include <cache_generator.h>
 #include <rubik.h>
 
+
 template< cube_size N >
 class Insight
 {
@@ -13,19 +14,25 @@ class Insight
   CubeID         m_prior;
 
   const size_t   m_size;
-  const CubeID * m_priorCache;
-  const RotID  * m_transRotation;
   const PosID  * m_pos;
 
-  mutable const RotID  * m_nextSuggested;
-  const CacheIDmap<N>  * m_map;
+  std::shared_ptr< const CubeID [] >     m_priorCache;
+  std::shared_ptr< const RotID  [] >     m_transRotation;
+  std::shared_ptr< const CacheIDmap<N> > m_map;
 
-  void initMap( SubSpace, const CubeID );
+  mutable const RotID  * m_nextSuggested;
+  const CubeID           m_base;
+  const CubeID           m_view;
+
+  void initMap( SubSpace, const Axis toRoll );
+  void initPos( SubSpace );
+  void initPos( const PosID * P );
   void initPrior();
   void initRotIDs();
 
 public:
-  Insight( SubSpace P, const CubeID cid = 0 );
+  Insight( SubSpace P, const CubeID cid = 0, const Axis toRoll = _NA );
+  Insight( const Insight<N> &, const CubeID cid );
   ~Insight();
   Insight( const Insight<N> & ) = delete;
 
@@ -39,7 +46,7 @@ public:
     return m_stateID;
   }
   
-  size_t prior() const
+  CubeID prior() const
   {
     return m_prior;
   }
@@ -69,30 +76,62 @@ public:
 };
 
 template< cube_size N >
-Insight<N>::Insight( SubSpace P, const CubeID cid )
+Insight<N>::Insight( SubSpace P, const CubeID cid, const Axis toRoll )
   : m_size  ( P.size() )
+  , m_pos( nullptr )
+  , m_map( nullptr )
+  , m_base( cid )
+  , m_view( 0 )
 {
-  initMap( P, cid );
+  initPos( P );
+  initMap( P, toRoll );
   initRotIDs();
   initPrior();
 }
 
-template< cube_size N > 
-void Insight<N>::initMap( SubSpace P, const CubeID cid )
+template< cube_size N >
+Insight<N>::Insight( const Insight<N> & orig, const CubeID cid )
+  : m_size( orig.m_size )
+  , m_priorCache ( orig.m_priorCache )
+  , m_transRotation( orig.m_transRotation )
+  , m_map ( orig.m_map )
+  , m_base( cid )
+  , m_view( cid )
 {
-  CacheIDmapper<N> * mapBuilder = new CacheIDmapper<N>;
-  CacheIDmap<N>    * map = new CacheIDmap<N>();
+  initPos( orig.m_pos );
+}
 
+template< cube_size N >
+void Insight<N>::initPos( SubSpace P )
+{
   PosID * pos = new PosID [ P.size() ];
   size_t i = 0;
   for( auto p: P )
   {
-    pos[ i++ ] = CPositions<N>::GetPosID( p, cid );
+    pos[ i++ ] = CPositions<N>::GetPosID( p, m_base );
   }
-  mapBuilder -> initialPosition( pos, P.size() );
-  mapBuilder -> createMap( *map );
-  m_map = map;
+
   m_pos = pos;
+}
+
+template< cube_size N >
+void Insight<N>::initPos( const PosID* P )
+{
+  PosID * pos = new PosID [ m_size ];
+  for( size_t id = 0; id < m_size; ++id )
+  {
+    pos[id] = CPositions<N>::GetPosID( P[id], m_base );
+  }
+  m_pos = pos;
+}
+
+template< cube_size N > 
+void Insight<N>::initMap( SubSpace P, const Axis toRoll )
+{
+  CacheIDmapper<N> * mapBuilder = new CacheIDmapper<N>;
+  mapBuilder -> initialPosition( m_pos, P.size() );
+  mapBuilder -> accept( toRoll) ;
+  m_map =  mapBuilder -> createMap();
   delete mapBuilder;
 }
 
@@ -117,7 +156,7 @@ void Insight<N>::initPrior()
       }
     }
   }
-  m_priorCache = priorCache;
+  m_priorCache.reset( priorCache );
 }
 
 template< cube_size N >
@@ -128,10 +167,10 @@ void Insight<N>::initRotIDs()
   {
     all_cubeid( prior )
     {
-      transRotation[ prior * _crot::AllRotIDs + _crot::GetRotID( axis, layer, turn ) ] = _crot::GetRotID( axis, layer, turn, Simplex::Inverse( prior ) );
+      transRotation[ prior * _crot::AllRotIDs + _crot::GetRotID( axis, layer, turn ) ] = _crot::GetRotID( axis, layer, turn, Simplex::Composition( Simplex::Inverse( prior ), Simplex::Inverse( m_view ) ) );
     }
   }
-  m_transRotation = transRotation;
+  m_transRotation.reset( transRotation );
 }
 
 template< cube_size N >
@@ -140,7 +179,7 @@ void Insight<N>::set( const Rubik<N> & R )
   CubeID * subset = new CubeID [ m_size ];
   for( size_t posIndex = 0; posIndex < m_size; ++ posIndex )
   {
-    subset[ posIndex ] = R.transpose( m_pos[ posIndex ] );
+    subset[ posIndex ] = Simplex::Composition( m_view, R.transpose( m_pos[ posIndex ] ) );
   }
   m_prior = subset[0];
   m_stateID = GetCacheID( subset, m_size );
@@ -156,7 +195,7 @@ int Insight<N>::rotate( const Axis axis, const Layer layer, const Turn turn )
 template< cube_size N >
 int Insight<N>::rotate( const RotID rotID )
 {
-  const RotID rotIDt = m_transRotation[ m_prior * _crot::AllRotIDs + rotID ];
+  const RotID rotIDt = m_transRotation[ m_prior * _crot::AllRotIDs  + rotID ];
 
   m_prior   = m_priorCache[ 24 * rotIDt + m_prior ] ;
   m_stateID = m_map -> getState( m_stateID, rotIDt ) ;
@@ -166,10 +205,7 @@ int Insight<N>::rotate( const RotID rotID )
 template< cube_size N >
 Insight<N>::~Insight()
 {
-  delete   m_map;
   delete[] m_pos;
-  delete[] m_priorCache;
-  delete[] m_transRotation;
 }
 
 #include <insight_print.h>
