@@ -94,7 +94,7 @@ bool UnitTests::unit_Engine() const
   testEngine2 << step_7;
   testEngine2.run( 12 );
   testCube3.print();
-  testEngine2 << step_8;
+  testEngine2.swap( &step_7, &step_8 );
   testEngine2.run( 12 );
   testCube3.print();
  // testEngine2 << addCache;

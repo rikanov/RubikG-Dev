@@ -50,6 +50,7 @@ public:
 
   void operator << ( Insight<N> & );
   void operator << ( Insight<N> * );
+  void swap( Insight<N> * , Insight<N> *);
 
   void run  ( const int depth );
   bool exec ( const Axis refA, const Layer refL );
@@ -73,6 +74,19 @@ template< cube_size N >
 void Engine<N>::operator << ( Insight<N> * next )
 {
   *( m_lastInsight ++ ) = next;
+}
+
+template< cube_size N >
+void Engine<N>::swap( Insight<N> * A, Insight<N> * B)
+{
+  for ( Insight<N> ** p = m_insights; p < m_lastInsight; ++ p )
+  {
+    if ( *p == A )
+    {
+      *p = B;
+      return;
+    }
+  }
 }
 
 template< cube_size N >
