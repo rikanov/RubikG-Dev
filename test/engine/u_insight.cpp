@@ -2,18 +2,18 @@
 #include <insight.h>
 
 template< cube_size N >
-static void PlayWith( Insight<N> & insight, const int * test, bool & success )
+static void PlayWith( std::shared_ptr< Insight<N> > insight, const int * test, bool & success )
 {
-  insight.print();
+  insight -> print();
   const int * next = test;
   const int testLines = *( next ++ );
   for( int line = 0; line < testLines; ++ line )
   {
     const RotID rotID = *( next ++ );
     UnitTests::tcase( "Rotation by", CExtRotations<N>::ToString( rotID ) );
-    insight.rotate( rotID );
-    insight.print();
-    UnitTests::stamp( insight.state() == *( next ++ ) && insight.prior() == *( next ++ ) &&  insight.distance() == *( next ++ ), success );
+    insight -> rotate( rotID );
+    insight -> print();
+    UnitTests::stamp( insight -> state() == *( next ++ ) && insight -> prior() == *( next ++ ) &&  insight -> distance() == *( next ++ ), success );
   }
 }
 
@@ -196,34 +196,34 @@ bool UnitTests::unit_Insight() const
  // Rubik 2x2
 //-----------
   Rubik<2> test_2;
-  Insight<2> baseInsight_2 ( toSolve_2 );
-  Insight<2> transInsight_2( toSolve_2, Simplex::Tilt( _Z, 1 ) );
-  baseInsight_2.set( test_2 );
-  transInsight_2.set( test_2 );
+  auto baseInsight_2 = Insight<2>::Create( toSolve_2 );
+  auto transInsight_2= Insight<2>::Create( toSolve_2, Simplex::Tilt( _Z, 1 ) );
+  baseInsight_2  -> set( test_2 );
+  transInsight_2 -> set( test_2 );
 
  // Rubik 3x3
 //-----------
   Rubik<3> test_3;
-  Insight<3> baseInsight_3 ( toSolve_3 );
-  Insight<3> transInsight_3( toSolve_3, Simplex::Tilt( _Y, 1 ) );
-  baseInsight_3.set( test_3 );
-  transInsight_3.set( test_3 );
+  auto baseInsight_3 = Insight<3>::Create( toSolve_3 );
+  auto transInsight_3= Insight<3>::Create( toSolve_3, Simplex::Tilt( _Y, 1 ) );
+  baseInsight_3  -> set( test_3 );
+  transInsight_3 -> set( test_3 );
 
  // Rubik 4x4
 //-----------
   Rubik<4> test_4;
-  Insight<4> baseInsight_4 ( toSolve_4 );
-  Insight<4> transInsight_4( toSolve_4, Simplex::Tilt( _X, 1 ) );
-  baseInsight_4.set( test_4 );
-  transInsight_4.set( test_4 );
+  auto baseInsight_4 = Insight<4>::Create( toSolve_4 );
+  auto transInsight_4= Insight<4>::Create( toSolve_4, Simplex::Tilt( _X, 1 ) );
+  baseInsight_4  -> set( test_4 );
+  transInsight_4 -> set( test_4 );
 
  // Rubik 5x5
 //-----------
   Rubik<5> test_5;
-  Insight<5> baseInsight_5 ( toSolve_5 );
-  Insight<5> transInsight_5( toSolve_5, Simplex::Composition( Simplex::Tilt( _X, 2 ), Simplex::Tilt( _Z, 1 ) ) );
-  baseInsight_5.set ( test_5 );
-  transInsight_5.set( test_5 );
+  auto baseInsight_5 = Insight<5>::Create( toSolve_5 );
+  auto transInsight_5= Insight<5>::Create( toSolve_5, Simplex::Composition( Simplex::Tilt( _X, 2 ), Simplex::Tilt( _Z, 1 ) ) );
+  baseInsight_5  -> set( test_5 );
+  transInsight_5 -> set( test_5 );
 
   timerOFF();
   tail( "Memory allocation", success );
