@@ -30,11 +30,15 @@ class Insight
   void initPrior();
   void initRotIDs();
 
-public:
   Insight( SubSpace P, const CubeID cid = 0, const Axis toRoll = _NA );
-  Insight( const Insight<N> &, const CubeID cid );
+  Insight( const std::shared_ptr< const Insight<N> >, const CubeID cid );
+
+public:
   ~Insight();
   Insight( const Insight<N> & ) = delete;
+
+  static std::shared_ptr< Insight<N> > Create( SubSpace P, const CubeID cid = 0, const Axis toRoll = _NA );
+  static std::shared_ptr< Insight<N> > Create( const std::shared_ptr< const Insight<N> >, const CubeID cid );
 
   void set( const Rubik<N> & );
 
@@ -90,15 +94,27 @@ Insight<N>::Insight( SubSpace P, const CubeID cid, const Axis toRoll )
 }
 
 template< cube_size N >
-Insight<N>::Insight( const Insight<N> & orig, const CubeID cid )
-  : m_size( orig.m_size )
-  , m_priorCache ( orig.m_priorCache )
-  , m_transRotation( orig.m_transRotation )
-  , m_map ( orig.m_map )
+Insight<N>::Insight( const std::shared_ptr< const Insight<N> > orig, const CubeID cid )
+  : m_size( orig -> m_size )
+  , m_priorCache ( orig -> m_priorCache )
+  , m_transRotation( orig -> m_transRotation )
+  , m_map ( orig -> m_map )
   , m_base( cid )
   , m_view( cid )
 {
-  initPos( orig.m_pos );
+  initPos( orig -> m_pos );
+}
+
+template< cube_size N >
+std::shared_ptr< Insight<N> > Insight<N>::Create( SubSpace P, const CubeID cid, const Axis toRoll )
+{
+  return std::shared_ptr< Insight<N> > ( new Insight<N> ( P, cid, toRoll ) );
+}
+
+template< cube_size N >
+std::shared_ptr< Insight<N> > Insight<N>::Create( const std::shared_ptr< const Insight<N> > orig, const CubeID cid )
+{
+  return std::shared_ptr< Insight<N> > ( new Insight<N> ( orig, cid ) );
 }
 
 template< cube_size N >

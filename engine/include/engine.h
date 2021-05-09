@@ -7,10 +7,13 @@ template< cube_size N >
 class Engine
 {
   using _crot = CExtRotations<N>;
+  using _insight = std::shared_ptr< Insight<N> >;
 
   static constexpr size_t s_Size = CPositions<N>::GetSize();
-  Insight <N> ** m_insights;
-  Insight <N> ** m_lastInsight;
+
+  _insight * m_insights;
+  _insight * m_lastInsight;
+
   Rubik   <N> &  m_rubik;
 
   DistID  m_depth;
@@ -18,13 +21,13 @@ class Engine
   RotID   m_rotStack[200];
   void rotate( const RotID rotID )
   {
-    for ( Insight<N> ** p = m_insights; p < m_lastInsight; ++ p )
+    for ( auto p = m_insights; p < m_lastInsight; ++ p )
       (*p) -> rotate( rotID );
   }
 
-  Insight<N> * getGuide() const
+  _insight getGuide() const
   {
-    for ( Insight<N> ** p = m_insights; p < m_lastInsight; ++ p )
+    for ( auto p = m_insights; p < m_lastInsight; ++ p )
     {
       if ( ( *p ) -> distance() >= m_depth )
         return *p;
@@ -34,7 +37,7 @@ class Engine
 
   bool isSolvable() const
   {
-    for ( Insight<N> ** p = m_insights; p < m_lastInsight; ++ p )
+    for ( auto * p = m_insights; p < m_lastInsight; ++ p )
     {
       if ( ( *p ) -> distance() > m_depth )
         return false;
@@ -42,15 +45,14 @@ class Engine
     return true;
   }
 
-  bool guidedSearch( Insight<N> * );
+  bool guidedSearch( _insight );
 
 public:
   Engine( Rubik<N> & );
   ~Engine();
 
-  void operator << ( Insight<N> & );
-  void operator << ( Insight<N> * );
-  void swap( Insight<N> * , Insight<N> *);
+  void operator << ( _insight );
+  void swap( _insight , _insight );
 
   void run  ( const int depth );
   bool exec ( const Axis refA, const Layer refL );
@@ -58,28 +60,22 @@ public:
 
 template< cube_size N > 
 Engine<N>::Engine( Rubik <N> & rubik )
-  : m_insights( new Insight<N> * [ s_Size ]{} )
+  : m_insights( new _insight [ s_Size ]{} )
   , m_lastInsight( m_insights )
   , m_rubik( rubik )
 {
 }
 
 template< cube_size N >
-void Engine<N>::operator << ( Insight<N> & next )
-{
-  *( m_lastInsight ++ ) = &next;
-}
-
-template< cube_size N >
-void Engine<N>::operator << ( Insight<N> * next )
+void Engine<N>::operator << ( _insight next )
 {
   *( m_lastInsight ++ ) = next;
 }
 
 template< cube_size N >
-void Engine<N>::swap( Insight<N> * A, Insight<N> * B)
+void Engine<N>::swap ( _insight A, _insight B )
 {
-  for ( Insight<N> ** p = m_insights; p < m_lastInsight; ++ p )
+  for ( auto p = m_insights; p < m_lastInsight; ++ p )
   {
     if ( *p == A )
     {
@@ -90,7 +86,7 @@ void Engine<N>::swap( Insight<N> * A, Insight<N> * B)
 }
 
 template< cube_size N >
-bool Engine<N>::guidedSearch( Insight<N> * insight )
+bool Engine<N>::guidedSearch( _insight insight )
 {
   if ( insight == nullptr || ! isSolvable() )
   {

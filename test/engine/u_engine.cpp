@@ -61,13 +61,13 @@ bool UnitTests::unit_Engine() const
   tcase( "Memory allocation & pool creations" );
 
   timerON();
-  Insight<3> step_1 ( cross );
-  Insight<3> test   ( cornerBlock );
-  Insight<3> step_2 ( test, 0 );
-  Insight<3> step_3 ( test, Simplex::Tilt( _Z, 2 ) );
-  Insight<3> step_6 ( step_1,   Simplex::Tilt( _X, 2 ) );
-  Insight<3> step_7 ( corners,  Simplex::Tilt( _X, 2 ), _Z );
-  Insight<3> step_8 ( corners,  Simplex::Tilt( _X, 2 ) );
+  auto step_1 = Insight<3>::Create( cross );
+  auto test   = Insight<3>::Create( cornerBlock );
+  auto step_2 = Insight<3>::Create( test, 0 );
+  auto step_3 = Insight<3>::Create( test, Simplex::Tilt( _Z, 2 ) );
+  auto step_6 = Insight<3>::Create( step_1,   Simplex::Tilt( _X, 2 ) );
+  auto step_7 = Insight<3>::Create( corners,  Simplex::Tilt( _X, 2 ), _Z );
+  auto step_8 = Insight<3>::Create( corners,  Simplex::Tilt( _X, 2 ) );
   timerOFF();
   clog( Color::cyan, "Ellapsed time:", Color::white, Color::bold, ellapsed(), Color::off );
 
@@ -94,7 +94,7 @@ bool UnitTests::unit_Engine() const
   testEngine2 << step_7;
   testEngine2.run( 12 );
   testCube3.print();
-  testEngine2.swap( &step_7, &step_8 );
+  testEngine2.swap( step_7, step_8 );
   testEngine2.run( 12 );
   testCube3.print();
  // testEngine2 << addCache;
