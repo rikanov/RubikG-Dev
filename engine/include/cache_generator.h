@@ -3,6 +3,7 @@
 
 #include <rubik.h>
 #include <containers.h>
+#include <memory>
 
 inline 
 CacheID GetCacheID( const CubeID * P, const size_t size )
@@ -41,6 +42,7 @@ class CacheIDmapper
 {
 
   using _crot = CExtRotations< N >;
+  using _pointer = std::shared_ptr< CacheIDmap<N> >;
 
 protected:
   size_t m_size; // number of cubies in the subspace
@@ -73,11 +75,11 @@ public:
   void accept   ( const Axis axis );
   void useSolid ();
   
-  void createMap( CacheIDmap<N> & result );
+  _pointer createMap();
   
 private:
-  void addLayerRotations( CacheIDmap<N> & result );
-  void addSliceRotations( CacheIDmap<N> & result );
+  void addLayerRotations( _pointer result );
+  void addSliceRotations( _pointer result );
 
   CacheID getCacheID( const CubeID * P ) const   { return GetCacheID( P, m_size ); }
 
@@ -185,9 +187,10 @@ void CacheIDmapper<N>::roll( const size_t id )
 
 
 template< cube_size N >
-void CacheIDmapper<N>::createMap( CacheIDmap<N> & result )
+ std::shared_ptr< CacheIDmap<N> > CacheIDmapper<N>::createMap()
 {
-  result.init( m_size );
+  _pointer result ( new CacheIDmap<N>() );
+  result -> init( m_size );
   while( *m_qeueu >> m_parentID )
   {
     setParent();
@@ -195,22 +198,23 @@ void CacheIDmapper<N>::createMap( CacheIDmap<N> & result )
     addSliceRotations( result );
   }
   clean();
+  return result;
 }
 
 template< cube_size N >
-void CacheIDmapper<N>::addLayerRotations( CacheIDmap<N> & result )
+void CacheIDmapper<N>::addLayerRotations( _pointer result )
 {
   all_rot( axis, layer, turn, N )
   {
     cloneParent();
     nextChild( axis, layer, turn );
     const CacheID nextID = getCacheID( m_child );
-    result.connect( m_parentID, axis, layer, turn, nextID, *m_qeueu << nextID );
+    result -> connect( m_parentID, axis, layer, turn, nextID, *m_qeueu << nextID );
   }
 }
 
 template< cube_size N >
-void CacheIDmapper<N>::addSliceRotations( CacheIDmap<N> & result )
+void CacheIDmapper<N>::addSliceRotations( _pointer result )
 {
   if ( N < 4 )
   {
@@ -226,7 +230,7 @@ void CacheIDmapper<N>::addSliceRotations( CacheIDmap<N> & result )
       {
         nextChild( axis, layer, turn );
         const CacheID nextID = getCacheID( m_child );
-        result.connect( m_parentID, axis, layer + N - 1, turn, nextID, *m_qeueu << nextID );
+        result -> connect( m_parentID, axis, layer + N - 1, turn, nextID, *m_qeueu << nextID );
       }
     }
   }

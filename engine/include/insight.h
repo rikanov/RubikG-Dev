@@ -14,12 +14,13 @@ class Insight
   CubeID         m_prior;
 
   const size_t   m_size;
-  const CubeID * m_priorCache;
-  const RotID  * m_transRotation;
   const PosID  * m_pos;
 
+  std::shared_ptr< const CubeID [] >     m_priorCache;
+  std::shared_ptr< const RotID  [] >     m_transRotation;
+  std::shared_ptr< const CacheIDmap<N> > m_map;
+
   mutable const RotID  * m_nextSuggested;
-  const CacheIDmap<N>  * m_map;
   const CubeID           m_base;
   const CubeID           m_view;
 
@@ -45,7 +46,7 @@ public:
     return m_stateID;
   }
   
-  size_t prior() const
+  CubeID prior() const
   {
     return m_prior;
   }
@@ -93,7 +94,7 @@ Insight<N>::Insight( const Insight<N> & orig, const CubeID cid )
   : m_size( orig.m_size )
   , m_priorCache ( orig.m_priorCache )
   , m_transRotation( orig.m_transRotation )
-  , m_map( orig.m_map )
+  , m_map ( orig.m_map )
   , m_base( cid )
   , m_view( cid )
 {
@@ -127,12 +128,10 @@ void Insight<N>::initPos( const PosID* P )
 template< cube_size N > 
 void Insight<N>::initMap( SubSpace P, const Axis toRoll )
 {
-  CacheIDmap<N>    * map = new CacheIDmap<N>();
   CacheIDmapper<N> * mapBuilder = new CacheIDmapper<N>;
   mapBuilder -> initialPosition( m_pos, P.size() );
   mapBuilder -> accept( toRoll) ;
-  mapBuilder -> createMap( *map );
-  m_map = map;
+  m_map =  mapBuilder -> createMap();
   delete mapBuilder;
 }
 
@@ -157,7 +156,7 @@ void Insight<N>::initPrior()
       }
     }
   }
-  m_priorCache = priorCache;
+  m_priorCache.reset( priorCache );
 }
 
 template< cube_size N >
@@ -171,7 +170,7 @@ void Insight<N>::initRotIDs()
       transRotation[ prior * _crot::AllRotIDs + _crot::GetRotID( axis, layer, turn ) ] = _crot::GetRotID( axis, layer, turn, Simplex::Composition( Simplex::Inverse( prior ), Simplex::Inverse( m_view ) ) );
     }
   }
-  m_transRotation = transRotation;
+  m_transRotation.reset( transRotation );
 }
 
 template< cube_size N >
@@ -206,10 +205,7 @@ int Insight<N>::rotate( const RotID rotID )
 template< cube_size N >
 Insight<N>::~Insight()
 {
-  delete   m_map; m_map = nullptr;
   delete[] m_pos;
-  delete[] m_priorCache;
-  delete[] m_transRotation;
 }
 
 #include <insight_print.h>
