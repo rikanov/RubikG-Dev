@@ -3,7 +3,7 @@
 
 #include <cache_generator.h>
 #include <rubik.h>
-
+#include <sequence.h>
 
 template< cube_size N >
 class Insight
