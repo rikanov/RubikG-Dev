@@ -14,7 +14,7 @@ class Engine
   _insight * m_insights;
   _insight * m_lastInsight;
 
-  Rubik   <N> &  m_rubik;
+  Rubik<N> & m_rubik;
 
   DistID  m_depth;
   RotID * m_stackPointer;

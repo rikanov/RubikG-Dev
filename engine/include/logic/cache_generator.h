@@ -2,7 +2,7 @@
 #define CACHE_GENERATOR__H
 
 #include <rubik.h>
-#include <containers.h>
+#include <cacheid_map.h>
 #include <memory>
 
 inline 
