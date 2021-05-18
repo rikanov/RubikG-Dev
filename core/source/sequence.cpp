@@ -3,41 +3,45 @@
 
 
 Sequence::Sequence()
-  : m_rotations( nullptr )
-  , m_size( 0 )
+  : m_rotations( new RotID [256] {} )
+  , m_stackPointer( m_rotations )
 {
 }
 
-Sequence::Sequence( const RotID * rotations , const size_t size )
-  : m_rotations( nullptr )
+Sequence::Sequence( const size_t size)
+  : m_rotations( new RotID [size] {} )
+  , m_stackPointer( m_rotations )
+{
+}
+
+Sequence::Sequence(const RotID* rotations, const size_t size)
+  : m_rotations( new RotID [256] {} )
+  , m_stackPointer( m_rotations )
 {
   set( rotations, size );
 }
 
 Sequence::Sequence( const Sequence & C )
-  : m_rotations( nullptr )
+  : m_rotations( new RotID [256] {} )
 {
   set( C.raw(), C.size() );
 }
 
 void Sequence::set( const RotID * rotations, size_t size )
 {
-  delete[] m_rotations;
-  RotID * pool = new RotID[size]{};
-  m_size = size;
-  for( size_t id = 0; id < m_size; ++ id )
+  m_stackPointer = m_rotations;
+  for( size_t id = 0; id < size; ++ id )
   {
-    pool[id] = rotations[id];
+    *( m_stackPointer++ ) = rotations[id];
   }
-  m_rotations = pool;
 }
 
 bool Sequence::operator == ( const Sequence & S ) const
 {
-  if ( m_size != S.m_size )
+  if ( size() != S.size() )
     return false;
 
-  for ( size_t id = 0; id < m_size; ++ id )
+  for ( size_t id = 0; id < size(); ++ id )
   {
     if ( m_rotations[id] != S.m_rotations[id] )
     {
@@ -50,47 +54,26 @@ bool Sequence::operator == ( const Sequence & S ) const
 Sequence Sequence::operator + ( const Sequence & S ) const
 {
   Sequence result;
-  RotID * pool = new RotID[ m_size + S.m_size ]{};
-  size_t id = 0;
-
-  for( ; id < m_size; ++ id )
+  for( RotID n = start(); n; n = next() )
   {
-    pool[id] = m_rotations[id];
+    result << n;
   }
-
-  for( ; id < m_size + S.m_size; ++ id )
+  for( RotID n = S.start(); n; n = S.next() )
   {
-    pool[id] = S.m_rotations[id];
+    result << n;
   }
-
-  result.m_rotations = pool;
-  result.m_size = m_size + S.m_size;
   return result;
 }
 
 void Sequence::operator += ( const Sequence & S )
 {
-  RotID * pool = new RotID[ m_size + S.m_size ]{};
-  size_t id = 0;
-
-  for( ; id < m_size; ++ id )
+  for( RotID n = S.start(); n; n = S.next() )
   {
-    pool[id] = m_rotations[id];
+    *( m_stackPointer++ ) = n;
   }
-
-  for( ; id < m_size + S.m_size; ++ id )
-  {
-    pool[id] = S.m_rotations[id];
-  }
-
-  delete[] m_rotations;
-  m_rotations = pool;
-  m_size += S.m_size;
 }
 
 Sequence::~Sequence()
 {
   delete[] m_rotations;
-  m_rotations = nullptr;
-  m_size = 0;
 }
