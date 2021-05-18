@@ -1,38 +1,9 @@
-#ifndef ROTATION_SEQUENCE__H
-#define ROTATION_SEQUENCE__H
+#include <sequence.h>
 
-#include < base_types.h >
-
-class Sequence
-{
-  const RotID * m_rotations;
-  size_t        m_size;
-  
-public:
-  Sequence();
-  Sequence( const RotID * rotations , const size_t size );
-  Sequence( const Sequence & C );
-  ~Sequence();
-  
-  const RotID * raw() const
-  {
-    return m_rotations;
-  }
-  
-  size_t size() const
-  {
-    return m_size;
-  }
-  
-  void set( const RotID * rotations, size_t size );
-  bool     operator == ( const Sequence & S ) const;
-  Sequence operator +  ( const Sequence & S ) const;
-  void     operator += ( const Sequence & S ) ;
-};
 
 
 Sequence::Sequence()
-  : m_sequence( nullptr )
+  : m_rotations( nullptr )
   , m_size( 0 )
 {
 }
@@ -52,7 +23,7 @@ Sequence::Sequence( const Sequence & C )
 void Sequence::set( const RotID * rotations, size_t size )
 {
   delete[] m_rotations;
-  RotID * pool = new RotID[size];
+  RotID * pool = new RotID[size]{};
   m_size = size;
   for( size_t id = 0; id < m_size; ++ id )
   {
@@ -60,10 +31,10 @@ void Sequence::set( const RotID * rotations, size_t size )
   }
   m_rotations = pool;
 }
-  
-bool Sequence::operator == ( const Sequence & S )
+
+bool Sequence::operator == ( const Sequence & S ) const
 {
-  if ( m_size != C.m_size )
+  if ( m_size != S.m_size )
     return false;
 
   for ( size_t id = 0; id < m_size; ++ id )
@@ -75,11 +46,11 @@ bool Sequence::operator == ( const Sequence & S )
   }
   return true;
 }
-  
+
 Sequence Sequence::operator + ( const Sequence & S ) const
 {
   Sequence result;
-  RotID * pool = new RotID[ m_size + S.m_size ];
+  RotID * pool = new RotID[ m_size + S.m_size ]{};
   size_t id = 0;
 
   for( ; id < m_size; ++ id )
@@ -96,10 +67,10 @@ Sequence Sequence::operator + ( const Sequence & S ) const
   result.m_size = m_size + S.m_size;
   return result;
 }
-  
+
 void Sequence::operator += ( const Sequence & S )
 {
-  RotID * pool = new RotID[ m_size + S.m_size ];
+  RotID * pool = new RotID[ m_size + S.m_size ]{};
   size_t id = 0;
 
   for( ; id < m_size; ++ id )
@@ -123,5 +94,3 @@ Sequence::~Sequence()
   m_rotations = nullptr;
   m_size = 0;
 }
-  
-#endif  // !  ROTATION_SEQUENCE__H

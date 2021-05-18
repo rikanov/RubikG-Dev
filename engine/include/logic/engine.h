@@ -2,6 +2,7 @@
 #define ENGINE__H_INCLUDED
 
 #include <insight.h>
+#include <sequence.h>
 
 template< cube_size N >
 class Engine
@@ -46,6 +47,7 @@ class Engine
   }
 
   bool guidedSearch( _insight );
+  bool exec ( const Axis refA, const Layer refL );
 
 public:
   Engine( Rubik<N> & );
@@ -54,8 +56,8 @@ public:
   void operator << ( _insight );
   void swap( _insight , _insight );
 
-  void run  ( const int depth );
-  bool exec ( const Axis refA, const Layer refL );
+  Sequence run  ( const int depth );
+
 };
 
 template< cube_size N > 
@@ -149,7 +151,7 @@ bool Engine<N>::exec( const Axis refA, const Layer refL )
 }
 
 template< cube_size N >
-void Engine<N>::run( const int depth )
+Sequence Engine<N>::run( const int depth )
 {
   for( auto P = m_insights; P != m_lastInsight; ++ P )
   {
@@ -162,10 +164,10 @@ void Engine<N>::run( const int depth )
     if ( exec( _NA, 0 ) )
     {
       *( m_stackPointer + 1 ) = 0; // termination sign
-      m_rubik.rotate( m_rotStack );
       break;
     }
   }
+  return Sequence( m_rotStack, 200);
 }
 
 template< cube_size N >

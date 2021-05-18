@@ -80,38 +80,23 @@ bool UnitTests::unit_Engine() const
   Engine<3>  testEngine1( testCube3 );
   Engine<3>  testEngine2( testCube3 );
   testEngine2 << step_1;
-  testEngine2.run( 11 );
+  testCube3.rotate( testEngine2.run( 11 ).raw() );
   testCube3.print();
   testEngine2 << step_2;
-  testEngine2.run( 12 );
+  testCube3.rotate( testEngine2.run( 12 ).raw() );
   testCube3.print();
   testEngine2 << step_3;
-  testEngine2.run( 12 );
+  testCube3.rotate( testEngine2.run( 12 ).raw() );
   testCube3.print();
   testEngine2 << step_6;
-  testEngine2.run( 12 );
+  testCube3.rotate( testEngine2.run( 12 ).raw() );
   testCube3.print();
   testEngine2 << step_7;
-  testEngine2.run( 12 );
+  testCube3.rotate( testEngine2.run( 12 ).raw() );
   testCube3.print();
   testEngine2.swap( step_7, step_8 );
-  testEngine2.run( 12 );
+  testCube3.rotate( testEngine2.run( 12 ).raw() );
   testCube3.print();
- // testEngine2 << addCache;
- // testEngine2.run( 11 ); // it does nothing right now
- //  testCube3.print();
-/*  testEngine2 << step_6;
-  testEngine2.run( 11 );
-  testCube3.print();
-  testEngine2 << step_7;
-  testEngine2.run( 11 );
-  testCube3.print();
-  testEngine2 << step_8;
-  testEngine2.run( 12 );
-  testCube3.print();
-  testEngine2 << step_9;
-  testEngine2.run( 12 );
-  testCube3.print(); */
 
   stamp(true, success );
   finish( "Search-engine", success );
