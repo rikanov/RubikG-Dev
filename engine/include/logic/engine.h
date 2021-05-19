@@ -17,9 +17,9 @@ class Engine
 
   Rubik<N> & m_rubik;
 
-  DistID  m_depth;
-  RotID * m_stackPointer;
-  RotID   m_rotStack[200];
+  DistID   m_depth;
+  Sequence m_result;
+  
   void rotate( const RotID rotID )
   {
     for ( auto p = m_insights; p < m_lastInsight; ++ p )
@@ -101,18 +101,17 @@ bool Engine<N>::guidedSearch( _insight insight )
   }
 
   --m_depth;
-  ++m_stackPointer;
   for( RotID next = insight -> start(); next != 0; next = insight -> next() )
   {
-    *m_stackPointer = next;
+    m_result << next;
     rotate( next );
     if ( guidedSearch( insight ) )
     {
       return true;
     }
     rotate( _crot::GetInvRotID( next ) ); // revert
+    m_result.back();
   }
-  --m_stackPointer;
   ++m_depth;
 
   return false;
@@ -125,7 +124,6 @@ bool Engine<N>::exec( const Axis refA, const Layer refL )
   {
     return guidedSearch( getGuide() );
   }
-  ++ m_stackPointer;
   -- m_depth;
   for( Axis axis : { _X, _Y, _Z } )
   {
@@ -136,17 +134,17 @@ bool Engine<N>::exec( const Axis refA, const Layer refL )
       for( Turn turn: { 1, 2, 3} )
       {
         rotate( rotID );
-        *m_stackPointer = turned ++;
+        m_result << turned++;
         if ( exec( axis, layer ) )
         {
           return true;
         }
+        m_result.back();
       }
       rotate( rotID ); // fourth turn --> revert
     }
   }
   ++ m_depth;
-  -- m_stackPointer;
   return false;
 }
 
@@ -157,17 +155,16 @@ Sequence Engine<N>::run( const int depth )
   {
     ( *P ) -> set( m_rubik );
   }
-  m_stackPointer = m_rotStack - 1;
   for ( int d = 0; d < depth; ++ d)
   {
     m_depth = d;
     if ( exec( _NA, 0 ) )
     {
-      *( m_stackPointer + 1 ) = 0; // termination sign
+      m_result << 0; // termination sign
       break;
     }
   }
-  return Sequence( m_rotStack, 200);
+  return m_result;
 }
 
 template< cube_size N >
