@@ -1,6 +1,6 @@
 #include <sequence.h>
 
-
+#include <text_output.h>
 
 Sequence::Sequence()
   : m_rotations( new RotID [256] {} )
@@ -25,6 +25,16 @@ Sequence::Sequence( const Sequence & C )
   : m_rotations( new RotID [256] {} )
 {
   set( C.raw(), C.size() );
+}
+
+Sequence::Sequence( Sequence && S )
+  : m_rotations( S.m_rotations)
+  , m_stackPointer ( S.m_stackPointer )
+  , m_nextRotation ( S.m_nextRotation )
+{
+  S.m_rotations    = nullptr;
+  S.m_stackPointer = nullptr;
+  S.m_nextRotation = nullptr;
 }
 
 void Sequence::set( const RotID * rotations, size_t size )

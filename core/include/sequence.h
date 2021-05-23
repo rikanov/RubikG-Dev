@@ -14,6 +14,7 @@ public:
   Sequence( const size_t );
   Sequence( const RotID * rotations, const size_t size );
   Sequence( const Sequence & C );
+  Sequence( Sequence && );
   ~Sequence();
   
   void set( const RotID * rotations, size_t size );
@@ -61,7 +62,12 @@ public:
 
   RotID next() const
   {
-    return *( m_nextRotation++ );
+    return ( m_nextRotation < m_stackPointer ) ? *( m_nextRotation++ ) : 0;
+  }
+
+  void reset()
+  {
+    m_stackPointer = m_rotations;
   }
 
 };
