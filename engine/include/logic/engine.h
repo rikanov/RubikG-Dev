@@ -2,6 +2,7 @@
 #define ENGINE__H_INCLUDED
 
 #include <insight.h>
+#include <sequence.h>
 
 template< cube_size N >
 class Engine
@@ -16,9 +17,10 @@ class Engine
 
   Rubik<N> & m_rubik;
 
-  DistID  m_depth;
-  RotID * m_stackPointer;
-  RotID   m_rotStack[200];
+  size_t   m_rootComplexity;
+  DistID   m_searchDepth;
+  Sequence m_result;
+  
   void rotate( const RotID rotID )
   {
     for ( auto p = m_insights; p < m_lastInsight; ++ p )
@@ -29,7 +31,7 @@ class Engine
   {
     for ( auto p = m_insights; p < m_lastInsight; ++ p )
     {
-      if ( ( *p ) -> distance() >= m_depth )
+      if ( ( *p ) -> distance() >= m_searchDepth )
         return *p;
     }
     return nullptr;
@@ -39,13 +41,16 @@ class Engine
   {
     for ( auto * p = m_insights; p < m_lastInsight; ++ p )
     {
-      if ( ( *p ) -> distance() > m_depth )
+      if ( ( *p ) -> distance() > m_searchDepth )
         return false;
     }
     return true;
   }
 
+  bool startDeepSearch( const DistID );
   bool guidedSearch( _insight );
+  bool deepSearch ( const Axis refA, const Layer refL );
+  size_t complexity( const DistID weight = 0 ) const;
 
 public:
   Engine( Rubik<N> & );
@@ -54,8 +59,8 @@ public:
   void operator << ( _insight );
   void swap( _insight , _insight );
 
-  void run  ( const int depth );
-  bool exec ( const Axis refA, const Layer refL );
+  Sequence solve  ( const int depth, const bool E = true );
+
 };
 
 template< cube_size N > 
@@ -86,6 +91,23 @@ void Engine<N>::swap ( _insight A, _insight B )
 }
 
 template< cube_size N >
+bool Engine<N>::startDeepSearch( const DistID depth )
+{
+  for ( int d = 0; d < depth; ++ d)
+  {
+    m_rootComplexity = d > 10 ? complexity( 1 ) : 0;
+    m_searchDepth = d; clog_( "\rdepth: ", d, ' ' );
+    if ( deepSearch( _NA, 0 ) )
+    {
+      NL();
+      return true;
+    }
+  }
+  NL();
+  return false;
+}
+
+template< cube_size N >
 bool Engine<N>::guidedSearch( _insight insight )
 {
   if ( insight == nullptr || ! isSolvable() )
@@ -98,33 +120,31 @@ bool Engine<N>::guidedSearch( _insight insight )
     return true;
   }
 
-  --m_depth;
-  ++m_stackPointer;
+  --m_searchDepth;
   for( RotID next = insight -> start(); next != 0; next = insight -> next() )
   {
-    *m_stackPointer = next;
+    m_result << next;
     rotate( next );
     if ( guidedSearch( insight ) )
     {
       return true;
     }
     rotate( _crot::GetInvRotID( next ) ); // revert
+    m_result.back();
   }
-  --m_stackPointer;
-  ++m_depth;
+  ++m_searchDepth;
 
   return false;
 }
 
 template< cube_size N >
-bool Engine<N>::exec( const Axis refA, const Layer refL )
+bool Engine<N>::deepSearch( const Axis refA, const Layer refL )
 {
   if ( getGuide() )
   {
     return guidedSearch( getGuide() );
   }
-  ++ m_stackPointer;
-  -- m_depth;
+  -- m_searchDepth;
   for( Axis axis : { _X, _Y, _Z } )
   {
     for( Layer layer = axis == refA ? refL + 1 : 0; layer < _crot::NT; ++ layer )
@@ -134,38 +154,45 @@ bool Engine<N>::exec( const Axis refA, const Layer refL )
       for( Turn turn: { 1, 2, 3} )
       {
         rotate( rotID );
-        *m_stackPointer = turned ++;
-        if ( exec( axis, layer ) )
+        m_result << turned++;
+        if ( deepSearch( axis, layer ) )
         {
           return true;
         }
+        m_result.back();
       }
       rotate( rotID ); // fourth turn --> revert
     }
   }
-  ++ m_depth;
-  -- m_stackPointer;
+  ++ m_searchDepth;
   return false;
 }
 
 template< cube_size N >
-void Engine<N>::run( const int depth )
+Sequence Engine<N>::solve( const int depth, const bool E )
 {
+  m_result.reset();
   for( auto P = m_insights; P != m_lastInsight; ++ P )
   {
     ( *P ) -> set( m_rubik );
   }
-  m_stackPointer = m_rotStack - 1;
-  for ( int d = 0; d < depth; ++ d)
+  if( startDeepSearch( depth ) && E )
   {
-    m_depth = d;
-    if ( exec( _NA, 0 ) )
-    {
-      *( m_stackPointer + 1 ) = 0; // termination sign
-      m_rubik.rotate( m_rotStack );
-      break;
-    }
+    m_rubik.rotate( m_result );
   }
+  return m_result;
+}
+
+template<cube_size N> size_t Engine<N>::complexity( const DistID weight ) const
+{
+  size_t result = 0;
+  for( auto P = m_insights; P != m_lastInsight; ++ P )
+  {
+    const DistID dist = weight + ( *P ) -> distance();
+    result += dist * dist;
+  }
+
+  return result;
 }
 
 template< cube_size N >

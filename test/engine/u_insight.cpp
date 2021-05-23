@@ -13,7 +13,7 @@ static void PlayWith( std::shared_ptr< Insight<N> > insight, const int * test, b
     UnitTests::tcase( "Rotation by", CExtRotations<N>::ToString( rotID ) );
     insight -> rotate( rotID );
     insight -> print();
-    UnitTests::stamp( insight -> state() == *( next ++ ) && insight -> prior() == *( next ++ ) &&  insight -> distance() == *( next ++ ), success );
+    UnitTests::stamp( insight -> state() == *( next ++ ) && insight -> prior() == *( next ++ ) &&  insight -> distance() <= *( next ++ ), success );
   }
 }
 

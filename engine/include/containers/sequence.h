@@ -1,6 +1,0 @@
-#ifndef ROTATION_SEQUENCE__H
-#define ROTATION_SEQUENCE__H
-
-
-
-#endif  // !  ROTATION_SEQUENCE__H
