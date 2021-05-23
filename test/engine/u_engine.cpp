@@ -80,22 +80,22 @@ bool UnitTests::unit_Engine() const
   Engine<3>  testEngine1( testCube3 );
   Engine<3>  testEngine2( testCube3 );
   testEngine2 << step_1;
-  testCube3.rotate( testEngine2.run( 11 ).raw() );
+  testEngine2.solve( 15 );
   testCube3.print();
   testEngine2 << step_2;
-  testCube3.rotate( testEngine2.run( 12 ).raw() );
+  testEngine2.solve( 20 );
   testCube3.print();
   testEngine2 << step_3;
-  testCube3.rotate( testEngine2.run( 12 ).raw() );
+  testEngine2.solve( 20 );
   testCube3.print();
   testEngine2 << step_6;
-  testCube3.rotate( testEngine2.run( 12 ).raw() );
+  testEngine2.solve( 20 );
   testCube3.print();
   testEngine2 << step_7;
-  testCube3.rotate( testEngine2.run( 12 ).raw() );
+  testEngine2.solve( 20 );
   testCube3.print();
   testEngine2.swap( step_7, step_8 );
-  testCube3.rotate( testEngine2.run( 12 ).raw() );
+  testEngine2.solve( 20 );
   testCube3.print();
 
   stamp(true, success );
