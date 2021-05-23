@@ -55,6 +55,7 @@ void clog_ (T t, Args... args)
 {
   clog_ ( t );
   clog_ ( args... );
+  std::cout << std::flush;
 }
 
 template <typename T>
