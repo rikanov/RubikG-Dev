@@ -9,4 +9,5 @@ link_directories( ../build/CLi )
 add_library(core    source/simplex.cpp 
                     source/oriented_cube.cpp
                     source/sequence.cpp
+                    source/cube_set.cpp
             )
