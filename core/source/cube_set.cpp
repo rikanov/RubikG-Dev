@@ -1,15 +1,15 @@
-#include <finishing_states.h>
-
+#include <cube_set.h>
+#include <simplex.h>
 
 CubeSet * CubeSet::Singleton = nullptr;
 const CubeSetID * CubeSet::m_lowMap  = nullptr;
 const CubeSetID * CubeSet::m_highMap = nullptr;
 
-static CubeSetID TransformSolution( const CubeSetID sid, const CubeID state, const CubeSet::TransMode tr = trNormal )
+static CubeSetID TransformSolution( const CubeSetID sid, const CubeID state, const CubeSet::TransMode tr = CubeSet::trNormal )
 {
   CubeSetID result = 0;
   CubeSetID mask   = 1;
-  for( int id = tr == trHigh ? 12: 0; id < tr == trLow ? 12 : 24; ++ id, mask <<= 1 )
+  for( int id = tr == CubeSet::trHigh ? 12: 0; id < ( ( tr == CubeSet::trLow ) ? 12 : 24 ); ++ id, mask <<= 1 )
   {
     if ( sid & mask )
 	  result |= ( 1 << Simplex::Composition( state, id ) );
@@ -33,7 +33,7 @@ CubeSet::CubeSet()
   m_highMap = highMap;
 }
 
-CubeSet::~Solution()
+CubeSet::~CubeSet()
 {
   delete[] m_lowMap;
   delete[] m_highMap;

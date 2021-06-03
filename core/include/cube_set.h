@@ -6,8 +6,9 @@
 // 24-bit wide data to represent sets of CubeIDs as possible final states of the prior cube
 typedef uint32_t CubeSetID;
 
-CubeSet
+class CubeSet
 {
+public:
   enum TransMode
   {
     trNormal,
@@ -15,6 +16,7 @@ CubeSet
     trHigh
   };
 
+private:
   static CubeSet * Singleton;
   static const CubeSetID * m_lowMap;
   static const CubeSetID * m_highMap; 
@@ -27,7 +29,7 @@ public:
   { 
     if ( Singleton == nullptr ) Singleton = new CubeSet;
   }
-  static OnExit()
+  static void OnExit()
   {
     delete Singleton;
     Singleton = nullptr;
