@@ -14,6 +14,18 @@
 // ID = 3 * N * Axis + 3 * Layer + Turn 
 // ID < 3 * N * 3
 
+static uint64_t permute3( uint64_t rotationSet, const uint8_t length, const uint8_t c, const uint8_t b, const uint8_t a )
+{
+  const uint64_t mask = ( 1ULL << length ) - 1;
+  const uint64_t A = ( rotationSet               ) & mask;
+  const uint64_t B = ( rotationSet >>     length ) & mask;
+  const uint64_t C = ( rotationSet >> 2 * length ) & mask;
+  rotationSet =  A << ( a * length );
+  rotationSet += B << ( b * length );
+  rotationSet += C << ( c * length );
+  return rotationSet;
+}
+
 enum RotStyle
 {
   normal,

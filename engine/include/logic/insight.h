@@ -4,6 +4,7 @@
 #include <cache_generator.h>
 #include <rubik.h>
 #include <sequence.h>
+#include <bitmap_set.h>
 
 template< cube_size N >
 class Insight
@@ -20,8 +21,9 @@ class Insight
   std::shared_ptr< const RotID  [] >     m_transRotation;
   std::shared_ptr< const CacheIDmap<N> > m_map;
 
-  mutable const RotID  * m_nextSuggested;
-  const CubeID           m_view;
+  mutable BitMap m_suggestion;
+  mutable RotID  m_nextSuggested;
+  const CubeID   m_view;
 
   void initMap( SubSpace, const Axis toRoll );
   void initPos( SubSpace, const CubeID );
@@ -66,13 +68,13 @@ public:
 
   RotID start() const
   {
-    m_nextSuggested = m_map -> router( m_stateID );
+    m_suggestion.set( m_map -> router( m_stateID ) );
     return next();
   }
 
   RotID next() const
   {
-    return  *m_nextSuggested == 0 ? 0 : _crot::GetRotID( *( m_nextSuggested ++ ), m_prior);
+    return m_suggestion >> m_nextSuggested ? _crot::GetRotID( m_nextSuggested, m_prior) : 0;
   }
 
   void print( const bool details = false ) const;
