@@ -34,7 +34,7 @@ typedef uint8_t       RotID;
 typedef uint8_t       PosID;
 typedef uint8_t       DistID;
 typedef uint32_t      CacheID;
-
+typedef uint64_t      BitMapID;
  // Components
 //  ----------
 enum Axis 
