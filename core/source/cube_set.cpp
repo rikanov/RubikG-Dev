@@ -1,32 +1,37 @@
 #include <cube_set.h>
+#include <bitmap_set.h>
 #include <simplex.h>
 
 CubeSet * CubeSet::Singleton = nullptr;
-const CubeSetID * CubeSet::m_lowMap  = nullptr;
-const CubeSetID * CubeSet::m_highMap = nullptr;
+const BitMap32ID * CubeSet::m_lowMap  = nullptr;
+const BitMap32ID * CubeSet::m_highMap = nullptr;
 
-static CubeSetID TransformSolution( const CubeSetID sid, const CubeID state, const CubeSet::TransMode tr = CubeSet::trNormal )
+static BitMap32ID MultipleRotation( const CubeID state, BitMap32ID cubeSet, const CubeSet::TransMode tr = CubeSet::trNormal  )
 {
-  CubeSetID result = 0;
-  CubeSetID mask   = 1;
-  for( int id = tr == CubeSet::trHigh ? 12: 0; id < ( ( tr == CubeSet::trLow ) ? 12 : 24 ); ++ id, mask <<= 1 )
+  BitMap32ID result = 0;
+  if( tr == CubeSet::trHigh )
   {
-    if ( sid & mask )
-	  result |= ( 1 << Simplex::Composition( state, id ) );
+    cubeSet <<= 12;
+  }
+  BitMap operations( cubeSet );
+  CubeID next;
+  while ( operations >> next )
+  {
+    result |= ( 1 << Simplex::Composition( state, next ) );
   }
   return result;
 }
 
 CubeSet::CubeSet()
 {
-  CubeSetID * lowMap  = new CubeSetID [ 4096 * 24 ];
-  CubeSetID * highMap = new CubeSetID [ 4096 * 24 ];
+  BitMap32ID * lowMap  = new BitMap32ID [ 4096 * 24 ];
+  BitMap32ID * highMap = new BitMap32ID [ 4096 * 24 ];
   
   for ( int id = 0; id < 4096; ++ id )
     all_cubeid( cubeID )
     {
-      lowMap  [ 24 * id + cubeID ] = TransformSolution( id, cubeID, trLow  );
-      highMap [ 24 * id + cubeID ] = TransformSolution( id, cubeID, trHigh );
+      lowMap  [ 24 * id + cubeID ] = MultipleRotation ( id, cubeID, trLow  );
+      highMap [ 24 * id + cubeID ] = MultipleRotation ( id, cubeID, trHigh );
     }
   
   m_lowMap  = lowMap;

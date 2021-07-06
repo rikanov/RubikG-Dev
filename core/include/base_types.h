@@ -28,12 +28,13 @@ typedef uint8_t byte;
 
  // ID types
 //  --------
-typedef uint8_t        cube_size;
+typedef uint8_t       cube_size;
 typedef uint_fast8_t  CubeID;
 typedef uint8_t       RotID;
 typedef uint8_t       PosID;
 typedef uint8_t       DistID;
 typedef uint32_t      CacheID;
+typedef uint32_t      BitMap32ID;
 typedef uint64_t      BitMapID;
  // Components
 //  ----------

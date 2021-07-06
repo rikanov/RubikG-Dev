@@ -27,6 +27,7 @@ private:
    // Unit tests of base classes (core folder)
   //------------------------------------------
   bool unit_Simplex()       const; // core/simplex.h
+  bool unit_CubeSet()       const; // cube_set.h
   bool unit_OCube()         const; // core/oriented_cube.h
   bool unit_CPositions()    const; // core/cube_positions.h
   bool unit_CRotations()    const; // core/cube_rotations.h
