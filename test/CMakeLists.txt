@@ -13,6 +13,7 @@ include_directories(../engine/include/logic )
 add_library(test  test.h
 
                   common/test_common.cpp
+                  common/test_random.cpp
                   common/test_launchers.cpp
                   common/test_timer.cpp
 

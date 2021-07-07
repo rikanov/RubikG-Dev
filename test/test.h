@@ -23,6 +23,10 @@ public:
   static void   timerOFF ();
   static double ellapsed ();
 
+ // Random generator
+//------------------
+  static int random( int a, int b );
+  
 private:
    // Unit tests of base classes (core folder)
   //------------------------------------------

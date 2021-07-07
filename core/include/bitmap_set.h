@@ -21,7 +21,6 @@ public:
     return next( nextID );
   }
 
-  void arrange( const uint8_t length, const uint8_t c, const uint8_t b, const uint8_t a );
   void reverse( const uint8_t a, const uint8_t b );
   void print( const uint8_t length = 0 ) const;
 };
