@@ -42,18 +42,18 @@ bool UnitTests::unit_CubeSet() const
   {
     const CubeID state = random( 0, 23 );
     tcase( "Multiplication", std::to_string( state ) );
-    clog( cubeSetID );
-    BitMap generated( CubeSet::GetBitMap32ID( state, cubeSetID ) );
+    BitMap32ID generated( CubeSet::GetBitMap32ID( state, cubeSetID ) );
     BitMap original( cubeSetID );
-    CubeID next, expected;
-    clog_( "generated bitmap:", CubeSet::GetBitMap32ID( state, cubeSetID ) );
-    generated.print(8);
-    while( generated >> expected )
+    CubeID next;
+    while( original >> next )
     {
-      const bool exists = original >> next;
-      clog_( (int) state, 'X', (int) next, '=', (int) Simplex::Composition( state, next ), '=', (int) expected );
-      stamp( exists && ( Simplex::Composition( state, next ) == expected ), success );
+      clog_( (int) state, 'X', (int) next, '=', (int) Simplex::Composition( state, next ), '\t' );
+      stamp( generated & ( 1 << ( Simplex::Composition( state, next ) ) ), success );
+      // remove from generated
+      generated &= ~( 1 << ( Simplex::Composition( state, next ) ) );
     }
+    clog_( "Test equal sizes: ");
+    stamp( generated == 0, success );
     tail( "Multiplicationr", success );
   }
   
