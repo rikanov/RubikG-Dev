@@ -4,6 +4,7 @@
 
 #include <initializer_list>
 #include <base_types.h>
+#include <bool_array.h>
 
 constexpr size_t _pow24[] = { 1, 24, 576, 13824, 331776, 7962624 };
 using SubSpace = const std::initializer_list <PosID>;
@@ -16,20 +17,20 @@ class Qeueu
   CacheID * m_qeueudCubes ;
   CacheID * m_qeuIn ;
   CacheID * m_qeuOut;
-  bool    * m_used;
+  BoolArray m_used;
 public:
 
   Qeueu( const int& size )
   : m_size( size )
   , m_qeueudCubes( new CacheID [ _pow24[ size ] + 1 ] )
+  , m_used( _pow24[ m_size ] + 1 )
   {
     m_qeuIn = m_qeuOut = m_qeueudCubes;
-    m_used = new bool [ _pow24[ m_size ] + 1 ] { false };
   }
 
   void push_back( const CacheID& id )
   {
-    m_used[ id ] = true;
+    m_used.set( id, true );
     *( m_qeuIn ++ ) = id;
   }
 
@@ -40,9 +41,9 @@ public:
 
   bool operator << ( const CacheID& id )
   {
-    if ( m_used[ id ] == false )
+    if ( m_used( id ) == false )
     {
-      m_used[ id ] = true;
+      m_used.set( id, true );
       *( m_qeuIn ++ ) = id;
       return true;
     }
@@ -63,7 +64,6 @@ public:
   ~Qeueu()
   {
     delete[] m_qeueudCubes;
-    delete[] m_used;
   }
 };
 
