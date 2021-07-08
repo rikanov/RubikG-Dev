@@ -49,7 +49,7 @@ protected:
   const PosID * m_position; // initial positions of the cubies
 
 private:
-  Qeueu  * m_qeueu;
+  Qeueu    m_qeueu;
 
   CacheID  m_parentID;
   CubeID * m_parent;
@@ -70,8 +70,8 @@ public:
 
   void initialPosition( const PosID * pos, const size_t size );
 
-  bool acceptID ( CacheID cacheID )   { return *m_qeueu << cacheID;         }
-  bool accept   ( const CubeID * P )  { return *m_qeueu << getCacheID( P ); }
+  bool acceptID ( CacheID cacheID )   { return m_qeueu << cacheID;         }
+  bool accept   ( const CubeID * P )  { return m_qeueu << getCacheID( P ); }
   void accept   ( const Axis axis );
   void useSolid ();
   
@@ -88,7 +88,6 @@ private:
 template< cube_size N > CacheIDmapper<N>::CacheIDmapper()
 : m_size ( 0 )
 , m_position ( nullptr )
-, m_qeueu    ( nullptr )
 , m_parent   ( nullptr )
 , m_child    ( nullptr )
 {
@@ -99,10 +98,14 @@ void CacheIDmapper<N>::initialPosition( const PosID * pos, const size_t size )
 {
   clean();
 
+  if ( size == m_size )
+    m_qeueu.clean();
+  else
+    m_qeueu.resize( size - 1 );
+  
   m_size    = size;
   m_parent  = new CubeID [ size ]{};
   m_child   = new CubeID [ size ]{};
-  m_qeueu   = new Qeueu ( size - 1 );
   
   m_position = pos;
   acceptID( 0 ) ;
@@ -112,9 +115,9 @@ void CacheIDmapper<N>::initialPosition( const PosID * pos, const size_t size )
 template< cube_size N >
 void CacheIDmapper<N>::useSolid()
 {
-  for( int i = 0; i < m_qeueu -> count(); ++ i )
+  for( int i = 0; i < m_qeueu.count(); ++ i )
   {
-    m_parentID = m_qeueu -> at( i );
+    m_parentID = m_qeueu.at( i );
     setParent();
     roll( 0 ); // the id = 0 prior cube stills in solved position
   }
@@ -127,9 +130,9 @@ void CacheIDmapper<N>::accept( const Axis axis )
   {
     return;
   }
-  for( int i = 0; i < m_qeueu -> count(); ++ i )
+  for( int i = 0; i < m_qeueu.count(); ++ i )
   {
-    m_parentID = m_qeueu -> at( i );
+    m_parentID = m_qeueu.at( i );
     setParent();
     roll( 0, axis ); // the id = 0 prior cube stills in solved position
   }
@@ -140,7 +143,7 @@ void CacheIDmapper<N>::roll(const size_t id, const Axis toRoll)
 {
   if ( id == m_size )
   {
-    *m_qeueu << GetCacheID( m_parent, m_size );
+    m_qeueu << GetCacheID( m_parent, m_size );
     return;
   }
   for( Turn turn : { 1, 2, 3, 4 } ) // fourth axial rotation = revert rolls
@@ -155,7 +158,7 @@ void CacheIDmapper<N>::roll( const size_t id )
 {
   if ( id == m_size )
   {
-    *m_qeueu << GetCacheID( m_parent, m_size );
+    m_qeueu << GetCacheID( m_parent, m_size );
     return;
   }
   const Coord pos = CPositions<N>::GetCoord( m_position[id] );
@@ -191,7 +194,7 @@ template< cube_size N >
 {
   _pointer result ( new CacheIDmap<N>() );
   result -> init( m_size );
-  while( *m_qeueu >> m_parentID )
+  while( m_qeueu >> m_parentID )
   {
     setParent();
     addLayerRotations( result );
@@ -209,7 +212,7 @@ void CacheIDmapper<N>::addLayerRotations( _pointer result )
     cloneParent();
     nextChild( axis, layer, turn );
     const CacheID nextID = getCacheID( m_child );
-    result -> connect( m_parentID, axis, layer, turn, nextID, *m_qeueu << nextID );
+    result -> connect( m_parentID, axis, layer, turn, nextID, m_qeueu << nextID );
   }
 }
 
@@ -230,7 +233,7 @@ void CacheIDmapper<N>::addSliceRotations( _pointer result )
       {
         nextChild( axis, layer, turn );
         const CacheID nextID = getCacheID( m_child );
-        result -> connect( m_parentID, axis, layer + N - 1, turn, nextID, *m_qeueu << nextID );
+        result -> connect( m_parentID, axis, layer + N - 1, turn, nextID, m_qeueu << nextID );
       }
     }
   }
@@ -268,11 +271,9 @@ void CacheIDmapper<N>::clean()
 {
   delete[] m_parent;
   delete[] m_child;
-  delete   m_qeueu;
 
   m_parent = nullptr;
   m_child  = nullptr;
-  m_qeueu  = nullptr;
 }
 
 template< cube_size N >

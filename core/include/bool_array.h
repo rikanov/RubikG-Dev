@@ -3,10 +3,15 @@
 
 class BoolArray
 {
-  const size_t   m_arraySize;
-  uint32_t     * m_boolArray;
+  size_t     m_arraySize;
+  uint32_t * m_boolArray;
   
 public:
+  BoolArray()
+  : m_arraySize( 0 )
+  , m_boolArray( nullptr )
+  {}
+  
   BoolArray( const size_t size )
   : m_arraySize( 1 + size / 32 )
   , m_boolArray( new uint32_t [ m_arraySize ] {} )
@@ -15,6 +20,13 @@ public:
   ~BoolArray()
   {
     delete[] m_boolArray;
+  }
+  
+  void resize( const size_t size )
+  {
+    m_arraySize = size;
+    delete[] m_boolArray;
+    m_boolArray = new uint32_t [ m_arraySize ] {};
   }
   
   void set( const uint32_t index, const bool t )
@@ -35,7 +47,7 @@ public:
     return get( index );
   }
   
-  void reset()
+  void clean()
   {
     uint32_t * P = m_boolArray;
     for( int id = 0; id < m_arraySize; ++ id )

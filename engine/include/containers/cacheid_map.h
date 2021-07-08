@@ -11,10 +11,9 @@ class CacheIDmap
 {
   using _crot = CExtRotations<N>;
 
-  CacheID * m_map;
-  DistID  * m_dist;
-
-  unsigned long * m_suggestion;
+  CacheID  * m_map;
+  DistID   * m_dist;
+  BitMapID * m_suggestion;
 
   void clean();
 
@@ -57,9 +56,9 @@ template< cube_size N >
 void CacheIDmap<N>::init( const size_t size )
 {
   clean();
-  m_map  =       new CacheID       [ _pow24[ size - 1 ] * _crot::AllRotIDs ];
-  m_dist =       new DistID        [ _pow24[ size - 1 ] ] {};
-  m_suggestion = new unsigned long [ _pow24[ size - 1 ] ] {};
+  m_map  =       new CacheID  [ _pow24[ size - 1 ] * _crot::AllRotIDs ];
+  m_dist =       new DistID   [ _pow24[ size - 1 ] ] {};
+  m_suggestion = new BitMapID [ _pow24[ size - 1 ] ] {};
 
 }
 
