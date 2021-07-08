@@ -1,8 +1,6 @@
 #ifndef TEXT_OUTPUT__H
 #define TEXT_OUTPUT__H
 
-
-#include <cstdlib>
 #include <iostream>
 #include <cstring>
 #include <string>
@@ -10,6 +8,7 @@
 #include <def_colors.h>
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+#include <conio.h>
  constexpr char FChar[] = { char(254), char(0) };
 #else
  constexpr char FChar[] = "▄";
@@ -20,7 +19,13 @@ static const Color::Modifier Default = Color::off;
 // clear screen ToDo
 inline void CLS()
 {
-  if ( system( "CLS" ) ) system( "clear" );
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+  clrscr(); // including header file : conio.h
+#elif defined (__LINUX__) || defined(__gnu_linux__) || defined(__linux__)
+  std::cout<< u8"\033[2J\033[1;1H"; //Using ANSI Escape Sequences 
+#elif defined (__APPLE__)
+  system("clear");
+#endif
 }
 
 // new line

@@ -3,6 +3,7 @@
 
 int main()
 {
+  CLS();
   clog( Color::off, "Press", Color::white, Color::bold, "ENTER", Color::off,"to start." ); 
   init();
   
@@ -14,6 +15,7 @@ int main()
   success &= tests.testCore();
   success &= tests.testEngine();
   
+  CLS();
   clog( "Quit." );
   
   return 0;
