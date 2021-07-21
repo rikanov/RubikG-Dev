@@ -127,6 +127,7 @@ void RawStateMap::refCopy( const RawStateMap<N> & RS )
   m_state    = RS.m_state; 
   
   m_refCount = RS.m_refCount;
+  m_startPos = RS.m_startPos;
   m_stateMap = RS.m_stateMap;
   m_transMap = RS.m_transMap;
   m_subspace = RS.m_subspace;
