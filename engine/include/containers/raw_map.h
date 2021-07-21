@@ -62,6 +62,8 @@ public:
   {
     return m_transMap[ 24 * m_state + cid ];
   }
+	
+  void print( const bool details = false );
 };
 
   
@@ -228,4 +230,5 @@ RawStateMap::~RawStateMap()
   }
 }
   
+#include <raw_map_printer.h>
 #endif  //  ! RAW_MAP__H
