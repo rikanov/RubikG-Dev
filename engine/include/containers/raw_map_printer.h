@@ -63,7 +63,7 @@ static bool GetCoords( Layer & xCoord, Layer & yCoord, const Orient side, const 
 }
 
 template< cube_size N >
-void Insight<N>::print( const bool details ) const
+void RawStateMap<N>::print( const bool details ) const
  {
   CacheID cacheID = m_state;
   for( size_t i = 0; i < size; ++i, cacheID /= 24 )
