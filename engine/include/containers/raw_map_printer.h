@@ -66,14 +66,14 @@ template< cube_size N >
 void RawStateMap<N>::print( const bool details ) const
  {
   CacheID cacheID = m_state;
-  for( size_t i = 0; i < size; ++i, cacheID /= 24 )
+  for( size_t i = 0; i < m_size; ++i, cacheID /= 24 )
   {
     m_subspace[i] = cacheID % 24;
   }
 
    for( size_t m = 0; details && m < m_size; ++ m )
    {
-     clog( CPositions<N>::GetCoord( m_pos[m] ).toString(), "-->",  CPositions<N>::GetCoord( CPositions<N>::GetPosID( m_pos[m], m_subspace[m] ) ).toString() );
+     clog( CPositions<N>::GetCoord( m_startPos[m] ).toString(), "-->",  CPositions<N>::GetCoord( CPositions<N>::GetPosID( m_startPos[m], m_subspace[m] ) ).toString() );
    }
    for( size_t raw = 0; raw < 3 * N; ++ raw )
    {
@@ -98,7 +98,7 @@ void RawStateMap<N>::print( const bool details ) const
           Layer xCoord;
           Layer yCoord;
           
-          const PosID place = CPositions<N>::GetPosID( m_pos[pid], m_subspace[pid] );
+          const PosID place = CPositions<N>::GetPosID( m_startPos[pid], m_subspace[pid] );
           
           if ( GetCoords <N> ( xCoord, yCoord, side, place ) && xCoord == col % N && yCoord == raw % N )
           {
@@ -115,8 +115,7 @@ void RawStateMap<N>::print( const bool details ) const
      NL();
    }
    delete[] m_subspace;
-   clog( "Prior:", Simplex::GetCube( m_prior ).toString() );
  }
 
 
-#endif;  //  ! RAW_MAP_PRINTER__H
+#endif  //  ! RAW_MAP_PRINTER__H

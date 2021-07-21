@@ -29,12 +29,12 @@ class RawStateMap
   void dealloc();
   
 public:
-  RawStateMap( const PosID * P, const size_t size):
+  RawStateMap( const PosID * P, const size_t size);
   RawStateMap( const RawStateMap<N> & RS );
   RawStateMap( RawStateMap<N> && RS );
-  ~RawStateMap():
+  ~RawStateMap();
   
-  const RawStateMap & operator= ( const RawStateMap<N> & RS );
+  const RawStateMap<N> & operator= ( const RawStateMap<N> & RS );
   
   void set( const Rubik<N> & R, const CubeID view = 0 );
   
@@ -63,37 +63,37 @@ public:
     return m_transMap[ 24 * m_state + cid ];
   }
 	
-  void print( const bool details = false );
+  void print( const bool details = false ) const;
 };
 
   
 template< cube_size N >
-RawStateMap::RawStateMap( const PosID * P, const size_t size)
-: m_refCounter ( new int ( 1 ) )
-, m_size       ( size )
-, m_state      ( 0 )
-, m_stateMap   ( nullptr )
-, m_transMap   ( nullptr )
-, m_subspace   ( nullptr )
-, m_startPos   ( P )
+RawStateMap<N>::RawStateMap( const PosID * P, const size_t size)
+: m_refCount ( new int ( 1 ) )
+, m_size     ( size )
+, m_state    ( 0 )
+, m_stateMap ( nullptr )
+, m_transMap ( nullptr )
+, m_subspace ( nullptr )
+, m_startPos ( P )
 {
   init();
 }
 
 template< cube_size N >
-RawStateMap::RawStateMap( const RawStateMap<N> & RS )
+RawStateMap<N>::RawStateMap( const RawStateMap<N> & RS )
 {
   refCopy( RS );
 }
 
 template< cube_size N >
-RawStateMap::RawStateMap( RawStateMap<N> && RS )
+RawStateMap<N>::RawStateMap( RawStateMap<N> && RS )
 {
   refCopy( RS );
 }
 
 template< cube_size N >
-const RawStateMap & RawStateMap::operator= ( const RawStateMap<N> & RS )
+const RawStateMap<N> & RawStateMap<N>::operator= ( const RawStateMap<N> & RS )
 {
   if ( RS.m_refCount == m_refCount ) // same object
   {
@@ -110,18 +110,18 @@ const RawStateMap & RawStateMap::operator= ( const RawStateMap<N> & RS )
 }
 
 template< cube_size N >
-void RawStateMap::set( const Rubik<N> & R, const CubeID view )
+void RawStateMap<N>::set( const Rubik<N> & R, const CubeID view )
 { 
   m_state = 0;
   for( size_t posIndex = 0; posIndex < m_size; ++ posIndex )
   {
-    m_subset[ posIndex ] = Simplex::Composition( view, R.transpose( m_pos[ posIndex ] ) );
-    m_state += m_subset[ posIndex ] * pow24( posIndex );
+    m_subspace[ posIndex ] = Simplex::Composition( view, R.transpose( m_startPos[ posIndex ] ) );
+    m_state += m_subspace[ posIndex ] * pow24( posIndex );
   }
 }
 
 template< cube_size N >
-void RawStateMap::refCopy( const RawStateMap<N> & RS )
+void RawStateMap<N>::refCopy( const RawStateMap<N> & RS )
 {
   m_size     = RS.size();
   m_state    = RS.m_state; 
@@ -136,7 +136,7 @@ void RawStateMap::refCopy( const RawStateMap<N> & RS )
 }
 
 template< cube_size N >
-void RawStateMap::init()
+void RawStateMap<N>::init()
 {
   m_subspace = new CubeID [ m_size + 1 ] {};
   createStateMap();
@@ -144,7 +144,7 @@ void RawStateMap::init()
 }
 
 template< cube_size N >
-void RawStateMap::nextState()
+void RawStateMap<N>::nextState()
 {
   CubeID * next = m_subspace;
   while ( 23 == * next )
@@ -155,7 +155,7 @@ void RawStateMap::nextState()
 }
 
 template< cube_size N >
-void RawStateMap::transformNodeTo( CacheID * transMap ) const
+void RawStateMap<N>::transformNodeTo( CacheID * transMap ) const
 {
   all_cubeid ( id )
   {
@@ -169,19 +169,19 @@ void RawStateMap::transformNodeTo( CacheID * transMap ) const
 }
 
 template< cube_size N >
-void RawStateMap::expandNodeTo( CacheID * stateMap ) const
+void RawStateMap<N>::expandNodeTo( CacheID * stateMap ) const
 {   
   RotID   rotID = 1;
   CacheID modified = m_state;
-  all_rot( axis, layer, turn )
+  all_rot( axis, layer, turn, N )
   {
-    for( int radix = 0; radix < pow24( m_size ) )
+    for( int radix = 0; radix < m_size; ++ radix )
     {
       const PosID current = CPositions<N>::GetPosID( m_startPos[radix], m_subspace[radix] );
       if ( CPositions<N>::GetLayer( current, axis ) == layer )
       {
-	const CubeID cid = Simplex::Composition( m_subspace[radix], Simplex::Tilt( axis, turn ) );
-	modified += ( cid - m_subspace[radix] ) * pow24( radix );
+	    const CubeID cid = Simplex::Composition( m_subspace[radix], Simplex::Tilt( axis, turn ) );
+	    modified += ( cid - m_subspace[radix] ) * pow24( radix );
       }
     }
     stateMap[ _crot::AllRotIDs * m_state + rotID ] = modified;
@@ -190,7 +190,7 @@ void RawStateMap::expandNodeTo( CacheID * stateMap ) const
 }
 
 template< cube_size N >
-void RawStateMap::createStateMap()
+void RawStateMap<N>::createStateMap()
 {
   CacheID * stateMap = new CacheID[ pow24( m_size ) * _crot::AllRotIDs ] {};
   for( m_state = 0; m_state < pow24( m_size ); ++ m_state )
@@ -202,7 +202,7 @@ void RawStateMap::createStateMap()
 }
 
 template< cube_size N >
-void RawStateMap::createTransMap()
+void RawStateMap<N>::createTransMap()
 {
   CacheID * transMap = new CacheID[ pow24( m_size ) * 24 ] {};
   for( m_state = 0; m_state < pow24( m_size ); ++ m_state )
@@ -214,7 +214,7 @@ void RawStateMap::createTransMap()
 }
 
 template< cube_size N >
-void RawStateMap::dealloc()
+void RawStateMap<N>::dealloc()
 {
   delete   m_refCount; m_refCount = nullptr;
   delete[] m_stateMap; m_stateMap = nullptr;
@@ -223,9 +223,9 @@ void RawStateMap::dealloc()
 }
 
 template< cube_size N >
-RawStateMap::~RawStateMap()
+RawStateMap<N>::~RawStateMap()
 {
-  if ( -- *m_refCounter < 1 )
+  if ( -- *m_refCount < 1 )
   {
     dealloc();
   }

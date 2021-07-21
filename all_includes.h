@@ -5,7 +5,6 @@
 
 #include <test.h>
 #include <cli.h>
-#include <bitmap_set.h>
 #include <cube_rotations.h>
 #include <cube_set.h>
 #include <rubik.h>
