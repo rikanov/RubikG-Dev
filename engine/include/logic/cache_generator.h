@@ -12,7 +12,7 @@ CacheID GetCacheID( const CubeID * P, const size_t size )
   const CubeID inv0 = Simplex::Inverse( P[0] );
   for( size_t i = 1; i < size; ++i )
   {
-    result += Simplex::Composition( P[i], inv0 ) * _pow24[ i - 1 ];
+    result += Simplex::Composition( P[i], inv0 ) * pow24( i - 1);
   }
   return result;
 }
@@ -187,7 +187,6 @@ void CacheIDmapper<N>::roll( const size_t id )
     roll( id + 1 );
   }
 }
-
 
 template< cube_size N >
  std::shared_ptr< CacheIDmap<N> > CacheIDmapper<N>::createMap()

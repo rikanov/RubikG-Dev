@@ -36,6 +36,9 @@ typedef uint8_t       DistID;
 typedef uint32_t      CacheID;
 typedef uint32_t      BitMap32ID;
 typedef uint64_t      BitMapID;
+
+using SubSpace =      const std::initializer_list <PosID>;
+
  // Components
 //  ----------
 enum Axis 
@@ -71,6 +74,12 @@ enum Orient
 
  // Auxiliary inline functions
 // ---------------------------
+inline size_t pow24( const int pow )
+{
+  static constexpr size_t _pow24[] = { 1, 24, 576, 13824, 331776, 7962624, 191102976 };
+  return _pow24[ pow ];
+}
+
 inline void operator++ ( Orient& id )
 {
   id = Orient( int( id ) + 1 );

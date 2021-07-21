@@ -56,9 +56,9 @@ template< cube_size N >
 void CacheIDmap<N>::init( const size_t size )
 {
   clean();
-  m_map  =       new CacheID  [ _pow24[ size - 1 ] * _crot::AllRotIDs ];
-  m_dist =       new DistID   [ _pow24[ size - 1 ] ] {};
-  m_suggestion = new BitMapID [ _pow24[ size - 1 ] ] {};
+  m_map  =       new CacheID  [ pow24( size - 1 ) * _crot::AllRotIDs ];
+  m_dist =       new DistID   [ pow24( size - 1 ) ] {};
+  m_suggestion = new BitMapID [ pow24( size - 1 ) ] {};
 
 }
 
@@ -85,7 +85,7 @@ void CacheIDmap<N>::clean()
   delete[] m_suggestion;
   m_map  = nullptr;
   m_dist = nullptr;
-    m_suggestion = nullptr;
+  m_suggestion = nullptr;
 }
 
 template< cube_size N >

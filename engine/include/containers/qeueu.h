@@ -6,9 +6,6 @@
 #include <base_types.h>
 #include <bool_array.h>
 
-constexpr size_t _pow24[] = { 1, 24, 576, 13824, 331776, 7962624 };
-using SubSpace = const std::initializer_list <PosID>;
-
 // an excluding FIFO object: any CacheID value can be pushed in only once a life time
 class Qeueu
 {
@@ -30,8 +27,8 @@ public:
   {
     m_size = size;
     delete[] m_qeueudCubes;
-    m_qeueudCubes = new CacheID [ _pow24[ size ] + 1 ];
-    m_used.resize( _pow24[ m_size ] + 1 );
+    m_qeueudCubes = new CacheID [ pow24( size ) + 1 ];
+    m_used.resize( pow24( m_size ) + 1 );
     m_qeuIn = m_qeuOut = m_qeueudCubes;    
   }
   
