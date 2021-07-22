@@ -1,6 +1,8 @@
 #ifndef RAW_MAP__H
 #define RAW_MAP__H
 
+#include <atomic>
+#include <mutex>
 #include <cube_positions.h>
 #include <cube_rotations.h>
 #include <rubik.h>
@@ -10,7 +12,8 @@ class RawStateMap
 {
   using _crot = CRotations<N>;
   
-  int * m_refCount;
+  std::mutex         m_deallocMutex;
+  std::atomic<int> * m_refCount;
   
         size_t    m_size;
         CacheID   m_state;
@@ -69,7 +72,7 @@ public:
   
 template< cube_size N >
 RawStateMap<N>::RawStateMap( const PosID * P, const size_t size)
-: m_refCount ( new int ( 1 ) )
+: m_refCount ( new std::atomic<int> ( 1 ) )
 , m_size     ( size )
 , m_state    ( 0 )
 , m_stateMap ( nullptr )
@@ -216,10 +219,12 @@ void RawStateMap<N>::createTransMap()
 template< cube_size N >
 void RawStateMap<N>::dealloc()
 {
+  m_deallocMutex.lock();
   delete   m_refCount; m_refCount = nullptr;
   delete[] m_stateMap; m_stateMap = nullptr;
   delete[] m_transMap; m_transMap = nullptr;
   delete[] m_subspace; m_subspace = nullptr;
+  m_deallocMutex.unlock();
 }
 
 template< cube_size N >
