@@ -114,7 +114,6 @@ void RawStateMap<N>::print( const bool details ) const
      }
      NL();
    }
-   delete[] m_subspace;
  }
 
 

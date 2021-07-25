@@ -77,8 +77,8 @@ RawStateMap<N>::RawStateMap( const PosID * P, const size_t size)
 , m_state    ( 0 )
 , m_stateMap ( nullptr )
 , m_transMap ( nullptr )
-, m_subspace ( nullptr )
 , m_startPos ( P )
+, m_subspace ( nullptr )
 {
   init();
 }
@@ -230,7 +230,7 @@ void RawStateMap<N>::dealloc()
 template< cube_size N >
 RawStateMap<N>::~RawStateMap()
 {
-  if ( -- *m_refCount < 1 )
+  if ( m_refCount && -- *m_refCount < 1 )
   {
     dealloc();
   }
