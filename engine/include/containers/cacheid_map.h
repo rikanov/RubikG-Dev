@@ -11,11 +11,9 @@ class CacheIDmap
 {
   using _crot = CExtRotations<N>;
 
-  CacheID * m_map;
-  DistID  * m_dist;
-
-  RotID  * m_orderedSteps;
-  DistID * m_complexity;
+  CacheID  * m_map;
+  DistID   * m_dist;
+  BitMapID * m_suggestion;
 
   void clean();
 
@@ -37,28 +35,20 @@ public:
     return m_map[ rotID + _crot::AllRotIDs * cacheID ];
   }
 
-  size_t complexity( const CacheID id ) const
-  {
-    return m_complexity[ id ];
-  }
-
-  const RotID * router( const CacheID cacheID ) const
-  {
-    return m_orderedSteps + cacheID * _crot::AllRotIDs;
-  }
-
   int distance( CacheID cacheID ) const
   {
     return m_dist[ cacheID ];
   }
-
+  unsigned long router( const CacheID cacheID ) const
+  {
+    return m_suggestion[ cacheID ];
+  }
 };
 
 template< cube_size N > CacheIDmap<N>::CacheIDmap()
   :  m_map  ( nullptr )
   ,  m_dist ( nullptr )
-  ,  m_orderedSteps ( nullptr )
-  ,  m_complexity   ( nullptr )
+  ,  m_suggestion ( nullptr )
 {
 }
 
@@ -66,26 +56,25 @@ template< cube_size N >
 void CacheIDmap<N>::init( const size_t size )
 {
   clean();
-  m_map  = new CacheID [ _pow24[ size - 1 ] * _crot::AllRotIDs ];
-  m_dist = new DistID  [ _pow24[ size - 1 ] ] {};
+  m_map  =       new CacheID  [ pow24( size - 1 ) * _crot::AllRotIDs ];
+  m_dist =       new DistID   [ pow24( size - 1 ) ] {};
+  m_suggestion = new BitMapID [ pow24( size - 1 ) ] {};
 
-  m_orderedSteps = new RotID  [ _pow24[ size - 1 ] * _crot::AllRotIDs ]{};
-  m_complexity   = new DistID [ _pow24[ size - 1 ] ] {};
 }
 
 template< cube_size N >
-void CacheIDmap<N>::connect( const CacheID start, const Axis axis, const Layer layer, const Turn turn, const CacheID result, const bool first )
+void CacheIDmap<N>::connect( const CacheID from, const Axis axis, const Layer layer, const Turn turn, const CacheID to, const bool first )
 {
   if ( first )
   {
-    m_dist[ result ] = m_dist[ start ] + 1;
+    m_dist[ to ] = m_dist[ from ] + 1;
   }
 
-  if ( m_dist[ start ] < m_dist[ result ] )
+  if ( m_dist[ from ] < m_dist[ to ] )
   {
-    m_orderedSteps[ result * _crot::AllRotIDs + m_complexity[ result ] ++ ] = _crot::GetInvRotID( axis, layer, turn );
+    m_suggestion[to] |= ( 1 << _crot::GetInvRotID( axis, layer, turn ) );
   }
-  m_map[ result * _crot::AllRotIDs + _crot::GetInvRotID( axis, layer, turn ) ] = start;
+  m_map[ to * _crot::AllRotIDs + _crot::GetInvRotID( axis, layer, turn ) ] = from;
 }
 
 template< cube_size N >
@@ -93,12 +82,10 @@ void CacheIDmap<N>::clean()
 {
   delete[] m_map;
   delete[] m_dist;
-  delete[] m_orderedSteps;
-  delete[] m_complexity;
+  delete[] m_suggestion;
   m_map  = nullptr;
   m_dist = nullptr;
-  m_orderedSteps = nullptr;
-  m_complexity   = nullptr;
+  m_suggestion = nullptr;
 }
 
 template< cube_size N >

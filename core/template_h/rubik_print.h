@@ -7,7 +7,14 @@
 template< cube_size N >
 void Rubik<N>::show( Orient F ) const
 {
-  std::cout << colorOf( F ) << FChar << ' ';
+  if ( _NF == F )
+  {
+    std::cout << "  ";
+  }
+  else
+  {
+    std::cout << colorOf( F ) << FChar << ' ';
+  }
 }
 
 template< cube_size N >

@@ -4,6 +4,7 @@
 #include <cache_generator.h>
 #include <rubik.h>
 #include <sequence.h>
+#include <bitmap_set.h>
 
 template< cube_size N >
 class Insight
@@ -20,13 +21,13 @@ class Insight
   std::shared_ptr< const RotID  [] >     m_transRotation;
   std::shared_ptr< const CacheIDmap<N> > m_map;
 
-  mutable const RotID  * m_nextSuggested;
-  const CubeID           m_base;
-  const CubeID           m_view;
+  mutable BitMap m_suggestion;
+  mutable RotID  m_nextSuggested;
+  const CubeID   m_view;
 
   void initMap( SubSpace, const Axis toRoll );
-  void initPos( SubSpace );
-  void initPos( const PosID * P );
+  void initPos( SubSpace, const CubeID );
+  void initPos( const PosID * P, const CubeID );
   void initPrior();
   void initRotIDs();
 
@@ -67,13 +68,13 @@ public:
 
   RotID start() const
   {
-    m_nextSuggested = m_map -> router( m_stateID );
+    m_suggestion.set( m_map -> router( m_stateID ) );
     return next();
   }
 
   RotID next() const
   {
-    return  *m_nextSuggested == 0 ? 0 : _crot::GetRotID( *( m_nextSuggested ++ ), m_prior);
+    return m_suggestion >> m_nextSuggested ? _crot::GetRotID( m_nextSuggested, m_prior) : 0;
   }
 
   void print( const bool details = false ) const;
@@ -84,10 +85,9 @@ Insight<N>::Insight( SubSpace P, const CubeID cid, const Axis toRoll )
   : m_size  ( P.size() )
   , m_pos( nullptr )
   , m_map( nullptr )
-  , m_base( cid )
   , m_view( 0 )
 {
-  initPos( P );
+  initPos( P, cid );
   initMap( P, toRoll );
   initRotIDs();
   initPrior();
@@ -99,10 +99,9 @@ Insight<N>::Insight( const std::shared_ptr< const Insight<N> > orig, const CubeI
   , m_priorCache ( orig -> m_priorCache )
   , m_transRotation( orig -> m_transRotation )
   , m_map ( orig -> m_map )
-  , m_base( cid )
   , m_view( cid )
 {
-  initPos( orig -> m_pos );
+  initPos( orig -> m_pos, cid );
 }
 
 template< cube_size N >
@@ -118,25 +117,25 @@ std::shared_ptr< Insight<N> > Insight<N>::Create( const std::shared_ptr< const I
 }
 
 template< cube_size N >
-void Insight<N>::initPos( SubSpace P )
+void Insight<N>::initPos( SubSpace P, const CubeID baseTransform )
 {
   PosID * pos = new PosID [ P.size() ];
   size_t i = 0;
   for( auto p: P )
   {
-    pos[ i++ ] = CPositions<N>::GetPosID( p, m_base );
+    pos[ i++ ] = CPositions<N>::GetPosID( p, baseTransform );
   }
 
   m_pos = pos;
 }
 
 template< cube_size N >
-void Insight<N>::initPos( const PosID* P )
+void Insight<N>::initPos( const PosID* P, const CubeID baseTransform )
 {
   PosID * pos = new PosID [ m_size ];
   for( size_t id = 0; id < m_size; ++id )
   {
-    pos[id] = CPositions<N>::GetPosID( P[id], m_base );
+    pos[id] = CPositions<N>::GetPosID( P[id], baseTransform );
   }
   m_pos = pos;
 }

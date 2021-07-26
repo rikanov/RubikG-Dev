@@ -15,4 +15,5 @@ add_subdirectory(test)
 
 add_executable(rubikg main.cpp)
 
+set_property(TARGET rubikg PROPERTY CXX_STANDARD 17)
 target_link_libraries(rubikg core cli test)

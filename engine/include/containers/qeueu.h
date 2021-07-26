@@ -4,32 +4,43 @@
 
 #include <initializer_list>
 #include <base_types.h>
-
-constexpr size_t _pow24[] = { 1, 24, 576, 13824, 331776, 7962624 };
-using SubSpace = const std::initializer_list <PosID>;
+#include <bool_array.h>
 
 // an excluding FIFO object: any CacheID value can be pushed in only once a life time
 class Qeueu
 {
-  const size_t m_size;
+  size_t m_size;
 
   CacheID * m_qeueudCubes ;
   CacheID * m_qeuIn ;
   CacheID * m_qeuOut;
-  bool    * m_used;
+  BoolArray m_used;
 public:
 
-  Qeueu( const int& size )
-  : m_size( size )
-  , m_qeueudCubes( new CacheID [ _pow24[ size ] + 1 ] )
+  Qeueu()
+  : m_size( 0 )
+  , m_qeueudCubes( nullptr )
   {
-    m_qeuIn = m_qeuOut = m_qeueudCubes;
-    m_used = new bool [ _pow24[ m_size ] + 1 ] { false };
   }
 
+  void resize( const size_t size )
+  {
+    m_size = size;
+    delete[] m_qeueudCubes;
+    m_qeueudCubes = new CacheID [ pow24( size ) + 1 ];
+    m_used.resize( pow24( m_size ) + 1 );
+    m_qeuIn = m_qeuOut = m_qeueudCubes;    
+  }
+  
+  void clean()
+  {
+    m_used.clean();
+    m_qeuIn = m_qeuOut = m_qeueudCubes;    
+  }
+  
   void push_back( const CacheID& id )
   {
-    m_used[ id ] = true;
+    m_used.set( id, true );
     *( m_qeuIn ++ ) = id;
   }
 
@@ -40,9 +51,9 @@ public:
 
   bool operator << ( const CacheID& id )
   {
-    if ( m_used[ id ] == false )
+    if ( m_used( id ) == false )
     {
-      m_used[ id ] = true;
+      m_used.set( id, true );
       *( m_qeuIn ++ ) = id;
       return true;
     }
@@ -63,7 +74,6 @@ public:
   ~Qeueu()
   {
     delete[] m_qeueudCubes;
-    delete[] m_used;
   }
 };
 

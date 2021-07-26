@@ -13,15 +13,18 @@ include_directories(../engine/include/logic )
 add_library(test  test.h
 
                   common/test_common.cpp
+                  common/test_random.cpp
                   common/test_launchers.cpp
                   common/test_timer.cpp
 
-                  core/u_simplex.cpp 
+                  core/u_simplex.cpp
+                  core/u_cubeset.cpp
                   core/u_crotations.cpp
                   core/u_cextrotations.cpp
                   core/u_rubik.cpp
 
                   engine/u_insight.cpp
+                  engine/u_raw_map.cpp
                   engine/u_engine.cpp
                  )
 
