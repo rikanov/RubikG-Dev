@@ -17,11 +17,14 @@ bool UnitTests::unit_RawMap() const
   test4_1.print();
   RawStateMap<4> test4_1x = test4_1;
   test4_1x.print( true );
-  test4_1x.print();
-  test4_1x.move( CRotations<4>::GetRotID( _X, 1, 1 ) );
-  test4_1x.print();
-  test4_1x.move( CRotations<4>::GetRotID( _Y, 1, 1 ) );
-  test4_1x.print();
+  test4_1x.move( CRotations<4>::GetRotID( _X, 0, 1 ) );
+  test4_1x.print( true );
+  test4_1x.move( CRotations<4>::GetRotID( _X, 0, 1 ) );
+  test4_1x.print( true );
+  test4_1x.move( CRotations<4>::GetRotID( _Y, 1, 3 ) );
+  test4_1x.print( true );
+  test4_1x.move( CRotations<4>::GetRotID( _Z, 2, 2 ) );
+  test4_1x.print( true );
 
   stamp(true, success );
   finish( "RawStateMap", success );

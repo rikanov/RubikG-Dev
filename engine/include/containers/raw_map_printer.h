@@ -65,7 +65,8 @@ static bool GetCoords( Layer & xCoord, Layer & yCoord, const Orient side, const 
 template< cube_size N >
 void RawStateMap<N>::print( const bool details ) const
  {
-  CacheID cacheID = m_state;
+   clog( "State ID", m_stateID );
+  CacheID cacheID = m_stateID;
   for( size_t i = 0; i < m_size; ++i, cacheID /= 24 )
   {
     m_subspace[i] = cacheID % 24;
