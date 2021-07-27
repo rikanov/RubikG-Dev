@@ -52,7 +52,7 @@ class CPositions
   static PosID* GetNode  ( int x, int y, int z )   { return GetNode( GetPosID ( x, y, z) );   }
 
 public:
-  static constexpr int GetSize ( ) { return FrameworkSize [ N ]; }
+  static constexpr size_t GetSize ( ) { return FrameworkSize [ N ]; }
   
   static   void    Instance  ( void )                                  { if ( Singleton == nullptr ) new CPositions<N>;          }
   static   void    OnExit    ( void )                                  { delete Singleton; Singleton = nullptr;                  }
