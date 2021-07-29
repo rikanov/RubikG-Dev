@@ -1,6 +1,8 @@
 #ifndef STATE_PRINTER__H
 #define STATE_PRINTER__H
 
+#include <raw_map.h>
+
 static constexpr Orient _side[ 3 ][ 4 ] = { 
       { _NF,  _U, _NF, _NF },
       {  _L,  _F,  _R,  _B },

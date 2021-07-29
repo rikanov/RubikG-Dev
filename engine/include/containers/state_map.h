@@ -2,7 +2,7 @@
 #define STAE_MAP__H
 
 #include<raw_map.h>
-#include<state_print.h>
+#include<state_printer.h>
 
 static constexpr unsigned int MAX_NUMBER_OF_PATCHES = 10;
 
@@ -38,17 +38,17 @@ void StateMap<N>::addPatches( const PosID * pos, const size_t size )
 {
   if ( size > 5 )
   {
-    m_mapPatches[ m_patches ++ ].init( pos, 4 );
+    m_mapPatches[ m_patches ++ ].build( pos, 4 );
     addPatches( pos + 4, size - 4 );
   }
   if ( size == 5 )
   {
-    m_mapPatches[ m_patches ++ ].init( pos, 3 );
+    m_mapPatches[ m_patches ++ ].build( pos, 3 );
     addPatches( pos + 3, 2 );
   } 
   if ( size < 5 )
   {
-    m_mapPatches[ m_patches ++ ].init( pos, size );
+    m_mapPatches[ m_patches ++ ].build( pos, size );
   }
 }
 
@@ -59,14 +59,14 @@ void StateMap<N>::add( const RawStateMap<N> & rwsm )
 }
 
 template< cube_size N >
-CacheID move( const RotID rotID )
+void StateMap<N>::move( const RotID rotID )
 {
   for( unsigned int next = 0; next < m_patches; ++ next )
     m_mapPatches[ next ].move( rotID );
 }
 
 template< cube_size N >
-CacheID state() const
+CacheID StateMap<N>::state() const
 {
   CacheID result = 0;
   for( unsigned int next = 0; next < m_patches; ++ next )
@@ -78,10 +78,10 @@ CacheID state() const
 }
 
 template< cube_size N >
-CacheID projectedState() const
+CacheID StateMap<N>::projectedState() const
 {
   CacheID result = 0;
-  const prior = m_mapPatches[0].prior();
+  const CubeID prior = m_mapPatches[0].prior();
   for( unsigned int next = 0; next < m_patches; ++ next )
   {
     result += m_mapPatches[ next ].projection( prior );
@@ -101,7 +101,7 @@ void StateMap<N>::print( const bool details ) const
     size += m_mapPatches[ next ].size();
     for( int pIndex = 0; pIndex < m_mapPatches[ next ].size(); ++ next )
     {
-      pos[ index ++ ] = m_mapPatches[ next ].getPos( pIndex );
+      pos[ index ++ ] = m_mapPatches[ next ].getPosID( pIndex );
     }
   }
   PrintMap<N>( stateID, pos, size, details);

@@ -6,6 +6,7 @@
 #include <cube_positions.h>
 #include <cube_rotations.h>
 #include <rubik.h>
+#include <state_printer.h>
 
 template< cube_size N >
 class RawStateMap
@@ -78,13 +79,16 @@ public:
     return m_transMap[ 24 * m_stateID + cid ];
   }
 	
-  void print( const bool details = false ) const;
+  void print( const bool details = false ) const
+  {
+    PrintMap<N> ( m_stateID, m_startPos, m_size, details );
+  }
 };
 
 template< cube_size N >
 RawStateMap<N>::RawStateMap()
 : m_refCount ( nullptr )
-, m_size     ( size )
+, m_size     ( 0 )
 , m_stateID  ( 0 )
 , m_stateMap ( nullptr )
 , m_transMap ( nullptr )
@@ -268,6 +272,5 @@ RawStateMap<N>::~RawStateMap()
     dealloc();
   }
 }
-  
-#include <raw_map_printer.h>
+
 #endif  //  ! RAW_MAP__H
