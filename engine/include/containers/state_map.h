@@ -36,20 +36,27 @@ void StateMap<N>::build( const PosID * pos, const size_t size )
 template< cube_size N >
 void StateMap<N>::addPatches( const PosID * pos, const size_t size )
 {
+  if ( size == 0 )
+  {
+    return;
+  }
+  
+  size_t part = 0;
   if ( size > 5 )
   {
-    m_mapPatches[ m_patches ++ ].build( pos, 4 );
-    addPatches( pos + 4, size - 4 );
+    part = 4;
   }
   if ( size == 5 )
   {
-    m_mapPatches[ m_patches ++ ].build( pos, 3 );
-    addPatches( pos + 3, 2 );
+    part = 3;
   } 
   if ( size < 5 )
   {
-    m_mapPatches[ m_patches ++ ].build( pos, size );
+    part = size;
   }
+  
+  m_mapPatches[ m_patches ++ ].build( pos, part );
+  addPatches( pos + part, size - part );
 }
 
 template< cube_size N >
@@ -96,14 +103,18 @@ void StateMap<N>::print( const bool details ) const
   const CacheID stateID = state();
   PosID pos[ CPositions<N>::GetSize() ];
   size_t size = 0;
+  
+  // merge raw map patches into a whole
   for( size_t index = 0, next = 0; next < m_patches; ++ next )
   {
     size += m_mapPatches[ next ].size();
-    for( int pIndex = 0; pIndex < m_mapPatches[ next ].size(); ++ next )
+    for( int pIndex = 0; pIndex < m_mapPatches[ next ].size(); ++ pIndex )
     {
       pos[ index ++ ] = m_mapPatches[ next ].getPosID( pIndex );
     }
   }
+  
+  // show map
   PrintMap<N>( stateID, pos, size, details);
 }
 
