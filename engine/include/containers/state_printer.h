@@ -63,7 +63,7 @@ static bool GetCoords( Layer & xCoord, Layer & yCoord, const Orient side, const 
 }
 
 template< cube_size N >
-void PrintMap( CacheID cacheID, const PosID * pos, const size_t size, const bool details = false )
+void PrintMap( Cache64ID cacheID, const PosID * pos, const size_t size, const bool details = false )
 {
   CubeID * subspace = new CubeID[ size ];
   clog( "State ID", cacheID );
@@ -71,7 +71,6 @@ void PrintMap( CacheID cacheID, const PosID * pos, const size_t size, const bool
   {
     subspace[i] = cacheID % 24;
   }
-
   for ( size_t m = 0; details && m < size; ++ m )
   {
     clog( CPositions<N>::GetCoord( pos[m] ).toString(), "-->",  CPositions<N>::GetCoord( CPositions<N>::GetPosID( pos[m], subspace[m] ) ).toString() );

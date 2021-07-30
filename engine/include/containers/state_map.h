@@ -20,8 +20,8 @@ public:
   void build ( const PosID *, const size_t );
   void add   ( const RawStateMap<N> & rwsm );
   void move  ( const RotID rotID );
-  CacheID state() const;
-  CacheID projectedState() const;
+  Cache64ID state() const;
+  Cache64ID projectedState() const;
   
   void print( const bool details = false ) const;
 };
@@ -41,7 +41,7 @@ void StateMap<N>::addPatches( const PosID * pos, const size_t size )
     return;
   }
   
-  size_t part = 0;
+  size_t part;
   if ( size > 5 )
   {
     part = 4;
@@ -73,26 +73,26 @@ void StateMap<N>::move( const RotID rotID )
 }
 
 template< cube_size N >
-CacheID StateMap<N>::state() const
+Cache64ID StateMap<N>::state() const
 {
   CacheID result = 0;
-  for( unsigned int next = 0; next < m_patches; ++ next )
+  for( int next = m_patches - 1; 0 <= next; -- next )
   {
+    result *= pow24( m_mapPatches[ next ].size() );
     result += m_mapPatches[ next ].state();
-    result *= pow24( m_mapPatches[ next + 1 ].size() );
   }
   return result; 
 }
 
 template< cube_size N >
-CacheID StateMap<N>::projectedState() const
+Cache64ID StateMap<N>::projectedState() const
 {
-  CacheID result = 0;
   const CubeID prior = m_mapPatches[0].prior();
-  for( unsigned int next = 0; next < m_patches; ++ next )
+  CacheID result = 0;
+  for( int next = m_patches - 1; 0 <= next; -- next )
   {
+    result *= pow24( m_mapPatches[ next ].size() );
     result += m_mapPatches[ next ].projection( prior );
-    result *= pow24( m_mapPatches[ next + 1 ].size() );
   }
   return result; 
 }

@@ -25,6 +25,7 @@ add_library(test  test.h
 
                   engine/u_insight.cpp
                   engine/u_raw_map.cpp
+                  engine/u_state_map.cpp
                   engine/u_engine.cpp
                  )
 

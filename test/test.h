@@ -42,6 +42,7 @@ private:
   //---------------------------------------
   bool unit_Insight()       const; // engine/insight.h 
   bool unit_RawMap()        const; // engine/raw_map.h
+  bool unit_StateMap()      const; // engine/state_map.h
   bool unit_Engine()        const; // engine/engine.h
 public:
   bool testCore()   const;
