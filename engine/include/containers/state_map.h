@@ -11,6 +11,8 @@ class StateMap
 {
   RawStateMap<N> m_mapPatches[ MAX_NUMBER_OF_PATCHES ];
   unsigned int   m_patches = 0;
+ 
+  CubeID         m_mapViews[ MAX_NUMBER_OF_PATCHES ] = {};
   
   void addPatches ( const PosID *, const size_t );
   
@@ -18,12 +20,14 @@ public:
   StateMap() = default;
   
   void build ( const PosID *, const size_t );
-  void add   ( const RawStateMap<N> & rwsm );
+  void add   ( const RawStateMap<N> & rwsm, const CubeID view = 0 );
   void move  ( const RotID rotID );
+  
+  void set   ( const Rubik<N> & );
+  void print ( const bool details = false ) const;
+  
   Cache64ID state() const;
   Cache64ID projectedState() const;
-  
-  void print( const bool details = false ) const;
 };
 
 template< cube_size N >
@@ -60,9 +64,21 @@ void StateMap<N>::addPatches( const PosID * pos, const size_t size )
 }
 
 template< cube_size N >
-void StateMap<N>::add( const RawStateMap<N> & rwsm )
+void StateMap<N>::add( const RawStateMap<N> & rwsm, const CubeID view )
 {
-  m_mapPatches[ m_patches ++ ] = rwsm;
+  m_mapViews  [ m_patches ] = view;
+  m_mapPatches[ m_patches ] = rwsm;
+  
+  if ( view > 0 )
+  {
+    Cache64ID state = view * ( ( pow24( rwsm.size() ) - 1 ) / 23 );
+   /* for( int id = 0; id < rwsm.size(); ++ id )
+    {
+      state += view * pow24( id );
+    } */
+    m_mapPatches[ m_patches ].set( state );
+  }
+  ++ m_patches;
 }
 
 template< cube_size N >
@@ -75,7 +91,7 @@ void StateMap<N>::move( const RotID rotID )
 template< cube_size N >
 Cache64ID StateMap<N>::state() const
 {
-  CacheID result = 0;
+  Cache64ID result = 0;
   for( int next = m_patches - 1; 0 <= next; -- next )
   {
     result *= pow24( m_mapPatches[ next ].size() );
@@ -88,7 +104,7 @@ template< cube_size N >
 Cache64ID StateMap<N>::projectedState() const
 {
   const CubeID prior = m_mapPatches[0].prior();
-  CacheID result = 0;
+  Cache64ID result = 0;
   for( int next = m_patches - 1; 0 <= next; -- next )
   {
     result *= pow24( m_mapPatches[ next ].size() );
@@ -98,9 +114,18 @@ Cache64ID StateMap<N>::projectedState() const
 }
 
 template< cube_size N >
+void StateMap<N>::set( const Rubik<N> & R )
+{
+  for ( int next = 0; next < m_patches; ++ next )
+  {
+    m_mapPatches[ next ].set( R, m_mapViews[ next ] );
+  }
+}
+
+template< cube_size N >
 void StateMap<N>::print( const bool details ) const
 {
-  const CacheID stateID = state();
+  const Cache64ID stateID = state();
   PosID pos[ CPositions<N>::GetSize() ];
   size_t size = 0;
   
@@ -115,7 +140,7 @@ void StateMap<N>::print( const bool details ) const
   }
   
   // show map
-  PrintMap<N>( stateID, pos, size, details);
+  PrintMap<N>( stateID, pos, size, details );
 }
 
 #endif  //  ! STAE_MAP__H

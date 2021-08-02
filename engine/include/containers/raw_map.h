@@ -44,6 +44,11 @@ public:
   
   void set( const Rubik<N> & R, const CubeID view = 0 ) const;
   
+  void set( const CacheID & state ) const
+  {
+    m_stateID = state;
+  }
+  
   bool isBuilt() const
   {
     return m_refCount != nullptr;
