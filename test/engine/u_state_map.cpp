@@ -73,6 +73,11 @@ bool UnitTests::unit_StateMap() const
   tcase( "Add back diagonal" );
   test4_2.add( RawStateMap<4> ( stateMap4_2a, 4 ), Simplex::Composition( Simplex::Tilt( _Y, 2), Simplex::Tilt( _Z, 1 ) ) );
   test4_2.print();
+  
+  tcase( "Add left-down edge" );
+  test4_2.add( RawStateMap<4> ( stateMap4_2b, 2 ), Simplex::Tilt( _Z, 2 ) );
+  test4_2.print();
   finish( "StateMap", success );
+  
   return success;
 }

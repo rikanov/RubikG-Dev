@@ -59,7 +59,8 @@ void StateMap<N>::addPatches( const PosID * pos, const size_t size )
     part = size;
   }
   
-  m_mapPatches[ m_patches ++ ].build( pos, part );
+  m_mapViews[ m_patches ] = 0; // set view to default
+  m_mapPatches[ m_patches ++ ].build( pos, part ); // create new RawStateMap
   addPatches( pos + part, size - part );
 }
 
@@ -71,11 +72,7 @@ void StateMap<N>::add( const RawStateMap<N> & rwsm, const CubeID view )
   
   if ( view > 0 )
   {
-    Cache64ID state = view * ( ( pow24( rwsm.size() ) - 1 ) / 23 );
-   /* for( int id = 0; id < rwsm.size(); ++ id )
-    {
-      state += view * pow24( id );
-    } */
+    const Cache64ID state = view * ( ( pow24( rwsm.size() ) - 1 ) / 23 );
     m_mapPatches[ m_patches ].set( state );
   }
   ++ m_patches;
@@ -95,7 +92,10 @@ Cache64ID StateMap<N>::state() const
   for( int next = m_patches - 1; 0 <= next; -- next )
   {
     result *= pow24( m_mapPatches[ next ].size() );
-    result += m_mapPatches[ next ].state();
+    if ( m_mapViews[ next ] > 0 )
+      result += m_mapPatches[ next ].state( Simplex::Inverse( m_mapViews[ next ] ) );
+    else
+      result += m_mapPatches[ next ].state();
   }
   return result; 
 }
@@ -103,12 +103,19 @@ Cache64ID StateMap<N>::state() const
 template< cube_size N >
 Cache64ID StateMap<N>::projectedState() const
 {
-  const CubeID prior = m_mapPatches[0].prior();
+  const CubeID prior = Simplex::Inverse( m_mapPatches[0].prior() );
   Cache64ID result = 0;
   for( int next = m_patches - 1; 0 <= next; -- next )
   {
-    result *= pow24( m_mapPatches[ next ].size() );
-    result += m_mapPatches[ next ].projection( prior );
+    result *= pow24( m_mapPatches[ next ].size() ); // shift to left
+    if ( m_mapViews[ next ] == 0 )
+    {
+      result += m_mapPatches[ next ].projection( prior );
+    }
+    else
+    {
+      result += m_mapPatches[ next ].projection( Simplex::Composition( Simplex::Inverse( m_mapViews[ next ] ), prior ) );
+    }
   }
   return result; 
 }
@@ -135,7 +142,7 @@ void StateMap<N>::print( const bool details ) const
     size += m_mapPatches[ next ].size();
     for( int pIndex = 0; pIndex < m_mapPatches[ next ].size(); ++ pIndex )
     {
-      pos[ index ++ ] = m_mapPatches[ next ].getPosID( pIndex );
+      pos[ index ++ ] = CPositions<N>::GetPosID( m_mapPatches[ next ].getPosID( pIndex ), m_mapViews[ next ] );
     }
   }
   

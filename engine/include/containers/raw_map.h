@@ -64,9 +64,14 @@ public:
     return m_startPos[ id ];
   }
   
-  CacheID & state() const
+  CacheID state() const
   {
     return m_stateID;
+  }
+  
+  CacheID state( const CubeID view ) const
+  {
+    return m_transMap[ 24 * m_stateID + view ];
   }
   
   CubeID prior() const
