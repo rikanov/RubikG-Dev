@@ -82,7 +82,7 @@ template< cube_size N >
 void StateMap<N>::move( const RotID rotID )
 {
   for( unsigned int next = 0; next < m_patches; ++ next )
-    m_mapPatches[ next ].move( rotID );
+    m_mapPatches[ next ].move( CRotations<N>::GetRotID( rotID, m_mapViews[ next ] ) );
 }
 
 template< cube_size N >

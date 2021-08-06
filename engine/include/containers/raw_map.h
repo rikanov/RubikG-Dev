@@ -283,4 +283,127 @@ RawStateMap<N>::~RawStateMap()
   }
 }
 
+
+template< cube_size N >
+class RawStateMap2
+{
+  PosID * m_pattern;
+  size_t  m_size;
+  
+  CacheID * m_stateMap;
+  CacheID * m_transMap;
+  
+  mutable CacheID m_stateID;
+  
+public:
+    
+  RawStateMap2 ( const size_t buff, const PosID * pattern = nullptr )
+   : m_pattern ( new PosID[ buff ] )
+   , m_size    ( 0 )
+   , m_stateMap( new CacheID[ pow24( buff ) * CRotations<N>::AllRotIDs ] )
+   , m_transMap( new CacheID[ pow24( buff + 1 ) ] )
+  {
+    // pre-condition
+    for( int i = 0; i < CRotations<N>::AllRotIDs; ++ i )
+      m_stateMap[i] = 0;
+    // iteratively increasing cache
+    while ( pattern && m_size < buff )
+      addCube( *( pattern ++ ) );
+    // post-condition
+    m_stateID = 0;
+    for( int i = 0; i < 74; ++ i )
+    {
+      clog_( '\n', i, ':' );
+      for( int j = 0; j < CRotations<N>::AllRotIDs; ++j )
+      {
+        clog_( m_stateMap[ i *  CRotations<N>::AllRotIDs + j ] );
+      }
+    }
+  };
+   
+  ~RawStateMap2()
+  {
+    delete[] m_pattern;
+    delete[] m_stateMap;
+    delete[] m_transMap;
+  }
+  
+  void addCube ( const PosID  );
+  void extendBy( const CubeID );
+  
+  CacheID state() const
+  {
+    return m_stateID;
+  }
+  
+  CacheID state( const CubeID view ) const
+  {
+    return m_transMap[ 24 * m_stateID + view ];
+  }
+  
+  CubeID prior() const
+  {
+    return m_stateID / pow24( m_size - 1 );
+  }
+  
+  void move( const RotID rotID ) const
+  {
+    m_stateID = m_stateMap[ CRotations<N>::AllRotIDs * m_stateID + rotID ];
+  }
+  
+  void print( const bool details = false ) const
+  {
+    PrintMap<N> ( m_stateID, m_pattern, m_size, details );
+  }
+};
+
+template< cube_size N >
+void RawStateMap2<N>::addCube( const PosID posID )
+{
+  clog( m_size, (int) posID );
+  m_pattern[ m_size ] = posID;
+  
+  m_stateID = 0;
+  all_cubeid( cid )
+  {
+    extendBy( cid );
+  }
+  ++ m_size;
+}
+
+template< cube_size N >
+void RawStateMap2<N>::extendBy( const CubeID cid )
+{
+  const CacheID subSize  = pow24( m_size );
+  const CacheID extStand = cid * subSize;
+  
+  const PosID pos   = CPositions<N>::GetPosID( m_pattern[ m_size ], cid );
+  
+  long  turned[9] = {}, * pTurned = turned;
+  RotID recalc[9] = {}, * pRecalc = recalc; 
+  for( Axis axis : { _X, _Y, _Z } )
+  {
+    const Layer layer = CPositions<N>::GetLayer( pos, axis );
+    for( Turn turn : { 1, 2, 3 } )
+    {
+      * ( pTurned ++ ) = Simplex::Composition( cid, Simplex::Tilt( axis, turn ) ) * subSize - extStand;
+      * ( pRecalc ++ ) = CRotations<N>::GetRotID( axis, layer, turn );
+    }
+  }
+  for( CacheID subID = 0; subID < subSize; ++ subID, ++ m_stateID )
+  {
+    const CacheID stateBase = m_stateID * CRotations<N>::AllRotIDs;
+    const CacheID subBase   = subID     * CRotations<N>::AllRotIDs;
+    for( RotID rotID = 0; rotID < CRotations<N>::AllRotIDs; ++ rotID )
+    {
+      m_stateMap[ stateBase + rotID ] = m_stateMap[ subBase + rotID ] + extStand;
+    }
+    pTurned = turned;
+    pRecalc = recalc;
+    for( int i = 0; i < 9; ++ i)
+    {
+      m_stateMap[ stateBase + *( pRecalc ++ ) ] += *( pTurned ++ );
+    }
+  }
+}
 #endif  //  ! RAW_MAP__H

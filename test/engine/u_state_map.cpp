@@ -30,7 +30,7 @@ bool UnitTests::unit_StateMap() const
                                CPositions<4>::GetPosID( 3, 3, 0 )
   };
 
-  const RotID rotations4_1[] = {
+  const RotID rotations4[] = {
                                CRotations<4>::GetRotID( _X, 0, 1 ),
                                CRotations<4>::GetRotID( _X, 3, 1 ),
                                CRotations<4>::GetRotID( _Y, 1, 3 ),
@@ -46,7 +46,7 @@ bool UnitTests::unit_StateMap() const
   StateMap<4> test4_1;
   test4_1.build( stateMap4_1, 7 );
   tcase( " 4x4 direct definition " );
-  stamp( test10Moves( test4_1, rotations4_1 ), success );
+  stamp( test10Moves( test4_1, rotations4 ), success );
 
   
   const PosID stateMap4_2a[] = {
@@ -77,7 +77,10 @@ bool UnitTests::unit_StateMap() const
   tcase( "Add left-down edge" );
   test4_2.add( RawStateMap<4> ( stateMap4_2b, 2 ), Simplex::Tilt( _Z, 2 ) );
   test4_2.print();
-  finish( "StateMap", success );
   
+  tcase( " 4x4 composed " );
+  stamp( test10Moves( test4_2, rotations4 ), success );
+  
+  finish( "StateMap", success );
   return success;
 }

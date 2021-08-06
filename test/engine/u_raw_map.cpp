@@ -2,7 +2,7 @@
 #include<raw_map.h>
 
 template< cube_size N >
-static bool test10Moves( RawStateMap<N> & rsm, const RotID * moves )
+static bool test10Moves( RawStateMap2<N> & rsm, const RotID * moves )
 {
   for( int step = 0; step < 10; ++ step )
   {
@@ -59,21 +59,19 @@ bool UnitTests::unit_RawMap() const
                               CRotations<4>::GetRotID( _Y, 1, 2 ),
                               CRotations<4>::GetRotID( _X, 2, 1 )
         };
-
-  tcase( "Copy constructor" );
-    RawStateMap<4> test4_1( pattern4_1, 4 );
-    test4_1.print();
-    RawStateMap<4> test4_1x = test4_1;
-    test4_1x.print( true );
-  stamp( test4_1.state() == 0 && test4_1x.state() == 0, success );
-
+  tcase( "Constructor" );
+    timerON();
+    RawStateMap2<4> Test4_1( 4, pattern4_1 );
+    RawStateMap2<4> Test4_2( 4, pattern4_2 );
+    timerOFF();
+    clog( "Ellapsed time: ", ellapsed() );
+  stamp( true, success );
+  
   tcase( " 4x4 diagonal " );
-  stamp( test10Moves( test4_1x, rotations4_1 ), success );
-
+  stamp( test10Moves( Test4_1, rotations4_1 ), success );
 
   tcase( " 4x4 square " );
-    RawStateMap<4> test4_2( pattern4_2, 4 );
-  stamp( test10Moves( test4_2, rotations4_2 ), success );
+  stamp( test10Moves( Test4_2, rotations4_2 ), success );
 
   finish( "RawStateMap", success );
   return success;
