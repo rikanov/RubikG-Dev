@@ -7,13 +7,15 @@
 #include <state_printer.h>
 
 typedef uint64_t GroupID;
+typedef uint32_t SmallGroupID;
 
 template< cube_size N >
 class Subgroup
 {
-  size_t    m_size;
-  GroupID   m_stateID;
-  GroupID * m_cacheSingle;
+  size_t         m_size;
+  GroupID        m_stateID;
+  GroupID      * m_singleCache;
+  SmallGroupID * m_monoCache;
   
   const PosID * m_startPos;
   
@@ -23,11 +25,23 @@ public:
 
   Subgroup();
   Subgroup( const PosID *, const size_t size, const CubeID orient = 0 );
+  ~Subgroup();
   
-  void    init  ( const PosID *, const size_t, const CubeID );
-  void    move  ( const RotID );
-  GroupID check ( const RotID ) const;
-  GroupID state () const;
+  GroupID check( const RotID ) const;
+  
+  void buildCache();
+  
+  void init( const PosID *, const size_t, const CubeID );
+  
+  void move( const RotID rotID )
+  {
+    m_stateID = check( rotID );
+  }
+  
+  GroupID state () const
+  {
+    return m_stateID;
+  }
   
   void print( const bool details = false ) const
   {
@@ -39,7 +53,8 @@ template< cube_size N >
 Subgroup<N>::Subgroup()
  :  m_size        ( 0 )
  ,  m_stateID     ( 0 )
- ,  m_cacheSingle ( nullptr )
+ ,  m_singleCache ( nullptr )
+ ,  m_monoCache   ( nullptr )
 {
    
 }
@@ -54,9 +69,13 @@ Subgroup<N>::Subgroup( const PosID * pos, const size_t size, const CubeID orient
 template< cube_size N >
 void Subgroup<N>::init ( const PosID * pos, const size_t size, const CubeID orient )
 {
-  delete[] m_cacheSingle;
+  if ( size != m_size )
+  {
+    delete[] m_singleCache;
+    m_singleCache = new GroupID [ size * 24 * CRotations<N>::AllRotIDs ];   
+  }
+  delete[] m_monoCache; m_monoCache = nullptr;
   m_startPos = pos;
-  m_cacheSingle = new GroupID [ size * 24 * CRotations<N>::AllRotIDs ];
   
   for( size_t s = 0; s < size; ++ s )
     add( CPositions<N>::GetPosID( *( pos ++ ), orient ) );
@@ -77,11 +96,11 @@ void Subgroup<N>::add( const PosID pos )
       ++ rotID;
       if ( CPositions<N>::GetLayer( whereIs , axis ) == layer )
       {
-        m_cacheSingle[ offset + base + rotID ] = Simplex::Composition( cubeID, Simplex::Tilt( axis, turn ) ) * pow24( m_size );
+        m_singleCache[ offset + base + rotID ] = Simplex::Composition( cubeID, Simplex::Tilt( axis, turn ) ) * pow24( m_size );
       }
       else 
       {
-        m_cacheSingle[ offset + base + rotID ] = cubeID * pow24( m_size );
+        m_singleCache[ offset + base + rotID ] = cubeID * pow24( m_size );
       }
     }
   }
@@ -91,23 +110,30 @@ void Subgroup<N>::add( const PosID pos )
 template< cube_size N >
 GroupID Subgroup<N>::check( const RotID rotID ) const
 {
-  GroupID result = 0;
-  for( GroupID stateID = m_stateID, offset = 0; 0 < stateID; stateID /= 24, offset += 24 )
+  if ( m_monoCache )
   {
-    result += m_cacheSingle[ ( offset + stateID % 24 ) * CRotations<N>::AllRotIDs + rotID ];
+    return m_monoCache[ m_stateID * CRotations<N>::AllRotIDs + rotID ];
+  }
+  GroupID result = 0;
+  for( GroupID stateID = m_stateID, offset = 0; offset < m_size; stateID /= 24, ++ offset )
+  {
+    result += m_singleCache[ ( offset * 24 + stateID % 24 ) * CRotations<N>::AllRotIDs + rotID ];
   }
   return result;
 }
 
 template< cube_size N >
-GroupID Subgroup<N>::state() const
+void Subgroup<N>::buildCache()
 {
-  return m_stateID;
+  delete[] m_monoCache;
+  m_monoCache = new SmallGroupID[ pow24( m_size ) * CRotations<N>::AllRotIDs ];
 }
 
 template< cube_size N >
-void Subgroup<N>::move( const RotID rotID )
+Subgroup<N>::~Subgroup()
 {
-  m_stateID = check( rotID );
+  delete[] m_singleCache;
+  delete[] m_monoCache;
 }
+
 #endif  //  ! RAW_MAP__H
