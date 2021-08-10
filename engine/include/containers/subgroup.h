@@ -92,9 +92,9 @@ template< cube_size N >
 GroupID Subgroup<N>::check( const RotID rotID ) const
 {
   GroupID result = 0;
-  for( GroupID stateID = m_stateID, offset = 0; 0 < stateID; stateID /= 24, offset += 24 )
+  for( GroupID stateID = m_stateID, offset = 0; offset < m_size; stateID /= 24, ++ offset )
   {
-    result += m_cacheSingle[ ( offset + stateID % 24 ) * CRotations<N>::AllRotIDs + rotID ];
+    result += m_cacheSingle[ ( offset * 24 + stateID % 24 ) * CRotations<N>::AllRotIDs + rotID ];
   }
   return result;
 }
