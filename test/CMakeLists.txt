@@ -24,8 +24,7 @@ add_library(test  test.h
                   core/u_rubik.cpp
 
                   engine/u_insight.cpp
-                  engine/u_raw_map.cpp
-                  engine/u_state_map.cpp
+                  engine/u_subgroup.cpp
                   engine/u_engine.cpp
                  )
 

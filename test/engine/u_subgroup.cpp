@@ -1,8 +1,8 @@
 #include<test.h>
-#include<raw_map.h>
+#include<subgroup.h>
 
 template< cube_size N >
-static bool test10Moves( RawStateMap2<N> & rsm, const RotID * moves )
+static bool test10Moves( Subgroup<N> & rsm, const RotID * moves )
 {
   for( int step = 0; step < 10; ++ step )
   {
@@ -18,7 +18,7 @@ bool UnitTests::unit_RawMap() const
 {
 
   bool success = true;
-  head( "RawStateMap" );
+  head( "Subgroup" );
 
   const PosID pattern4_1[] = {
                                CPositions<4>::GetPosID( 0, 0, 3 ),
@@ -61,8 +61,8 @@ bool UnitTests::unit_RawMap() const
         };
   tcase( "Constructor" );
     timerON();
-    RawStateMap2<4> Test4_1( 4, pattern4_1 );
-    RawStateMap2<4> Test4_2( 4, pattern4_2 );
+    Subgroup<4> Test4_1( pattern4_1, 4 );
+    Subgroup<4> Test4_2( pattern4_2, 4 );
     timerOFF();
     clog( "Ellapsed time: ", ellapsed() );
   stamp( true, success );
@@ -73,6 +73,6 @@ bool UnitTests::unit_RawMap() const
   tcase( " 4x4 square " );
   stamp( test10Moves( Test4_2, rotations4_2 ), success );
 
-  finish( "RawStateMap", success );
+  finish( "Subgroup", success );
   return success;
 }
