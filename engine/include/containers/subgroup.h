@@ -27,7 +27,7 @@ public:
   Subgroup( const PosID *, const size_t size, const CubeID orient = 0 );
   ~Subgroup();
   
-  GroupID check( const RotID ) const;
+  GroupID check( const RotID, const bool prior = false ) const;
   
   void buildCache();
   
@@ -41,6 +41,11 @@ public:
   GroupID state () const
   {
     return m_stateID;
+  }
+  
+  size_t size() const
+  {
+    return m_size;
   }
   
   void print( const bool details = false ) const
@@ -108,14 +113,14 @@ void Subgroup<N>::add( const PosID pos )
 }
 
 template< cube_size N >
-GroupID Subgroup<N>::check( const RotID rotID ) const
+GroupID Subgroup<N>::check( const RotID rotID, const bool prior ) const
 {
   if ( m_monoCache )
   {
     return m_monoCache[ m_stateID * CRotations<N>::AllRotIDs + rotID ];
   }
   GroupID result = 0;
-  for( GroupID stateID = m_stateID, offset = 0; offset < m_size; stateID /= 24, ++ offset )
+  for( GroupID stateID = m_stateID, offset = 0; offset < m_size - prior; stateID /= 24, ++ offset )
   {
     result += m_singleCache[ ( offset * 24 + stateID % 24 ) * CRotations<N>::AllRotIDs + rotID ];
   }

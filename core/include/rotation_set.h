@@ -3,7 +3,7 @@
 
 #include <base_types.h>
 
-typedef unsigned long RotSetID;
+typedef uint64_t RotSetID;
 
 class RotationSet
 {

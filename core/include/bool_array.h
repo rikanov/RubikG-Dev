@@ -13,8 +13,8 @@ public:
   {}
   
   BoolArray( const size_t size )
-  : m_arraySize( 1 + size / 32 )
-  , m_boolArray( new uint32_t [ m_arraySize ] {} )
+  : m_arraySize( size == 0 ? 0 : 1 + size / 32 )
+  , m_boolArray( size == 0 ? nullptr : new uint32_t [ m_arraySize ] {} )
   {}
   
   ~BoolArray()
@@ -26,7 +26,7 @@ public:
   {
     m_arraySize = size;
     delete[] m_boolArray;
-    m_boolArray = new uint32_t [ m_arraySize ] {};
+    m_boolArray = size == 0 ? nullptr : new uint32_t [ m_arraySize ] {};
   }
   
   void set( const uint32_t index, const bool t )
