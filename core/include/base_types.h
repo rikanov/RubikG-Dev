@@ -33,8 +33,7 @@ typedef uint_fast8_t  CubeID;
 typedef uint8_t       RotID;
 typedef uint8_t       PosID;
 typedef uint8_t       DistID;
-typedef uint32_t      CacheID;
-typedef uint64_t      Cache64ID;
+typedef uint32_t      GroupID;
 typedef uint32_t      BitMap32ID;
 typedef uint64_t      BitMapID;
 
@@ -143,7 +142,7 @@ inline char Token( Orient F )
      for ( Layer L = 0; L < N; ++L ) \
        for ( Turn T: { 1, 2, 3 } )
          
-#define all_rotid ( rotID ) \
+#define all_rotid( rotID ) \
    for ( RotID rotID = 0; rotID < CRotations<N>::AllRotIDs; ++ rotID )
 
 #define for_vector( x, y, z, N )   \
