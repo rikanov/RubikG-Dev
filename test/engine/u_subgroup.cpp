@@ -1,5 +1,6 @@
 #include<test.h>
 #include<subgroup.h>
+#include<seeker.h>
 
 template< cube_size N >
 static bool test10Moves( Subgroup<N> & rsm, const RotID * moves )
@@ -73,6 +74,16 @@ bool UnitTests::unit_RawMap() const
   tcase( " 4x4 square " );
   stamp( test10Moves( Test4_2, rotations4_2 ), success );
 
+  timerON();
+  Seeker<4> test4;
+  test4.map( &Test4_1 );
+  test4.root( 0 );
+  test4.build();
+  timerOFF();
+  clog( "Build time: ", ellapsed() );
+
+
   finish( "Subgroup", success );
+
   return success;
 }
