@@ -66,7 +66,7 @@ template< cube_size N >
 void Insight<N>::print( const bool details ) const
  {
    PosID * pos = new PosID [ m_size ];
-   SetCacheID( pos, m_stateID, m_size, m_prior );
+   SetGroupID( pos, m_stateID, m_size, m_prior );
 
    for( size_t m = 0; details && m < m_size; ++ m )
    {

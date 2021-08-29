@@ -11,7 +11,7 @@ class Insight
 {
   using _crot = CExtRotations<N>;
 
-  CacheID        m_stateID;
+  GroupID        m_stateID;
   CubeID         m_prior;
 
   const size_t   m_size;
@@ -19,7 +19,7 @@ class Insight
 
   std::shared_ptr< const CubeID [] >     m_priorCache;
   std::shared_ptr< const RotID  [] >     m_transRotation;
-  std::shared_ptr< const CacheIDmap<N> > m_map;
+  std::shared_ptr< const GroupIDmap<N> > m_map;
 
   mutable BitMap m_suggestion;
   mutable RotID  m_nextSuggested;
@@ -46,7 +46,7 @@ public:
   int rotate( const Axis axis, const Layer layer, const Turn turn );
   int rotate( const RotID rotID );
 
-  CacheID state() const
+  GroupID state() const
   {
     return m_stateID;
   }
@@ -143,7 +143,7 @@ void Insight<N>::initPos( const PosID* P, const CubeID baseTransform )
 template< cube_size N > 
 void Insight<N>::initMap( SubSpace P, const Axis toRoll )
 {
-  CacheIDmapper<N> * mapBuilder = new CacheIDmapper<N>;
+  GroupIDmapper<N> * mapBuilder = new GroupIDmapper<N>;
   mapBuilder -> initialPosition( m_pos, P.size() );
   mapBuilder -> accept( toRoll) ;
   m_map =  mapBuilder -> createMap();
@@ -197,7 +197,7 @@ void Insight<N>::set( const Rubik<N> & R )
     subset[ posIndex ] = Simplex::Composition( m_view, R.transpose( m_pos[ posIndex ] ) );
   }
   m_prior = subset[0];
-  m_stateID = GetCacheID( subset, m_size );
+  m_stateID = GetGroupID( subset, m_size );
   delete[] subset;
 }
 

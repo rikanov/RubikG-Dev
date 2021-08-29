@@ -6,14 +6,14 @@
 #include <base_types.h>
 #include <bool_array.h>
 
-// an excluding FIFO object: any CacheID value can be pushed in only once a life time
+// an excluding FIFO object: any GroupID value can be pushed in only once a life time
 class Qeueu
 {
   size_t m_size;
 
-  CacheID * m_qeueudCubes ;
-  CacheID * m_qeuIn ;
-  CacheID * m_qeuOut;
+  GroupID * m_qeueudCubes ;
+  GroupID * m_qeuIn ;
+  GroupID * m_qeuOut;
   BoolArray m_used;
 public:
 
@@ -27,29 +27,34 @@ public:
   {
     m_size = size;
     delete[] m_qeueudCubes;
-    m_qeueudCubes = size == 0 ? nullptr : new CacheID [ pow24( size ) + 1 ];
+    m_qeueudCubes = size == 0 ? nullptr : new GroupID [ pow24( size ) + 1 ];
     m_used.resize( pow24( m_size ) + 1 );
     m_qeuIn = m_qeuOut = m_qeueudCubes;    
   }
   
+  size_t size() const
+  {
+    return m_qeuIn - m_qeuOut;
+  }
+
   void clean()
   {
     m_used.clean();
     m_qeuIn = m_qeuOut = m_qeueudCubes;    
   }
   
-  void push_back( const CacheID& id )
+  void push_back( const GroupID& id )
   {
     m_used.set( id, true );
     *( m_qeuIn ++ ) = id;
   }
 
-  CacheID at( const size_t id ) const
+  GroupID at( const size_t id ) const
   {
     return *( m_qeuOut + id );
   }
 
-  bool operator << ( const CacheID& id )
+  bool operator << ( const GroupID& id )
   {
     if ( m_used( id ) == false )
     {
@@ -60,7 +65,7 @@ public:
     return false;
   }
 
-  bool operator >> ( CacheID& id )
+  bool operator >> ( GroupID& id )
   {
       id = *( m_qeuOut ++ );
       return m_qeuOut <= m_qeuIn;

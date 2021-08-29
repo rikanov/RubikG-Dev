@@ -3,13 +3,15 @@
 
 #include<rotation_set.h>
 #include<qeueu.h>
+#include<subgroup.h>
 
 typedef uint8_t DistID;
 
 template< cube_size N >
 class Seeker
 {
-  const Subgroup<N> * m_subgroup;
+  Subgroup<N> * m_subgroup;
+
   const DistID      * m_nodeValue;
   const RotSetID    * m_gradient;
   Qeueu               m_qeueu;
@@ -20,8 +22,8 @@ public:
   Seeker ();
   ~Seeker();
   
-  void map  ( const Subgroup<N> * );
-  void root ( const SubgroupID    );
+  void map  ( Subgroup<N> * );
+  void root ( const GroupID    );
   void build();
   
 };
@@ -49,14 +51,14 @@ void Seeker<N>::dealloc()
 }
 
 template< cube_size N >
-void Seeker<N>::map( const Subgroup<N> * sg )
+void Seeker<N>::map( Subgroup<N> * sg )
 {
-  m_qeueu.resize( sg.size() );
+  m_qeueu.resize( sg -> size() );
   m_subgroup = sg;
 }
 
 template< cube_size N >
-void Seeker<N>::root( const Subgroup si )
+void Seeker<N>::root( const GroupID si )
 {
   m_qeueu << si;
 }
@@ -65,27 +67,28 @@ template< cube_size N >
 void Seeker<N>::build()
 {
   dealloc();
-  m_nodeValue = new DistID  [ pow24( m_subgroup -> size() - 1 ) ];
-  m_gradient  = new RotSetID[ pow24( m_subgroup -> size() - 1 ) ];
-  m_qeueu.resize( m_subgroup -> size() );
-  
-  SubgroupID parent;
+  DistID   * nodeValue = new DistID  [ pow24( m_subgroup -> size() - 1 ) ];
+  RotSetID * gradient  = new RotSetID[ pow24( m_subgroup -> size() - 1 ) ];
+
+  GroupID parent; clog( "Qeueu size:", m_qeueu.size() );
   while ( m_qeueu >> parent )
   {
-    m_subgroup.set( parent );
+    m_subgroup -> set( parent );
     all_rotid ( rotID )
     {
-      const SubgroupID child = m_subgroup -> check( rotID, true );
+      const GroupID child = m_subgroup -> check( rotID, true );
       if ( m_qeueu << child )
       {
-        m_nodeValue[ child ] = m_nodeValue[ parent ] + 1;
+        nodeValue[ child ] = nodeValue[ parent ] + 1;
       }
-      if ( m_nodeValue[ child ] == m_nodeValue[ parent ] + 1 )
+      if ( nodeValue[ child ] == nodeValue[ parent ] + 1 )
       {
-        m_gradient[ child ] |= ( 2 << CRotations<N>::Inverse( rotID ) );
+        gradient[ child ] |= ( 2 << CRotations<N>::GetInvRotID( rotID ) );
       }
     }
   }
+  m_nodeValue = nodeValue;
+  m_gradient  = gradient;
   m_qeueu.resize( 0 ); //  de-alloc queeu memory
 }
 #endif

@@ -6,16 +6,12 @@
 #include <rubik.h>
 #include <state_printer.h>
 
-typedef uint64_t GroupID;
-typedef uint32_t SmallGroupID;
-
 template< cube_size N >
 class Subgroup
 {
   size_t         m_size;
   GroupID        m_stateID;
   GroupID      * m_singleCache;
-  SmallGroupID * m_monoCache;
   
   const PosID * m_startPos;
   
@@ -36,6 +32,11 @@ public:
   void move( const RotID rotID )
   {
     m_stateID = check( rotID );
+  }
+
+  void set( GroupID gid )
+  {
+    m_stateID = gid;
   }
   
   GroupID state () const
@@ -59,7 +60,6 @@ Subgroup<N>::Subgroup()
  :  m_size        ( 0 )
  ,  m_stateID     ( 0 )
  ,  m_singleCache ( nullptr )
- ,  m_monoCache   ( nullptr )
 {
    
 }
@@ -79,7 +79,6 @@ void Subgroup<N>::init ( const PosID * pos, const size_t size, const CubeID orie
     delete[] m_singleCache;
     m_singleCache = new GroupID [ size * 24 * CRotations<N>::AllRotIDs ];   
   }
-  delete[] m_monoCache; m_monoCache = nullptr;
   m_startPos = pos;
   
   for( size_t s = 0; s < size; ++ s )
@@ -115,10 +114,6 @@ void Subgroup<N>::add( const PosID pos )
 template< cube_size N >
 GroupID Subgroup<N>::check( const RotID rotID, const bool prior ) const
 {
-  if ( m_monoCache )
-  {
-    return m_monoCache[ m_stateID * CRotations<N>::AllRotIDs + rotID ];
-  }
   GroupID result = 0;
   for( GroupID stateID = m_stateID, offset = 0; offset < m_size - prior; stateID /= 24, ++ offset )
   {
@@ -128,17 +123,9 @@ GroupID Subgroup<N>::check( const RotID rotID, const bool prior ) const
 }
 
 template< cube_size N >
-void Subgroup<N>::buildCache()
-{
-  delete[] m_monoCache;
-  m_monoCache = new SmallGroupID[ pow24( m_size ) * CRotations<N>::AllRotIDs ];
-}
-
-template< cube_size N >
 Subgroup<N>::~Subgroup()
 {
   delete[] m_singleCache;
-  delete[] m_monoCache;
 }
 
 #endif  //  ! RAW_MAP__H

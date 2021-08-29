@@ -7,45 +7,45 @@
 #include <qeueu.h>
 
 template< cube_size N >
-class CacheIDmap
+class GroupIDmap
 {
   using _crot = CExtRotations<N>;
 
-  CacheID  * m_map;
+  GroupID  * m_map;
   DistID   * m_dist;
   BitMapID * m_suggestion;
 
   void clean();
 
 public:
-  CacheIDmap();
-  CacheIDmap( const CacheIDmap & ) = delete;
-  ~CacheIDmap();
+  GroupIDmap();
+  GroupIDmap( const GroupIDmap & ) = delete;
+  ~GroupIDmap();
 
   void init ( const size_t size );
-  void connect( const CacheID start, const Axis axis, const Layer layer, const Turn turn, const CacheID result, const bool first );
+  void connect( const GroupID start, const Axis axis, const Layer layer, const Turn turn, const GroupID result, const bool first );
 
-  CacheID getState( CacheID cacheID, Axis axis, Layer layer, Turn turn ) const
+  GroupID getState( GroupID cacheID, Axis axis, Layer layer, Turn turn ) const
   {
     return m_map[ _crot::GetRotID( axis, layer, turn) + _crot::AllRotIDs * cacheID ];
   }
 
-  CacheID getState( CacheID cacheID, RotID rotID ) const
+  GroupID getState( GroupID cacheID, RotID rotID ) const
   {
     return m_map[ rotID + _crot::AllRotIDs * cacheID ];
   }
 
-  int distance( CacheID cacheID ) const
+  int distance( GroupID cacheID ) const
   {
     return m_dist[ cacheID ];
   }
-  unsigned long router( const CacheID cacheID ) const
+  unsigned long router( const GroupID cacheID ) const
   {
     return m_suggestion[ cacheID ];
   }
 };
 
-template< cube_size N > CacheIDmap<N>::CacheIDmap()
+template< cube_size N > GroupIDmap<N>::GroupIDmap()
   :  m_map  ( nullptr )
   ,  m_dist ( nullptr )
   ,  m_suggestion ( nullptr )
@@ -53,17 +53,17 @@ template< cube_size N > CacheIDmap<N>::CacheIDmap()
 }
 
 template< cube_size N >
-void CacheIDmap<N>::init( const size_t size )
+void GroupIDmap<N>::init( const size_t size )
 {
   clean();
-  m_map  =       new CacheID  [ pow24( size - 1 ) * _crot::AllRotIDs ];
+  m_map  =       new GroupID  [ pow24( size - 1 ) * _crot::AllRotIDs ];
   m_dist =       new DistID   [ pow24( size - 1 ) ] {};
   m_suggestion = new BitMapID [ pow24( size - 1 ) ] {};
 
 }
 
 template< cube_size N >
-void CacheIDmap<N>::connect( const CacheID from, const Axis axis, const Layer layer, const Turn turn, const CacheID to, const bool first )
+void GroupIDmap<N>::connect( const GroupID from, const Axis axis, const Layer layer, const Turn turn, const GroupID to, const bool first )
 {
   if ( first )
   {
@@ -78,7 +78,7 @@ void CacheIDmap<N>::connect( const CacheID from, const Axis axis, const Layer la
 }
 
 template< cube_size N >
-void CacheIDmap<N>::clean()
+void GroupIDmap<N>::clean()
 {
   delete[] m_map;
   delete[] m_dist;
@@ -89,7 +89,7 @@ void CacheIDmap<N>::clean()
 }
 
 template< cube_size N >
-CacheIDmap<N>::~CacheIDmap()
+GroupIDmap<N>::~GroupIDmap()
 {
   clean();
 }
