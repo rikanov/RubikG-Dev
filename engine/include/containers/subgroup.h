@@ -77,7 +77,7 @@ void Subgroup<N>::init ( const PosID * pos, const size_t size, const CubeID orie
   if ( size != m_size )
   {
     delete[] m_singleCache;
-    m_singleCache = new GroupID [ size * 24 * CRotations<N>::AllRotIDs ];   
+    m_singleCache = new GroupID [ size * 24 * CRotations<N>::AllRotIDs ]{};   
   }
   m_startPos = pos;
   
