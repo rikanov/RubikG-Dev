@@ -9,13 +9,11 @@
 template< cube_size N >
 class Subgroup
 {
-  size_t         m_size;
-  GroupID        m_stateID;
-  GroupID      * m_singleCache;
-  
+  size_t        m_size;
+  GroupID     * m_singleCache;
   const PosID * m_startPos;
   
-  void add  ( const PosID );
+  void extend( const PosID );
 
 public:
 
@@ -23,42 +21,26 @@ public:
   Subgroup( const PosID *, const size_t size, const CubeID orient = 0 );
   ~Subgroup();
   
-  GroupID check( const RotID, const bool prior = false ) const;
+  GroupID lookUp( const GroupID stateID, const RotID, const bool prior = false ) const;
   
   void buildCache();
   
   void init( const PosID *, const size_t, const CubeID );
-  
-  void move( const RotID rotID )
-  {
-    m_stateID = check( rotID );
-  }
-
-  void set( GroupID gid )
-  {
-    m_stateID = gid;
-  }
-  
-  GroupID state () const
-  {
-    return m_stateID;
-  }
   
   size_t size() const
   {
     return m_size;
   }
   
-  void print( const bool details = false ) const
+  void print( const GroupID stateID, const bool details = false ) const
   {
-    PrintMap<N> ( m_stateID, m_startPos, m_size, details );
+    PrintMap<N> ( stateID, m_startPos, m_size, details );
   }
 };
 
 template< cube_size N >
 Subgroup<N>::Subgroup()
  :  m_size        ( 0 )
- ,  m_stateID     ( 0 )
  ,  m_singleCache ( nullptr )
 {
    
@@ -82,11 +64,11 @@ void Subgroup<N>::init ( const PosID * pos, const size_t size, const CubeID orie
   m_startPos = pos;
   
   for( size_t s = 0; s < size; ++ s )
-    add( CPositions<N>::GetPosID( *( pos ++ ), orient ) );
+    extend( CPositions<N>::GetPosID( *( pos ++ ), orient ) );
 }
 
 template< cube_size N >
-void Subgroup<N>::add( const PosID pos )
+void Subgroup<N>::extend( const PosID pos )
 {
   const size_t offset = m_size * 24 * CRotations<N>::AllRotIDs;
   
@@ -112,10 +94,10 @@ void Subgroup<N>::add( const PosID pos )
 }
 
 template< cube_size N >
-GroupID Subgroup<N>::check( const RotID rotID, const bool prior ) const
+GroupID Subgroup<N>::lookUp( GroupID stateID, const RotID rotID, const bool prior ) const
 {
   GroupID result = 0;
-  for( GroupID stateID = m_stateID, offset = 0; offset < m_size - prior; stateID /= 24, ++ offset )
+  for( GroupID offset = 0; offset < m_size - prior; stateID /= 24, ++ offset )
   {
     result += m_singleCache[ ( offset * 24 + stateID % 24 ) * CRotations<N>::AllRotIDs + rotID ];
   }

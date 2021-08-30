@@ -26,6 +26,10 @@ public:
   void root ( const GroupID    );
   void build();
   
+  DistID distance( const GroupID gid ) const
+  {
+    return m_nodeValue[ gid ];
+  }
 };
 
 template< cube_size N >
@@ -73,17 +77,16 @@ void Seeker<N>::build()
   GroupID parent;
   while ( m_qeueu >> parent )
   {
-    m_subgroup -> set( parent );
     all_rotid ( rotID )
     {
-      const GroupID child = m_subgroup -> check( rotID, true );
+      const GroupID child = m_subgroup -> lookUp( parent, rotID, true );
       if ( m_qeueu << child )
       {
         nodeValue[ child ] = nodeValue[ parent ] + 1;
       }
       if ( nodeValue[ child ] == nodeValue[ parent ] + 1 )
       {
-        gradient[ child ] |= ( 2 << CRotations<N>::GetInvRotID( rotID ) );
+        gradient[ child ] |= ( 1ULL << CRotations<N>::GetInvRotID( rotID ) );
       }
     }
   }

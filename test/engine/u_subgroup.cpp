@@ -1,9 +1,8 @@
 #include<test.h>
-#include<subgroup.h>
-#include<seeker.h>
+#include<insight.h>
 
 template< cube_size N >
-static bool test10Moves( Subgroup<N> & rsm, const RotID * moves )
+static bool test10Moves( Insight<N> & rsm, const RotID * moves )
 {
   for( int step = 0; step < 10; ++ step )
   {
@@ -62,10 +61,12 @@ bool UnitTests::unit_RawMap() const
         };
   tcase( "Constructor" );
     timerON();
-    Subgroup<4> Test4_1( pattern4_1, 4 );
-    Subgroup<4> Test4_2( pattern4_2, 4 );
+    Insight<4> Test4_1( pattern4_1, 4 );
+    Insight<4> Test4_2( pattern4_2, 4 );
+    Test4_1.build();
+    Test4_2.build();
     timerOFF();
-    clog( "Ellapsed time: ", ellapsed() );
+    clog( "Build time: ", ellapsed() );
   stamp( true, success );
   
   tcase( " 4x4 diagonal " );
@@ -73,14 +74,6 @@ bool UnitTests::unit_RawMap() const
 
   tcase( " 4x4 square " );
   stamp( test10Moves( Test4_2, rotations4_2 ), success );
-
-  timerON();
-  Seeker<4> test4;
-  test4.map( &Test4_1 );
-  test4.root( 0 );
-  test4.build();
-  timerOFF();
-  clog( "Build time: ", ellapsed() );
 
 
   finish( "Subgroup", success );

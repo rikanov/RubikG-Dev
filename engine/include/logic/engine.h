@@ -1,6 +1,7 @@
 #ifndef ENGINE__H_INCLUDED
 #define ENGINE__H_INCLUDED
 
+/*
 #include <insight.h>
 #include <sequence.h>
 
@@ -200,5 +201,6 @@ Engine<N>::~Engine()
 {
   delete[] m_insights;
 }
+*/
 
 #endif  //  ! ENGINE__H_INCLUDED

@@ -39,7 +39,7 @@ void UnitTests::stamp( bool success, bool& result )
 
 void UnitTests::finish(const std::string& unit, bool success)
 {
-  NL();
+  NL( Color::off );
   clog_( Color::gray, "Unit test of", Color::white,  unit, Color::off, ':');
   if ( success )
   {

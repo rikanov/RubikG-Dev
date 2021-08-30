@@ -1,7 +1,7 @@
 #include<test.h>
 #include<engine.h>
 
-
+/*
 bool UnitTests::unit_Engine() const
 {
   bool success = true;
@@ -102,3 +102,4 @@ bool UnitTests::unit_Engine() const
   finish( "Search-engine", success );
   return success;
 }
+*/
