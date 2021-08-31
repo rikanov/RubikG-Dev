@@ -3,9 +3,9 @@
 
 int main()
 {
-  CLS();
-  clog( Color::off, "Press", Color::white, Color::bold, "ENTER", Color::off,"to start." ); 
+  CLS(); 
   init();
+  clog( Color::off, "Press", Color::white, Color::bold, "ENTER", Color::off,"to start." );
   
   std::cin.get();
   
