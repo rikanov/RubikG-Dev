@@ -15,7 +15,8 @@ static void PlayWith( Insight<N> & insight, const int * test, bool & success )
     insight.print();
     UnitTests::stamp( insight.projected() == *( next ++ ), success );
     UnitTests::stamp( insight.prior() == *( next ++ ), success );
-    UnitTests::stamp( 0 <= *( next ++ ), success );
+    UnitTests::stamp( insight.distance() <= *( next ++ ), success );
+    clog( (int) insight.distance()  );
   }
 }
 
@@ -203,21 +204,29 @@ bool UnitTests::unit_Insight() const
 //-----------
   Insight<2> baseInsight_2 ( toSolve_2, size_2 );
   Insight<2> transInsight_2( toSolve_2, size_2, Simplex::Tilt( _Z, 1 ) );
+  baseInsight_2.build();
+  transInsight_2.build();
 
  // Rubik 3x3
 //-----------
   Insight<3> baseInsight_3 ( toSolve_3, size_3 );
   Insight<3> transInsight_3( toSolve_3, size_3, Simplex::Tilt( _Y, 1 ) );
+  baseInsight_3.build();
+  transInsight_3.build();
 
  // Rubik 4x4
 //-----------
   Insight<4> baseInsight_4 ( toSolve_4, size_4 );
   Insight<4> transInsight_4( toSolve_4, size_4, Simplex::Tilt( _X, 1 ) );
+  baseInsight_4.build();
+  transInsight_4.build();
 
  // Rubik 5x5
 //-----------
   Insight<5> baseInsight_5 ( toSolve_5, size_5 );
   Insight<5> transInsight_5( toSolve_5, size_5, Simplex::Composition( Simplex::Tilt( _X, 2 ), Simplex::Tilt( _Z, 1 ) ) );
+  baseInsight_5.build();
+  transInsight_5.build();
 
   timerOFF();
   tail( "Memory allocation", success );

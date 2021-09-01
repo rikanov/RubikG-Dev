@@ -23,15 +23,22 @@ void Projection::Instance( void )
 void Projection::init( const size_t size )
 {
   GroupID * projection = new GroupID[ pow24( size ) ]{};
-  
+   size_t next = 0;
   all_cubeid( prior )
   {
-    const CubeID inv = Simplex::Inverse( prior );
-    for( size_t next = 0; next < pow24( size - 1 ); ++ next )
+    if ( 0 == prior )
     {
-      for( GroupID stateID = next, radix = 1; stateID > 0; stateID /= 24, radix *= 24 )
+      for ( ; next < pow24( size - 1 ); ++ next )
       {
-        projection[ next ] += Simplex::Composition( stateID % 24, inv ) * radix;
+        projection[ next ] = next;
+      }
+    }
+    const CubeID inv = Simplex::Inverse( prior );
+    for (; next < pow24( size - 1 ); ++ next )
+    {
+      for ( GroupID stateID = next, radix = 0; radix < size - 1; stateID /= 24, ++ radix )
+      {
+        projection[ next ] += Simplex::Composition( stateID % 24, inv ) * pow24( radix );
       }
     }
   }

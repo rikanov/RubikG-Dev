@@ -1,6 +1,7 @@
 #ifndef INSIGHT__H
 #define INSIGHT__H
 
+#include <projection.h>
 #include <seeker.h>
 
 /*
@@ -34,7 +35,7 @@ public:
   
   GroupID projected() const
   {
-    return m_stateID % pow24( m_subgroupMap.size() - 1 );
+    return Projection::LookUp( m_subgroupMap.size(), m_stateID );
   }
   
   DistID distance() const

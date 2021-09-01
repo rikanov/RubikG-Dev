@@ -143,7 +143,7 @@ inline char Token( Orient F )
        for ( Turn T: { 1, 2, 3 } )
          
 #define all_rotid( rotID ) \
-   for ( RotID rotID = 0; rotID < CRotations<N>::AllRotIDs; ++ rotID )
+   for ( RotID rotID = 1; rotID < CRotations<N>::AllRotIDs; ++ rotID )
 
 #define for_vector( x, y, z, N )   \
    for ( Layer x = 0; x < N; ++x )  \

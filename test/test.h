@@ -36,6 +36,7 @@ private:
   bool unit_CPositions()    const; // core/cube_positions.h
   bool unit_CRotations()    const; // core/cube_rotations.h
   bool unit_CExtRotations() const; // core/cube_rotations.h
+  bool unit_Projection()    const; // core/projection.h
   bool unit_Rubik()         const; // core/rubik.h
    
    // Unit tests of engines (engine folder)
