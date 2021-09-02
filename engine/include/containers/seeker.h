@@ -71,8 +71,8 @@ template< cube_size N >
 void Seeker<N>::build()
 {
   dealloc();
-  DistID   * nodeValue = new DistID  [ pow24( m_subgroup -> size() - 1 ) ];
-  RotSetID * gradient  = new RotSetID[ pow24( m_subgroup -> size() - 1 ) ];
+  DistID   * nodeValue = new DistID  [ pow24( m_subgroup -> size() - 1 ) ] {};
+  RotSetID * gradient  = new RotSetID[ pow24( m_subgroup -> size() - 1 ) ] {};
 
   GroupID parent;
   while ( m_qeueu >> parent )

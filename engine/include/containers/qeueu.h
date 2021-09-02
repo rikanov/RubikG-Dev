@@ -27,7 +27,7 @@ public:
   {
     m_size = size;
     delete[] m_qeueudCubes;
-    m_qeueudCubes = size == 0 ? nullptr : new GroupID [ pow24( size ) + 1 ];
+    m_qeueudCubes = ( size == 0 ) ? nullptr : new GroupID [ pow24( size ) + 1 ];
     m_used.resize( pow24( m_size ) + 1 );
     m_qeuIn = m_qeuOut = m_qeueudCubes;    
   }

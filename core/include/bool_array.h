@@ -26,7 +26,7 @@ public:
   {
     m_arraySize = size;
     delete[] m_boolArray;
-    m_boolArray = size == 0 ? nullptr : new uint32_t [ m_arraySize ] {};
+    m_boolArray = ( size == 0 ) ? nullptr : new uint32_t [ m_arraySize ] {};
   }
   
   void set( const uint32_t index, const bool t )

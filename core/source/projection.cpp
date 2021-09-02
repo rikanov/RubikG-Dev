@@ -4,7 +4,7 @@
 const Projection * Projection::Singleton = nullptr;
 
 Projection::Projection()
- : m_projection( new const GroupID * [ SUBGROUPS_MAX_SIZE ] )
+ : m_projection( new const GroupID * [ SUBGROUPS_MAX_SIZE + 1 ] )
 {
   
 }
@@ -23,7 +23,7 @@ void Projection::Instance( void )
 void Projection::init( const size_t size )
 {
   GroupID * projection = new GroupID[ pow24( size ) ]{};
-   size_t next = 0;
+  GroupID next = 0;
   all_cubeid( prior )
   {
     if ( 0 == prior )
@@ -32,9 +32,10 @@ void Projection::init( const size_t size )
       {
         projection[ next ] = next;
       }
+      continue;
     }
     const CubeID inv = Simplex::Inverse( prior );
-    for (; next < pow24( size - 1 ); ++ next )
+    for ( size_t i = 0; i < pow24( size - 1 ); ++ i, ++ next )
     {
       for ( GroupID stateID = next, radix = 0; radix < size - 1; stateID /= 24, ++ radix )
       {

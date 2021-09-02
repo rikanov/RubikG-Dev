@@ -32,9 +32,9 @@ public:
     return m_size;
   }
   
-  void print( const GroupID stateID, const bool details = false ) const
+  void print( const GroupID stateID, const bool details = false, const bool projected = false ) const
   {
-    PrintMap<N> ( stateID, m_startPos, m_size, details );
+    PrintMap<N> ( projected ? Projection::LookUp( m_size, stateID) : stateID , m_startPos, m_size, details );
   }
 };
 
@@ -118,7 +118,7 @@ GroupID Subgroup<N>::lookUp( GroupID stateID, const RotID rotID, const bool prio
 template< cube_size N >
 Subgroup<N>::~Subgroup()
 {
-  delete[] m_singleCache;
+  //delete[] m_singleCache;
 }
 
 #endif  //  ! RAW_MAP__H

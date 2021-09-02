@@ -18,7 +18,6 @@ public:
   Insight() = default;
   
   Insight( const PosID * pos, const size_t size, const CubeID orient = 0 )
-  :  Insight()
   {
     init( pos, size, orient );
   }
@@ -65,9 +64,9 @@ public:
     m_stateID = m_subgroupMap.lookUp( m_stateID, rotID, false );
   }
   
-  void print( const bool details = false ) const
+  void print( const bool details = false, const bool projected = false ) const
   {
-    m_subgroupMap.print( m_stateID, details ); 
+    m_subgroupMap.print( m_stateID, details, projected ); 
   }
 };
 
