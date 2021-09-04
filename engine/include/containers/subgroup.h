@@ -97,22 +97,12 @@ template< cube_size N >
 GroupID Subgroup<N>::lookUp( GroupID stateID, const RotID rotID, const bool prior ) const
 {
   GroupID result = 0;
-  if ( prior )
+  for( GroupID offset = 0; offset < m_size; stateID /= 24, ++ offset )
   {
-    const CubeID priorID = Simplex::Inverse( stateID / pow24( m_size - 1 ) );
-    for( GroupID offset = 0; offset < m_size - 1; stateID /= 24, ++ offset )
-    {
-      result += m_singleCache[ ( offset * 24 + Simplex::Composition( stateID % 24, priorID ) ) * CRotations<N>::AllRotIDs + rotID ];
-    }
+    result += m_singleCache[ ( offset * 24 + stateID % 24 ) * CRotations<N>::AllRotIDs + rotID ];
   }
-  else
-  {
-    for( GroupID offset = 0; offset < m_size; stateID /= 24, ++ offset )
-    {
-      result += m_singleCache[ ( offset * 24 + stateID % 24 ) * CRotations<N>::AllRotIDs + rotID ];
-    }
-  }
-  return result;
+
+  return prior ? Projection::LookUp( m_size, result ) : result;
 }
 
 template< cube_size N >

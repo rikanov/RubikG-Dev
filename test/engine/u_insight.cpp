@@ -13,6 +13,7 @@ static void PlayWith( Insight<N> & insight, const int * test, bool & success )
     UnitTests::tcase( "Rotation by", std::to_string( rotID ), CRotations<N>::ToString( rotID ) );
     insight.move( rotID );
     insight.print();
+    insight.print( true, true ),
     next ++; // UnitTests::stamp( insight.projected() == *( next ++ ), success );
     next ++; // UnitTests::stamp( insight.prior() == *( next ++ ), success );
     UnitTests::stamp( insight.distance() <= *( next ++ ), success );
@@ -239,14 +240,14 @@ bool UnitTests::unit_Insight() const
 //  PlayWith <4> ( baseInsight_4, baseTest_4, success );
 //  PlayWith <5> ( baseInsight_5, baseTest_5, success );
   tail( "Base rotations", success );
-/*
+
   tcase( "Transformed tests" );
   PlayWith <2> ( transInsight_2, transTest_2, success );
   PlayWith <3> ( transInsight_3, transTest_3, success );
 //  PlayWith <4> ( transInsight_4, transTest_4, success );
 //  PlayWith <5> ( transInsight_5, transTest_5, success );
   tcase( "Transformed tests" );
-  */
+
   finish( "CacheIDmapper & Insight", success );
   return success;
 }

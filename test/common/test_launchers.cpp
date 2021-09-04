@@ -14,7 +14,7 @@ bool UnitTests::testCore() const
 bool UnitTests::testEngine() const
 {
   bool result = true;
- // result &= unit_Insight();
+  result &= unit_Insight();
   result &= unit_Subgroup();
  // result &= unit_StateMap();
 //  result &= unit_Engine();

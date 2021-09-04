@@ -4,7 +4,7 @@
 const Projection * Projection::Singleton = nullptr;
 
 Projection::Projection()
- : m_projection( new const GroupID * [ SUBGROUPS_MAX_SIZE + 1 ] )
+ : m_projection( new const GroupID * [ SUBGROUP_SIZE_BOUND ] )
 {
   
 }
@@ -14,7 +14,7 @@ void Projection::Instance( void )
   if( Singleton == nullptr )
   {
     Projection * singleton = new Projection();
-    for( size_t i = 1; i < SUBGROUPS_MAX_SIZE; ++ i )
+    for( size_t i = 1; i < SUBGROUP_SIZE_BOUND; ++ i )
       singleton -> init( i );
     Singleton = singleton;
   }
@@ -48,7 +48,7 @@ void Projection::init( const size_t size )
 
 Projection::~Projection()
 {
-  for( size_t i = 0; i < SUBGROUPS_MAX_SIZE; ++ i )
+  for( size_t i = 0; i < SUBGROUP_SIZE_BOUND; ++ i )
     delete[] m_projection[i];
   
   delete[] m_projection;

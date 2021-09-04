@@ -3,7 +3,7 @@
 
 #include <base_types.h>
 
-static constexpr size_t SUBGROUPS_MAX_SIZE = 6;
+static constexpr size_t SUBGROUP_SIZE_BOUND = 6;
 
 class Projection
 {

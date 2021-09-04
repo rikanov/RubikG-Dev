@@ -103,7 +103,7 @@ void PrintMap( GroupID cacheID, const PosID * pos, const size_t size, const bool
 	
 	    if ( GetCoords <N> ( xCoord, yCoord, side, place ) && xCoord == col % N && yCoord == raw % N )
 	    {
-          if ( size - 1 == pid )
+          if ( details && size - 1 == pid )
           {
             clog_( Color::flash );
           }
