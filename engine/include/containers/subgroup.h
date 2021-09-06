@@ -11,10 +11,10 @@ class Subgroup
 {
   size_t        m_size;
   GroupID     * m_singleCache;
-  const PosID * m_startPos;
+  PosID       * m_startPos;
   
   void extend( const PosID );
-
+  void dealloc();
 public:
 
   Subgroup();
@@ -42,6 +42,7 @@ template< cube_size N >
 Subgroup<N>::Subgroup()
  :  m_size        ( 0 )
  ,  m_singleCache ( nullptr )
+ ,  m_startPos    ( nullptr )
 {
    
 }
@@ -58,13 +59,23 @@ void Subgroup<N>::init ( const PosID * pos, const size_t size, const CubeID orie
 {
   if ( size != m_size )
   {
-    delete[] m_singleCache;
-    m_singleCache = new GroupID [ size * 24 * CRotations<N>::AllRotIDs ]{};   
+    dealloc();
+    m_singleCache = new GroupID [ size * 24 * CRotations<N>::AllRotIDs ]{};  
+    m_startPos    = new PosID   [ size ] {}; 
   }
-  m_startPos = pos;
   
   for( size_t s = 0; s < size; ++ s )
-    extend( CPositions<N>::GetPosID( *( pos ++ ), orient ) );
+  {
+    m_startPos[s] = CPositions<N>::GetPosID( pos[s], orient );
+    extend( m_startPos[s] );
+  }
+}
+
+template< cube_size N >
+void Subgroup<N>::dealloc()
+{
+  delete[] m_singleCache;
+  delete[] m_startPos;
 }
 
 template< cube_size N >
@@ -108,7 +119,7 @@ GroupID Subgroup<N>::lookUp( GroupID stateID, const RotID rotID, const bool prio
 template< cube_size N >
 Subgroup<N>::~Subgroup()
 {
-  //delete[] m_singleCache;
+  dealloc();
 }
 
 #endif  //  ! RAW_MAP__H
