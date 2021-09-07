@@ -13,7 +13,7 @@ static void PlayWith( Insight<N> & insight, const int * test, bool & success )
     UnitTests::tcase( "Rotation by", std::to_string( rotID ), CRotations<N>::ToString( rotID ) );
     insight.move( rotID );
     insight.print();
-    insight.print( true, true ),
+  //  insight.print( true, true ),
     next ++; // UnitTests::stamp( insight.projected() == *( next ++ ), success );
     next ++; // UnitTests::stamp( insight.prior() == *( next ++ ), success );
     UnitTests::stamp( insight.distance() <= *( next ++ ), success );
