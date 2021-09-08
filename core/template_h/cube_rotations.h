@@ -14,29 +14,6 @@
 // ID = 3 * N * Axis + 3 * Layer + Turn 
 // ID < 3 * N * 3
 
-static void permute3( BitMapID & rotationSet, const uint8_t length, const uint8_t c, const uint8_t b, const uint8_t a )
-{
-  const BitMapID mask = ( 1ULL << length ) - 1;
-  const BitMapID A = ( rotationSet               ) & mask;
-  const BitMapID B = ( rotationSet >>     length ) & mask;
-  const BitMapID C = ( rotationSet >> 2 * length ) & mask;
-  rotationSet =  A << ( a * length );
-  rotationSet += B << ( b * length );
-  rotationSet += C << ( c * length );
-}
-
-static void reverseSequence( BitMapID & rotationSet, int a, int b )
-{
-  for( ; a - b > 1; --a, ++b )
-  {
-    if( rotationSet & ( 1ULL << a ) != rotationSet & ( 1ULL << b ) )
-    {
-      rotationSet ^= 1ULL << a;
-      rotationSet ^= 1ULL << b;
-    }
-  }
-}
-
 enum RotStyle
 {
   normal,
