@@ -95,6 +95,21 @@ inline bool Coaxial( Orient a, Orient b )
   return  a == b || a == SideOpposite( b ); 
 }
 
+inline Orient GetAxisBase( const Axis axis )
+{
+  switch( axis )
+  {
+    case _X:
+      return _L;
+    case _Y:
+      return _D;
+    case _Z:
+      return _B;
+    default:
+      return _NF;
+  }
+}
+
 inline Color::Modifier colorOf( Orient F )
 {
   switch ( F )

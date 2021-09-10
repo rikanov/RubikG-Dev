@@ -20,21 +20,6 @@ enum RotStyle
   extended
 };
 
-static Orient GetBaseOrient( Axis axis )
-{
-  switch( axis )
-  {
-    case _X:
-      return _L;
-    case _Y:
-      return _D;
-    case _Z:
-      return _B;
-    default:
-      return _NF;
-  }
-}
-
 template< cube_size N >
 class CRotations
 {
@@ -62,7 +47,7 @@ public:
 template< cube_size N >
 void CRotations<N>::Transform( Axis & axis, Layer & layer, Turn & turn, const CubeID cubeID )
 {
-  const Orient base  = GetBaseOrient( axis );
+  const Orient base  = GetAxisBase( axis );
   const Orient trans = Simplex::GetCube( cubeID ).whereIs( base );
   switch( trans )
   {
@@ -228,7 +213,7 @@ void CExtRotations<N>::Transform( Axis & axis, Layer & layer, Turn & turn, const
     return;
   }
 
-  const Orient base  = GetBaseOrient( axis );
+  const Orient base  = GetAxisBase( axis );
   const Orient trans = Simplex::GetCube( cubeID ).whereIs( base );
 
   switch( trans )

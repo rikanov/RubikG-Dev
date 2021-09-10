@@ -1,8 +1,6 @@
 #ifndef QEUEU__H
 #define QEUEU__H
 
-
-#include <initializer_list>
 #include <base_types.h>
 #include <bool_array.h>
 

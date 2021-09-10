@@ -2,17 +2,19 @@
 #define INSIGHT__H
 
 #include <projection.h>
-#include <seeker.h>
+#include <gen_rotation_set.h>
+#include <evaluator.h>
 
 /*
- * Insight object: { Actual state by ID } X { Subgroup map } X { Node evaluator a.ka Seeker }
+ * Insight object: { Actual state by ID } X { Subgroup map } X { Node evaluator object }
  */
 template< cube_size N >
 class Insight
 {
-  GroupID      m_stateID = 0;
-  Subgroup <N> m_subgroupMap;
-  Seeker   <N> m_evaluator;
+  GroupID       m_stateID   = 0;
+  GroupID       m_lastRadix = 0;
+  Subgroup  <N> m_subgroupMap;
+  Evaluator <N> m_evaluator;
   
 public:
   Insight() = default;
@@ -24,7 +26,7 @@ public:
   
   CubeID prior() const
   {
-    return m_stateID / pow24( m_subgroupMap.size() - 1 );
+    return m_stateID / m_lastRadix;
   }
   
   GroupID state() const
@@ -42,21 +44,34 @@ public:
     return m_evaluator.distance( projected() );
   }
   
+  BitMapID gradient() const
+  {
+    return GenerateRotationSet<N>::Transform( m_evaluator.gradient( projected() ), prior() );
+  }
+  
   void init( const PosID * pos, const size_t size, const CubeID orient = 0 )
   {
-    m_subgroupMap.init( pos, size, orient );clog( "Init OK" );
+    m_subgroupMap.init( pos, size, orient );
   }
   
   void extend( const PosID pos )
   {
     m_subgroupMap.extend( pos );
+    if ( 0 == m_lastRadix )
+    {
+      m_lastRadix = 1;
+    }
+    else
+    {
+      m_lastRadix *= 24;
+    }
   }
   
   void build()
   {
-    m_evaluator.map( &m_subgroupMap ); clog( "mapping OK" );
+    m_evaluator.map( &m_subgroupMap );
     m_evaluator.root( 0 );
-    m_evaluator.build(); clog( "Build OK" );
+    m_evaluator.build();
   }
   
   void move( const RotID rotID )

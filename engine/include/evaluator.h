@@ -8,7 +8,7 @@
 typedef uint8_t DistID;
 
 template< cube_size N >
-class Seeker
+class Evaluator
 {
   Subgroup<N> * m_subgroup;
 
@@ -19,21 +19,26 @@ class Seeker
   void dealloc();
   
 public:
-  Seeker ();
-  ~Seeker();
+  Evaluator ();
+  ~Evaluator();
   
   void map  ( Subgroup<N> * );
-  void root ( const GroupID    );
+  void root ( const GroupID );
   void build();
   
   DistID distance( const GroupID gid ) const
   {
     return m_nodeValue[ gid ];
   }
+  
+  BitMapID gradient( const GroupID gid ) const
+  {
+    return m_gradient[ gid ];
+  }
 };
 
 template< cube_size N >
-Seeker<N>::Seeker()
+Evaluator<N>::Evaluator()
  : m_subgroup ( nullptr )
  , m_nodeValue( nullptr )
  , m_gradient ( nullptr )
@@ -42,33 +47,33 @@ Seeker<N>::Seeker()
 }
  
 template< cube_size N >
-Seeker<N>::~Seeker()
+Evaluator<N>::~Evaluator()
 {
   dealloc();
 }
 
 template< cube_size N >
-void Seeker<N>::dealloc()
+void Evaluator<N>::dealloc()
 {
   delete[] m_nodeValue;
   delete[] m_gradient;  
 }
 
 template< cube_size N >
-void Seeker<N>::map( Subgroup<N> * sg )
+void Evaluator<N>::map( Subgroup<N> * sg )
 {
   m_qeueu.resize( sg -> size() );
   m_subgroup = sg;
 }
 
 template< cube_size N >
-void Seeker<N>::root( const GroupID si )
+void Evaluator<N>::root( const GroupID si )
 {
   m_qeueu << si;
 }
 
 template< cube_size N >
-void Seeker<N>::build()
+void Evaluator<N>::build()
 {
   dealloc();
   DistID   * nodeValue = new DistID  [ pow24( m_subgroup -> size() - 1 ) ] {};
