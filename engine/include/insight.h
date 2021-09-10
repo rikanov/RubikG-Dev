@@ -49,6 +49,19 @@ public:
     return GenerateRotationSet<N>::Transform( m_evaluator.gradient( projected() ), prior() );
   }
   
+  BitMapID gradient( const DistID distID ) const
+  {
+    if ( distID < distance() )
+    {
+      return 0;
+    }
+    if ( distID == distance() )
+    {
+      return gradient();
+    }
+    return ( 1 << ( 9 * N ) ) -1;
+  }
+ 
   void init( const PosID * pos, const size_t size, const CubeID orient = 0 )
   {
     m_subgroupMap.init( pos, size, orient );
