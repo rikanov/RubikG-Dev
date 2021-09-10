@@ -85,36 +85,36 @@ void PrintMap( GroupID cacheID, const PosID * pos, const size_t size, const bool
     for ( size_t col = 0; col < colMax; ++ col )
     {
       if ( col % N == 0 )
-	  clog_ ( ' ' );
+        clog_ ( ' ' );
 
       const Orient side = _side[ raw / N ][ col / N ];
       if ( side == _NF )
       {
-	    clog_( ' ' );
-	    continue;
+        clog_( ' ' );
+        continue;
       }
       size_t pid = 0;
       while (  pid < size )
       {
-	    Layer xCoord;
-	    Layer yCoord;
-	
-	    const PosID place = CPositions<N>::GetPosID( pos[pid], subspace[pid] );
-	
-	    if ( GetCoords <N> ( xCoord, yCoord, side, place ) && xCoord == col % N && yCoord == raw % N )
-	    {
+        Layer xCoord;
+        Layer yCoord;
+
+        const PosID place = CPositions<N>::GetPosID( pos[pid], subspace[pid] );
+
+        if ( GetCoords <N> ( xCoord, yCoord, side, place ) && xCoord == col % N && yCoord == raw % N )
+        {
           if ( details && size - 1 == pid )
           {
             clog_( Color::flash );
           }
-	      clog_( colorOf( Simplex::GetCube( subspace[pid] ).whatIs( side ) ), FChar, Color::off );
-	      break;
-	    }
-	    ++ pid;
+         clog_( colorOf( Simplex::GetCube( subspace[pid] ).whatIs( side ) ), FChar, Color::off );
+         break;
+        }
+        ++ pid;
       }
       if ( pid == size )
       {
-	    clog_( Color::dark, FChar, Color::off );
+        clog_( Color::dark, FChar, Color::off );
       }
     }
     NL();
