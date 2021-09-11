@@ -31,10 +31,9 @@ bool UnitTests::unit_Simplex() const
     CubeID A = Simplex::GetGroupID ( rA , uA );
     CubeID B = Simplex::GetGroupID ( rB , uB );
     CubeID C = Simplex::GetGroupID ( rC , uC );
-    CubeID T = Simplex::Transform  ( A  , C  );
     CubeID X = Simplex::Composition( A  , B  );
     clog_( Color::blue, Simplex::GetCube( A ), 'X', Simplex::GetCube( B ), '=', Simplex::GetCube( C ), '\t' );
-    stamp( C == X && B == T, resultGroup );
+    stamp( C == X, resultGroup );
   }
   
   tail( "Group operation test", resultGroup );

@@ -1,5 +1,5 @@
-#ifndef RAW_MAP__H
-#define RAW_MAP__H
+#ifndef SUBGROUP__H
+#define SUBGROUP__H
 
 #include <cube_positions.h>
 #include <cube_rotations.h>
@@ -93,7 +93,7 @@ void Subgroup<N>::extend( const PosID pos )
       ++ rotID;
       if ( CPositions<N>::GetLayer( whereIs , axis ) == layer )
       {
-        m_singleCache[ offset + base + rotID ] = Simplex::Composition( cubeID, Simplex::Tilt( axis, turn ) ) * pow24( m_size );
+        m_singleCache[ offset + base + rotID ] = Simplex::Tilt( cubeID, axis, turn ) * pow24( m_size );
       }
       else 
       {
@@ -122,4 +122,4 @@ Subgroup<N>::~Subgroup()
   dealloc();
 }
 
-#endif  //  ! RAW_MAP__H
+#endif  //  ! SUBGROUP__H
