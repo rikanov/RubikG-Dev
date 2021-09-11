@@ -116,4 +116,10 @@ inline void clogPos(const char * text)
   clog( text, std::string("\t@  ") + std::string(__FILE__) + std::to_string(__LINE__) );
 }
 
+// draw line
+inline void cdraw( const char c, int p )
+{
+  while( p-- > 0 )
+    std::cout << c;
+}
 #endif // ! TEXT_OUTPUT__H

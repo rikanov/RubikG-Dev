@@ -8,7 +8,6 @@ template< cube_size N >
 class GenerateRotationSet
 {
   static constexpr unsigned int m_length  = 3 * N;
-  static constexpr unsigned int m_3length = 9 * N;
   
   GenerateRotationSet() = default;
   
@@ -23,19 +22,28 @@ public:
 template< cube_size N >
 void GenerateRotationSet<N>::FlipAxis( BitMapID & rotSetID , const Axis a )
 {
-  size_t A = 1ULL << ( a * m_3length );
-  size_t B = 1ULL << ( A + m_3length - 1);
-  for( int prog = 0; prog < m_3length / 2; ++ prog )
+  constexpr BitMapID mask = ( 1ULL << m_length ) - 1;
+  BitMapID shadowing = 0;
+  BitMapID flipped   = 0;
+  for( Axis axis: { _X, _Y, _Z } )
   {
-    if ( rotSetID | A != rotSetID | B )
+    if ( axis != a )
     {
-      rotSetID ^= A;
-      rotSetID ^= B;
+      shadowing |= mask << ( axis * m_length );
     }
-    
-    A <<= 1;
-    B >>= 1;
-  } 
+  }
+  size_t right = 1ULL << ( a * m_length );
+  size_t left  = 1ULL << ( ( a + 1 ) * m_length - 1 );
+  for( int prog = 0; prog < m_length; ++ prog )
+  {
+    if ( rotSetID & right )
+      flipped |= left;
+
+    left  >>= 1;
+    right <<= 1;
+  }
+  rotSetID &= shadowing;
+  rotSetID |= flipped;
 }
 
 template< cube_size N >
@@ -88,11 +96,13 @@ Axis GenerateRotationSet<N>::TransAxis( BitMapID & rotSetID, const Axis axis, co
 template< cube_size N >
 void GenerateRotationSet<N>::Transform( BitMapID & rotSetID , const CubeID cid )
 {
+  rotSetID >>= 1; // omit 0 place ie. empty rotation
   const Axis x = TransAxis( rotSetID, _X, cid );
   const Axis y = TransAxis( rotSetID, _Y, cid );
   const Axis z = TransAxis( rotSetID, _Z, cid );
 
   Permute( rotSetID, x, y, z );
+  rotSetID <<= 1;
 }
 
 #endif  //  ! BITMANIP__H

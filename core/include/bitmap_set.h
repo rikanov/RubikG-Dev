@@ -21,8 +21,7 @@ public:
     return next( nextID );
   }
 
-  void reverse( const uint8_t a, const uint8_t b );
-  void print( const uint8_t length = 0 ) const;
+  void print( const uint8_t length = 63, const uint8_t slice = 0 ) const;
 };
 
 #endif  //  ! BITMAP__H

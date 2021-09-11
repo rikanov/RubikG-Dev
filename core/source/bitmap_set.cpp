@@ -22,21 +22,18 @@ bool BitMap::next( uint8_t & nextID )
   return true;
 }
 
-void BitMap::reverse(const uint8_t a, const uint8_t b)
+void BitMap::print(  const uint8_t length, const uint8_t slice ) const
 {
-
-}
-
-void BitMap::print( const uint8_t length ) const
-{
-  for( long id = 63; id >= 0; --id )
+  const Color::Modifier color[2] = { Color::blue, Color::green };
+  for( long id = length; id >= 0; --id )
   {
-    uint64_t mask = ( 1ULL << id );
-    slog_ ( "",  ( m_dataSet & mask ) == mask );
-    if ( length > 0 && id % length == 0 )
+    if ( slice > 0 && ( length - id ) % slice == 0 )
     {
-      slog_ ( "", '.' );
+      slog_ ( "", Color::white, '|', Color::off );
     }
+    uint64_t mask = ( 1ULL << id );
+    const bool bit = ( m_dataSet & mask ) == mask;
+    slog_ ( "", color[bit], bit, Color::off );
   }
   NL();
 }
