@@ -10,12 +10,12 @@ bool UnitTests::unit_CGenRotations() const
   head( "Generate rotation set" );
 
   tcase( "2 X 2 X 2 cube" );
-  for ( int i= 0; i < 5; ++ i )
+  for ( int i= 0; i < 10; ++ i )
   {
     BitMapID test = 0;
     BitMapID gen  = 0;
     const CubeID rotation = Simplex::Random();
-    for ( int i = 0; i < 10; ++ i)
+    for ( int i = 0; i < 6; ++ i)
     {
       const RotID next  = CRotations<2>::Random();
       const RotID trans = CRotations<2>::GetRotID( next, rotation );
@@ -40,12 +40,12 @@ bool UnitTests::unit_CGenRotations() const
   tail( "2 X 2 X 2 cube", success );
 
   tcase( "3 X 3 X 3 cube" );
-  for ( int i= 0; i < 5; ++ i )
+  for ( int i= 0; i < 10; ++ i )
   {
     BitMapID test = 0;
     BitMapID gen  = 0;
     const CubeID rotation = Simplex::Random();
-    for ( int i = 0; i < 10; ++ i)
+    for ( int i = 0; i < 9; ++ i)
     {
       const RotID next  = CRotations<3>::Random();
       const RotID trans = CRotations<3>::GetRotID( next, rotation );
@@ -70,12 +70,12 @@ bool UnitTests::unit_CGenRotations() const
   tail( "3 X 3 X 3 cube", success );
 
   tcase( "4 X 4 X 4 cube" );
-  for ( int i= 0; i < 5; ++ i )
+  for ( int i= 0; i < 10; ++ i )
   {
     BitMapID test = 0;
     BitMapID gen  = 0;
     const CubeID rotation = Simplex::Random();
-    for ( int i = 0; i < 10; ++ i)
+    for ( int i = 0; i < 12; ++ i)
     {
       const RotID next  = CRotations<4>::Random();
       const RotID trans = CRotations<4>::GetRotID( next, rotation );
@@ -101,12 +101,12 @@ bool UnitTests::unit_CGenRotations() const
 
 
   tcase( "5 X 5 X 5 cube" );
-  for ( int i= 0; i < 5; ++ i )
+  for ( int i= 0; i < 10; ++ i )
   {
     BitMapID test = 0;
     BitMapID gen  = 0;
     const CubeID rotation = Simplex::Random();
-    for ( int i = 0; i < 10; ++ i)
+    for ( int i = 0; i < 15; ++ i)
     {
       const RotID next  = CRotations<5>::Random();
       const RotID trans = CRotations<5>::GetRotID( next, rotation );

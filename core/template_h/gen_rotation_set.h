@@ -7,52 +7,99 @@
 template< cube_size N >
 class GenerateRotationSet
 {
-  static constexpr unsigned int m_length  = 3 * N;
-  
+  static constexpr unsigned m_length  = 3 * N;
+  static constexpr BitMapID m_mask    = ( 1ULL << m_length ) - 1;
+
+  static const BitMapID * m_flipped;
+  static const BitMapID   * m_shadowing;
+
   GenerateRotationSet() = default;
   
   static void FlipAxis  ( BitMapID & , const Axis );
   static void Permute   ( BitMapID & , const Axis, const Axis, const Axis );
   static Axis TransAxis ( BitMapID & , const Axis, const CubeID );
+
+  static void createFlipCache();
+  static void createShadowing();
+
 public:
  
+  static void Instance();
+  static void OnExit();
   static void Transform( BitMapID &, const CubeID );
 };
 
+ // Instantiations
+// ---------------
 template< cube_size N >
-void GenerateRotationSet<N>::FlipAxis( BitMapID & rotSetID , const Axis a )
+const BitMapID * GenerateRotationSet<N>:: m_flipped = nullptr;
+
+template< cube_size N >
+const BitMapID * GenerateRotationSet<N>:: m_shadowing = nullptr;
+// ---------------------------------------------------------- //
+
+
+template<cube_size N>
+void GenerateRotationSet<N>::Instance()
 {
-  constexpr BitMapID mask = ( 1ULL << m_length ) - 1;
-  BitMapID shadowing = 0;
-  BitMapID flipped   = 0;
-  for( Axis axis: { _X, _Y, _Z } )
+  if ( nullptr == m_flipped )
   {
-    if ( axis != a )
+    createFlipCache();
+    createShadowing();
+  }
+}
+
+template<cube_size N>
+void GenerateRotationSet<N>::OnExit()
+{
+  delete[] m_flipped;   m_flipped   = nullptr;
+  delete[] m_shadowing; m_shadowing = nullptr;
+}
+
+template<cube_size N>
+void GenerateRotationSet<N>::createFlipCache()
+{
+  BitMapID * flipped   = new BitMapID [ 1 << m_length ] {};
+
+  for ( BitMapID rotSetID = 0; rotSetID < ( 1 << m_length ); ++ rotSetID )
+  {
+    for( int prog = 0; prog < m_length; ++ prog )
     {
-      shadowing |= mask << ( axis * m_length );
+      if ( rotSetID & ( 1ULL << prog ) )
+        flipped[ rotSetID ] |= ( 1ULL << ( m_length - prog - 1 ) );
+
     }
   }
-  size_t right = 1ULL << ( a * m_length );
-  size_t left  = 1ULL << ( ( a + 1 ) * m_length - 1 );
-  for( int prog = 0; prog < m_length; ++ prog )
-  {
-    if ( rotSetID & right )
-      flipped |= left;
+  m_flipped   = flipped;
+}
 
-    left  >>= 1;
-    right <<= 1;
-  }
-  rotSetID &= shadowing;
-  rotSetID |= flipped;
+template< cube_size N >
+void GenerateRotationSet<N>::createShadowing()
+{
+  BitMapID   * shadowing = new BitMapID   [ 3 ] {};
+  for ( Axis axis: { _X, _Y, _Z } )
+   for ( Axis excl: {_X, _Y, _Z } )
+     if ( axis != excl )
+       shadowing[ axis ] |= m_mask << ( excl * m_length );
+
+  m_shadowing = shadowing;
+}
+
+
+template< cube_size N >
+void GenerateRotationSet<N>::FlipAxis( BitMapID & rotSetID , const Axis axis )
+{
+  const BitMapID flippedPart = m_flipped[ ( rotSetID >> ( axis * m_length ) ) & m_mask ];
+  rotSetID &= m_shadowing [ axis ];
+  rotSetID |= flippedPart << ( axis * m_length );
 }
 
 template< cube_size N >
 void GenerateRotationSet<N>::Permute( BitMapID & rotSetID, const Axis x, const Axis y, const Axis z )
 {
-  constexpr BitMapID mask = ( 1ULL << m_length ) - 1;
-  const BitMapID X = ( rotSetID                 ) & mask;
-  const BitMapID Y = ( rotSetID >>     m_length ) & mask;
-  const BitMapID Z = ( rotSetID >> 2 * m_length ) & mask;
+  const BitMapID X = ( rotSetID                 ) & m_mask;
+  const BitMapID Y = ( rotSetID >>     m_length ) & m_mask;
+  const BitMapID Z = ( rotSetID >> 2 * m_length ) & m_mask;
   
   rotSetID  = X << ( x * m_length );
   rotSetID |= Y << ( y * m_length );

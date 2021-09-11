@@ -1,4 +1,4 @@
-#include "all_includes.h"
+#include "rubik_head.h"
 
 
 int main()
