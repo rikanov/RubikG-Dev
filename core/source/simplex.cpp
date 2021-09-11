@@ -1,4 +1,5 @@
 #include <simplex.h>
+#include <random>
 
 Simplex * Simplex::Singleton = nullptr;
 
@@ -68,4 +69,13 @@ void Simplex::initGroup()
     for( Orient F: { _F, _R, _U, _L, _D, _B } )
       m_align[ id ][F] = GetCube( id ).aligned( F ); 
   }
+}
+
+CubeID Simplex::random() const
+{
+  static std::random_device                 randomDevice;
+  static std::default_random_engine         randomEngine( randomDevice() );
+  static std::uniform_int_distribution<int> distribution( 0, 23 );
+
+  return distribution( randomEngine );
 }

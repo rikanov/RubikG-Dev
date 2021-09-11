@@ -49,6 +49,7 @@ private:
   CubeID        transform   ( CubeID a, CubeID b )  const  { return m_transform      [a][b];                  }
   CubeID        inverse     ( CubeID a )            const  { return m_transform      [a][0];                  } 
   CubeID        tilt        ( Axis a, Turn t = 1 )  const  { return m_tilt           [a][t];                  }
+  CubeID        random      ( )                     const;
 
 public:
   // create a singleton object
@@ -62,8 +63,9 @@ public:
   static CubeID          Transform   ( CubeID a, CubeID b )       { return Singleton -> transform   ( a, b ); }
   static CubeID          Inverse     ( CubeID a )                 { return Singleton -> transform   ( a, 0 ); } 
   static CubeID          Tilt        ( Axis a, Turn t = 1 )       { return Singleton -> tilt        ( a, t ); }
+  static CubeID          Random      ( )                          { return Singleton -> random();             }
   static CubeID          Conjugation ( CubeID a, CubeID b )       { return Composition( a, Composition( b, Inverse(a) ) ); }
-  
+
   // ToDo: use cached array for Tilt( CubeID, Axis, Turn )
   static CubeID          Tilt        ( CubeID c, Axis a, Turn t = 1 )   { return Singleton->Composition( c, Singleton -> tilt( a, t ) ); }
 
