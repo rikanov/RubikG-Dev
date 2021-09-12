@@ -30,11 +30,6 @@ public:
     m_qeuIn = m_qeuOut = m_qeueudCubes;    
   }
   
-  size_t size() const
-  {
-    return m_qeuIn - m_qeuOut;
-  }
-
   void clean()
   {
     m_used.clean();
@@ -69,7 +64,7 @@ public:
       return m_qeuOut <= m_qeuIn;
   }
 
-  int count() const
+  size_t count() const
   {
     return m_qeuIn - m_qeuOut;
   }
