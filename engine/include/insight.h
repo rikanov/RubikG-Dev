@@ -92,6 +92,12 @@ public:
     m_stateID = m_subgroupMap.lookUp( m_stateID, rotID, false );
   }
   
+  BitMapID operate( const RotID rotID, const DistID distID )
+  {
+    m_stateID = m_subgroupMap.lookUp( m_stateID, rotID, false );
+    return gradient( distID );
+  }
+
   void print( const bool details = false, const bool projected = false ) const
   {
     m_subgroupMap.print( m_stateID, details, projected ); 

@@ -25,15 +25,14 @@ bool UnitTests::unit_CGenRotations() const
     }
 
     clog ( Color::light, "Rotation :", Color::yellow, Simplex::GetCube( rotation ).toString() );
-    BitMap Orig( test );
-    clog_( Color::dark, "Original :" ); Orig.print( 18, 6 );
+    clog_( Color::dark, "Original :" ); BitMap::Print( test, 18, 6 );
     cdraw( '-', 16 + 18 );
     NL();;
 
     GenerateRotationSet<2>::Transform( test, rotation );
-    BitMap Test( test), Gen( gen );
-    clog_( Color::dark, "Generated:" ); Test.print( 18, 6 );
-    clog_( Color::dark, "Expected :" ); Gen.print ( 18, 6 );
+
+    clog_( Color::dark, "Generated:" ); BitMap::Print( test, 18, 6 );
+    clog_( Color::dark, "Expected :" ); BitMap::Print(  gen, 18, 6 );
     stamp( test == gen, success );
     NL();
   }
@@ -55,15 +54,14 @@ bool UnitTests::unit_CGenRotations() const
     }
 
     clog ( Color::light, "Rotation :", Color::yellow, Simplex::GetCube( rotation ).toString() );
-    BitMap Orig( test );
-    clog_( Color::dark, "Original :" ); Orig.print( 27, 9 );
+    clog_( Color::dark, "Original :" ); BitMap::Print( test, 27, 9 );
     cdraw( '-', 16 + 27 );
     NL();
 
     GenerateRotationSet<3>::Transform( test, rotation );
-    BitMap Test( test), Gen( gen );
-    clog_( Color::dark, "Generated:" ); Test.print( 27, 9 );
-    clog_( Color::dark, "Expected :" ); Gen.print ( 27, 9 );
+
+    clog_( Color::dark, "Generated:" ); BitMap::Print( test, 27, 9 );
+    clog_( Color::dark, "Expected :" ); BitMap::Print(  gen, 27, 9 );
     stamp( test == gen, success );
     NL();
   }
@@ -85,15 +83,14 @@ bool UnitTests::unit_CGenRotations() const
     }
 
     clog ( Color::light, "Rotation :", Color::yellow, Simplex::GetCube( rotation ).toString() );
-    BitMap Orig( test );
-    clog_( Color::dark, "Original :" ); Orig.print( 36, 12 );
+    clog_( Color::dark, "Original :" ); BitMap::Print( test, 36, 12 );
     cdraw( '-', 16 + 36 );
     NL();
 
     GenerateRotationSet<4>::Transform( test, rotation );
-    BitMap Test( test), Gen( gen );
-    clog_( Color::dark, "Generated:" ); Test.print( 36, 12 );
-    clog_( Color::dark, "Expected :" ); Gen.print ( 36, 12 );
+
+    clog_( Color::dark, "Generated:" ); BitMap::Print( test, 36, 12 );
+    clog_( Color::dark, "Expected :" ); BitMap::Print(  gen, 36, 12 );
     stamp( test == gen, success );
     NL();
   }
@@ -116,15 +113,14 @@ bool UnitTests::unit_CGenRotations() const
     }
 
     clog ( Color::light, "Rotation :", Color::yellow, Simplex::GetCube( rotation ).toString() );
-    BitMap Orig( test );
-    clog_( Color::dark, "Original :" ); Orig.print( 45, 15 );
+    clog_( Color::dark, "Original :" ); BitMap::Print( test, 45, 15 );
     cdraw( '-', 16 + 45 );
     NL();
 
     GenerateRotationSet<5>::Transform( test, rotation );
-    BitMap Test( test ), Gen( gen );
-    clog_( Color::dark, "Generated:" ); Test.print( 45, 15 );
-    clog_( Color::dark, "Expected :" ); Gen.print ( 45, 15);
+
+    clog_( Color::dark, "Generated:" ); BitMap::Print( test, 45, 15 );
+    clog_( Color::dark, "Expected :" ); BitMap::Print(  gen, 45, 15);
     stamp( test == gen, success );
     NL();
   }

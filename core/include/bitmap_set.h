@@ -22,6 +22,7 @@ public:
   }
 
   void print( const uint8_t length = 63, const uint8_t slice = 0 ) const;
+  static void Print( const BitMapID, const uint8_t length = 63, const uint8_t slice = 0 );
 };
 
 #endif  //  ! BITMAP__H

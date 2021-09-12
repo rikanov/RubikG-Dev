@@ -17,5 +17,6 @@ bool UnitTests::testEngine() const
   bool result = true;
   result &= unit_Insight();
   result &= unit_Subgroup();
+  result &= unit_Engine();
   return result;
 }
