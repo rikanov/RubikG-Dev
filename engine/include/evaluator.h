@@ -79,6 +79,10 @@ void Evaluator<N>::build()
   DistID   * nodeValue = new DistID  [ pow24( m_subgroup -> size() - 1 ) ] {};
   RotSetID * gradient  = new RotSetID[ pow24( m_subgroup -> size() - 1 ) ] {};
 
+  // initialize root nodes with zero RotID
+  for ( size_t i = 0; i < m_qeueu.count(); ++ i )
+    nodeValue[ m_qeueu.at( i ) ] = 1;
+
   GroupID parent;
   while ( m_qeueu >> parent )
   {
