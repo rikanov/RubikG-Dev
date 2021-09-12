@@ -3,10 +3,53 @@
 
 bool UnitTests::unit_Simplex() const
 {
-  bool resultGroup = true;
+  bool success = true;
   
   head( "Simplex" );
   NL();
+  tcase( "Testing consistency" );
+  int counter[24] = {};
+  all_cubeid( a )
+    all_cubeid( b )
+    {
+      ++ counter[ Simplex::Composition( a, b) ];
+    }
+  all_cubeid( cid )
+  {
+    const bool ok = ( 24 == counter[ cid ] );
+    clog_( Simplex::GetCube( cid ).toString() );
+    stamp( ok, success );
+  }
+  tail( "Consistency test", success );
+
+  tcase( "Check cube tilting" );
+  all_cubeid( cid )
+  {
+    bool ok = true;
+    clog_( Color::blue, Simplex::GetCube( cid ).toString(), Color::gray, "-->" );
+    for ( Axis axis: { _X, _Y, _Z } )
+    {
+      clog_( Color::off, Color::cyan, '|' );
+      for ( Turn turn: { 1, 2, 3 } )
+      {
+        if ( Simplex::Tilt( cid, axis, turn ) == Simplex::Composition( cid, Simplex::Tilt( axis, turn ) ) )
+        {
+          clog_( Color::dark );
+        }
+        else
+        {
+          clog_( Color::red, Color::flash );
+          ok = false;
+        }
+        clog_( Simplex::GetCube( Simplex::Tilt( cid, axis, turn ) ).toString() );
+      }
+      clog_( Color::off, Color::cyan, '|' );
+    }
+    stamp( ok, success );
+  }
+
+  tail( "Check cube tilting", success );
+
   tcase( "Testing group operations" );
   // test cases
   Orient testCases[10][3][2]  = 
@@ -33,10 +76,10 @@ bool UnitTests::unit_Simplex() const
     CubeID C = Simplex::GetGroupID ( rC , uC );
     CubeID X = Simplex::Composition( A  , B  );
     clog_( Color::blue, Simplex::GetCube( A ), 'X', Simplex::GetCube( B ), '=', Simplex::GetCube( C ), '\t' );
-    stamp( C == X, resultGroup );
+    stamp( C == X, success );
   }
   
-  tail( "Group operation test", resultGroup );
+  tail( "Group operation test", success );
   
   tcase( "Testing inverses" );
   bool resultInverse = true;
@@ -48,7 +91,7 @@ bool UnitTests::unit_Simplex() const
   }
   tail( "Test inverse function" , resultInverse );
   
-  const bool result = resultGroup && resultInverse;
+  const bool result = success && resultInverse;
   finish( "Simplex", result );
   return result;
 }
