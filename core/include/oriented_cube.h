@@ -35,7 +35,6 @@ class OCube
 
   Orient m_whereIs [7];
   Orient m_whatIs  [7];
-  bool   m_aligned [7];
   CubeID m_cubeID;
 
   std::string m_readable;
@@ -46,7 +45,6 @@ public:
 
   Orient  whereIs   ( Orient ID ) const { return m_whereIs[ID]; }
   Orient  whatIs    ( Orient ID ) const { return m_whatIs[ID];  }
-  bool    aligned   ( Orient ID ) const { return m_aligned[ID]; }
   CubeID  getCubeID (   void    ) const { return m_cubeID;      }
 
   const std::string& toString () const { return m_readable;         }
