@@ -1,7 +1,6 @@
 #ifndef SEEKER__H
 #define SEEKER__H
 
-#include<rotation_set.h>
 #include<qeueu.h>
 #include<subgroup.h>
 
@@ -13,7 +12,7 @@ class Evaluator
   Subgroup<N> * m_subgroup;
 
   const DistID      * m_nodeValue;
-  const RotSetID    * m_gradient;
+  const BitMapID    * m_gradient;
   Qeueu               m_qeueu;
   
   void dealloc();
@@ -77,11 +76,13 @@ void Evaluator<N>::build()
 {
   dealloc();
   DistID   * nodeValue = new DistID  [ pow24( m_subgroup -> size() - 1 ) ] {};
-  RotSetID * gradient  = new RotSetID[ pow24( m_subgroup -> size() - 1 ) ] {};
-
-  // initialize root nodes with zero RotID
+  BitMapID * gradient  = new BitMapID[ pow24( m_subgroup -> size() - 1 ) ] {};
+  
+  // 0 gradient: unsolvable
+  // 1 gradient: solved state
+  // initialize root nodes with zero RotID --> gradient = 1
   for ( size_t i = 0; i < m_qeueu.count(); ++ i )
-    nodeValue[ m_qeueu.at( i ) ] = 1;
+    gradient[ m_qeueu.at( i ) ] = 1;
 
   GroupID parent;
   while ( m_qeueu >> parent )

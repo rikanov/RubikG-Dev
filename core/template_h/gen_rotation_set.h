@@ -143,6 +143,9 @@ Axis GenerateRotationSet<N>::TransAxis( BitMapID & rotSetID, const Axis axis, co
 template< cube_size N >
 void GenerateRotationSet<N>::Transform( BitMapID & rotSetID , const CubeID cid )
 {
+  if ( rotSetID < 2 )
+    return; // do nothing with gradients belong to solved or unsolvable states 
+
   rotSetID >>= 1; // omit 0 place ie. empty rotation
   const Axis x = TransAxis( rotSetID, _X, cid );
   const Axis y = TransAxis( rotSetID, _Y, cid );

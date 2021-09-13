@@ -3,6 +3,8 @@
 
 
 #include <insight.h>
+#include <bitmap_set.h>
+#include <text_output.h>
 
 template< cube_size N >
 class Engine
@@ -42,7 +44,7 @@ void Engine<N>::init()
   m_insights    = new Insight<N> * [ INSIGHT_BOUND ] {};
   m_nextInsight = m_insights;
 
-  constexpr BitMapID allRotations = ( 1ULL << CRotations<N>::AllRotIDs ) - 2;
+  constexpr BitMapID allRotations = ( 1ULL << CRotations<N>::AllRotIDs ) - 1;
 
 
   RotID rotID           = 0;
@@ -57,7 +59,9 @@ void Engine<N>::init()
     if ( 1 == turn )
       allow -= 7ULL << ( 3 * ( axis * N + layer ) + 1 );
 
+    clog_( CRotations<N>::ToString( rotID ) );
     m_allowed[ rotID ++ ] = allow;
+    BitMap::Print( allow, 9 * N, 3 * N );
   }
 }
 

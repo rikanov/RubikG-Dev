@@ -15,6 +15,7 @@ bool BitMap::next( uint8_t & nextID )
     return false;
   }
 
+  // skip zero valued bits
   for( ; ( m_dataSet & 1 ) == 0; m_dataSet >>= 1, ++ m_nextID );
 
   m_dataSet >>= 1;

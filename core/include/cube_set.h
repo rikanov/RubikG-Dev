@@ -7,7 +7,6 @@
 
 class CubeSet
 {
-public:
   enum TransMode
   {
     trNormal,
@@ -15,11 +14,11 @@ public:
     trHigh
   };
 
-private:
   static CubeSet * Singleton;
   static const BitMap32ID * m_lowMap;
   static const BitMap32ID * m_highMap;
 
+  static BitMap32ID MultipleRotation( const CubeID, BitMapID, const CubeSet::TransMode tr = CubeSet::trNormal );
   CubeSet();
   ~CubeSet();
 

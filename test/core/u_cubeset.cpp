@@ -7,10 +7,10 @@
 bool UnitTests::unit_CubeSet() const
 {
   bool success = true;
-  head( "rotation by cube sets" );
+  head( "CubeSet rotations" );
   
   // create std::set for random CubeIDs
-  std::set<int> cubeSet;
+  std::set<int> stdSet;
   
   // create bitmap for random CubeIDs
   BitMap32ID cubeSetID = 0;
@@ -20,12 +20,12 @@ bool UnitTests::unit_CubeSet() const
   {
     const CubeID next = random( 0, 23 );
     cubeSetID |= ( 1 << next );
-    cubeSet.insert( next );
+    stdSet.insert( next );
   }
   
   // test the sets equality
   BitMap bitMap( cubeSetID );
-  auto it = cubeSet.begin();
+  auto it = stdSet.begin();
   CubeID next = 0;
   
   tcase( "Testing funcionality of bitmaps" );
@@ -35,13 +35,13 @@ bool UnitTests::unit_CubeSet() const
     stamp( next == *( it ++ ), success );
   }
   clog_( "Test equal sizes: ");
-  stamp( it == cubeSet.end(), success );
+  stamp( it == stdSet.end(), success );
   tail( "Bitmap functionaliy", success );
   
   for( int test = 0; test < 6; ++ test )
   {
-    const CubeID state = random( 0, 23 );
-    tcase( "Multiplication", std::to_string( state ) );
+    const CubeID state = Simplex::Random();
+    tcase( "Multiplication", Simplex::GetCube( state ).toString() );
     BitMap32ID generated( CubeSet::GetBitMap32ID( state, cubeSetID ) );
     BitMap original( cubeSetID );
     CubeID next;
@@ -54,9 +54,9 @@ bool UnitTests::unit_CubeSet() const
     }
     clog_( "Test equal sizes: ");
     stamp( generated == 0, success );
-    tail( "Multiplicationr", success );
+    tail( "Multiplication", success );
   }
   
-  finish( "Cube rotations", success );
+  finish( "CubeSet rotations", success );
   return success;
 }

@@ -8,6 +8,7 @@ bool UnitTests::testCore() const
   result &= unit_CRotations();
   result &= unit_CExtRotations();
   result &= unit_CGenRotations();
+  result &= unit_Projection();
   result &= unit_Rubik();
   return result;
 }
