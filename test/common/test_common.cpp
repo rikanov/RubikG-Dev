@@ -71,10 +71,9 @@ void UnitTests::tcase( const std::string& unit, const std::string& msg1, const s
   NL( Color::off );
 }
 
-
 void UnitTests::tcase( const std::string& unit, const std::string& msg, const long num )
 {
-  slog( "", Color::white, Color::uline, unit, Color::gray, msg, num, ':', Color::off );
+  clog( Color::white, Color::uline, unit, Color::gray, msg, num, ':', Color::off );
 }
 
 void UnitTests::done()

@@ -110,6 +110,22 @@ void slog ( const char * sep, T t, Args... args) // recursive variadic function
   slog  ( sep, args... ) ;
 }
 
+inline std::string numL( const uint64_t num, const size_t size )
+{
+  std::string out = std::to_string( num );
+  if ( size > out.size() )
+    out += std::string( size - out.size(), ' ' );
+  return out;
+}
+
+inline std::string numR( const uint64_t num, const size_t size )
+{
+  std::string out = std::to_string( num );
+  if ( size > out.size() )
+    out = std::string( size - out.size(), ' ' ) + out;
+  return out;
+}
+
 // logger
 inline void clogPos(const char * text)
 {
@@ -119,7 +135,6 @@ inline void clogPos(const char * text)
 // draw line
 inline void cdraw( const char c, int p )
 {
-  while( p-- > 0 )
-    std::cout << c;
+  std::cout << std::string( p, c ) << std::endl;
 }
 #endif // ! TEXT_OUTPUT__H

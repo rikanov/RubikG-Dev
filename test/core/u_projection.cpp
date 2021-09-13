@@ -26,10 +26,10 @@ bool UnitTests::unit_Projection() const
     GroupID normal, projected;
     
     tcase( "Projection", "size", size );
-    for ( int i = 0; i < 5; ++ i )
+    for ( int i = 0; i < 10; ++ i )
     {
       RandomGroupID( normal, projected, size );
-      clog_( Color::cyan, normal, Color::yellow, "\t-->", Color::cyan, projected, '\t' );
+      clog_( Color::cyan, numR( normal, size + 2 ), Color::yellow, "-->", Color::cyan, numR( projected, size + 1 ) );
       stamp( Projection::LookUp( size, normal ) == projected, ok );
     }
     success &= ok;

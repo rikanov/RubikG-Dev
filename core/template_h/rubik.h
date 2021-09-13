@@ -266,7 +266,7 @@ Orient Rubik<N>::getOrient ( const Orient right, const Orient up, int x, int y )
   const CubeID trans  = Simplex::GetGroupID     ( right, up ); 
   const CubeID inv    = Simplex::Inverse        ( trans ); 
   const Orient orient = OCube::FrontSide        ( right, up ); // = Simplex::GetCube( trans ).whatIs( _F );
-  const int    index  = CPositions<N>::GetPosID ( x, y, N - 1, inv );
+  const PosID  index  = CPositions<N>::GetPosID ( x, y, N - 1, inv );
   
   return getCube ( index ).whatIs( orient );
 }
