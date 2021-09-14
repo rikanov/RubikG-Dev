@@ -30,9 +30,9 @@ public:
     return m_nodeValue[ gid ];
   }
   
-  BitMapID gradient( const GroupID gid ) const
+  BitMapID gradient( const GroupID gid, const bool grade2 = false ) const
   {
-    return m_gradient[ gid ];
+    return m_gradient[ 2 * gid + grade2 ];
   }
 };
 
@@ -75,14 +75,15 @@ template< cube_size N >
 void Evaluator<N>::build()
 {
   dealloc();
-  DistID   * nodeValue = new DistID  [ pow24( m_subgroup -> size() - 1 ) ] {};
-  BitMapID * gradient  = new BitMapID[ pow24( m_subgroup -> size() - 1 ) ] {};
+  const size_t size = pow24( m_subgroup -> size() - 1 );
+  DistID   * nodeValue = new DistID  [     size ] {};
+  BitMapID * gradient  = new BitMapID[ 2 * size ] {};
   
   // 0 gradient: unsolvable
   // 1 gradient: solved state
   // initialize root nodes with zero RotID --> gradient = 1
   for ( size_t i = 0; i < m_qeueu.count(); ++ i )
-    gradient[ m_qeueu.at( i ) ] = 1;
+    gradient[ 2 * m_qeueu.at( i ) ] = 1;
 
   GroupID parent;
   while ( m_qeueu >> parent )
@@ -94,12 +95,29 @@ void Evaluator<N>::build()
       {
         nodeValue[ child ] = nodeValue[ parent ] + 1;
       }
+      if ( nodeValue[ child ] == nodeValue[ parent ] )
+      {
+        gradient[ 2 * child + 1 ] |= ( 1ULL << CRotations<N>::GetInvRotID( rotID ) );
+      }
       if ( nodeValue[ child ] == nodeValue[ parent ] + 1 )
       {
-        gradient[ child ] |= ( 1ULL << CRotations<N>::GetInvRotID( rotID ) );
+        gradient[ 2 * child     ] |= ( 1ULL << CRotations<N>::GetInvRotID( rotID ) );
+        gradient[ 2 * child + 1 ] |= ( 1ULL << CRotations<N>::GetInvRotID( rotID ) );
       }
     }
   }
+  /*
+  for ( GroupID gid = 0; gid < size; ++ gid )
+  {
+    all_rotid( rotID )
+    {
+      const GroupID neighbour = m_subgroup -> lookUp( gid, rotID, true );
+      if ( nodeValue[ gid ] >= nodeValue[ neighbour ] )
+      {
+        gradient[ 2 * gid + 1 ] |= ( 1ULL << rotID );
+      }
+    }
+  }*/
   m_nodeValue = nodeValue;
   m_gradient  = gradient;
   m_qeueu.resize( 0 ); //  de-alloc queeu memory

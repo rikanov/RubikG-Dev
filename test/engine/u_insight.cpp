@@ -2,40 +2,64 @@
 #include <bitmap_set.h>
 #include <insight.h>
 
+
 template< cube_size N >
-static void PlayWith( Insight<N> & insight, bool & success )
+static void ShowGradients ( const Insight<N> & insight )
 {
-  bool ok = true;
-  const std::string tCaseName( "Insight<"+numL( N, 1 ) + "> size " + numL( insight.size(), 1 ) );
-  NL(); NL();
-  UnitTests::tcase( tCaseName );
-  insight.print();
+  const DistID D = insight.distance();
+  clog( "depth:", (int) D );
+  BitMap::Print( insight.gradient( D     ), 9 * N, 3 * N );
+  BitMap::Print( insight.gradient( D + 1 ), 9 * N, 3 * N );
+}
+
+template< cube_size N >
+static bool CheckInsight( Insight<N> & insight )
+{
   constexpr size_t NUMBER_OF_TESTS = 6;
-  RotID test[ NUMBER_OF_TESTS ] = {};
+  bool ok = true;
+  NL(); NL();
+  insight.print();
+  DistID deep[ NUMBER_OF_TESTS ] = {};
+  RotID  test[ NUMBER_OF_TESTS ] = {};
   for ( int i = 0; i < NUMBER_OF_TESTS; ++ i)
   {
     const RotID t = CRotations<N>::Random();
+    deep[i] = insight.distance();
     test[i] = t;
     clog_( CRotations<N>::ToString( t ), "-->" );
     insight.move( t );
-    clog( "stateID:", insight.state() );
     insight.print();
-    clog( "depth:", (int) insight.distance() );
-    BitMap::Print( insight.gradient(), 9 * N, 3 * N );
+    ShowGradients( insight );
   }
   for ( int i = 1; i <= NUMBER_OF_TESTS; ++ i)
   {
     const RotID t = CRotations<N>::GetInvRotID( test[ NUMBER_OF_TESTS - i ] );
     clog_( CRotations<N>::ToString( t ), "-->" );
     insight.move( t );
-    clog( "stateID:", insight.state() );
     insight.print();
-    clog( "depth:", (int) insight.distance() );
-    BitMap::Print( insight.gradient(), 9 * N, 3 * N );
+    const DistID D = insight.distance();
+    ShowGradients( insight );
+    UnitTests::stamp ( insight.distance() == deep[ NUMBER_OF_TESTS - i ] , ok );
   }
-  UnitTests::stamp( insight.distance() == 0, ok );
-  UnitTests::tail( tCaseName, ok );
-  success &= ok;
+  return ok;
+}
+
+
+template< cube_size N >
+static bool CheckGradient( Insight<N> & insight )
+{
+  bool ok = true;
+  constexpr size_t NUMBER_OF_TESTS = 6;
+  NL();
+  for ( int t = 0; t < NUMBER_OF_TESTS; ++ t )
+  {
+    for( int rotNum = UnitTests::random( 3 * N, 5 * N ); rotNum > 0; -- rotNum )
+    {
+      insight.move( CRotations<N>::Random() ); 
+    }
+    ShowGradients( insight );
+  }
+  return ok;
 }
 
 bool UnitTests::unit_Insight() const
@@ -85,30 +109,22 @@ bool UnitTests::unit_Insight() const
  // Rubik 2x2
 //-----------
   Insight<2> baseInsight_2 ( toSolve_2, size_2 );
-  Insight<2> transInsight_2( toSolve_2, size_2, Simplex::Tilt( _Z, 1 ) );
   baseInsight_2.build();
-  transInsight_2.build();
 
  // Rubik 3x3
 //-----------
   Insight<3> baseInsight_3 ( toSolve_3, size_3 );
-  Insight<3> transInsight_3( toSolve_3, size_3, Simplex::Tilt( _Y, 1 ) );
   baseInsight_3.build();
-  transInsight_3.build();
 
  // Rubik 4x4
 //-----------
   Insight<4> baseInsight_4 ( toSolve_4, size_4 );
-  Insight<4> transInsight_4( toSolve_4, size_4, Simplex::Tilt( _X, 1 ) );
   baseInsight_4.build();
-  transInsight_4.build();
 
  // Rubik 5x5
 //-----------
   Insight<5> baseInsight_5 ( toSolve_5, size_5 );
-  Insight<5> transInsight_5( toSolve_5, size_5, Simplex::Composition( Simplex::Tilt( _X, 2 ), Simplex::Tilt( _Z, 1 ) ) );
   baseInsight_5.build();
-  transInsight_5.build();
 
   timerOFF();
   tail( "Memory allocation", success );
@@ -116,18 +132,18 @@ bool UnitTests::unit_Insight() const
   NL();
 
   tcase( "Base tests" );
-  PlayWith <2> ( baseInsight_2, success );
-  PlayWith <3> ( baseInsight_3, success );
-//  PlayWith <4> ( baseInsight_4, success );
-//  PlayWith <5> ( baseInsight_5, success );
+  success &= CheckInsight <2> ( baseInsight_2 );
+  success &= CheckInsight <3> ( baseInsight_3 );
+  success &= CheckInsight <4> ( baseInsight_4 );
+  success &= CheckInsight <5> ( baseInsight_5 );
   tail( "Base rotations", success );
 
-  tcase( "Transformed tests" );
-//  PlayWith <2> ( transInsight_2, success );
-//  PlayWith <3> ( transInsight_3, success );
-//  PlayWith <4> ( transInsight_4, success );
-//  PlayWith <5> ( transInsight_5, success );
-  tcase( "Transformed tests" );
+  tcase( "Check gradients" );
+  success &= CheckGradient <2> ( baseInsight_2 );
+  success &= CheckGradient <3> ( baseInsight_3 );
+  success &= CheckGradient <4> ( baseInsight_4 );
+  success &= CheckGradient <5> ( baseInsight_5 );
+  tail( "Ceck gradients" , success );
 
   finish( "CacheIDmapper & Insight", success );
   return success;

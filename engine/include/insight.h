@@ -49,24 +49,20 @@ public:
     return m_evaluator.distance( projected() );
   }
   
-  BitMapID gradient() const
-  {
-    BitMapID grad = m_evaluator.gradient( projected() );
-    GenerateRotationSet<N>::Transform( grad, prior() );
-    return grad;
-  }
-  
   BitMapID gradient( const DistID distID ) const
   {
-    if ( distID < distance() )
+    const DistID D = distance();
+    if ( distID < D )
     {
       return 0;
     }
-    if ( distID == distance() )
+    if ( distID > D + 1 )
     {
-      return gradient();
+      return ( 1ULL << ( 9 * N ) ) -1;
     }
-    return ( 1 << ( 9 * N ) ) -1;
+    BitMapID grad = m_evaluator.gradient( projected(), D - distID );
+    GenerateRotationSet<N>::Transform( grad, prior() );
+    return grad;
   }
  
   void init( const PosID * pos, const size_t size, const CubeID orient = 0 )
