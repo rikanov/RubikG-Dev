@@ -24,6 +24,11 @@ public:
     init( pos, size, orient );
   }
   
+  size_t size() const
+  {
+    return m_subgroupMap.size();
+  }
+  
   CubeID prior() const
   {
     return m_stateID / m_lastRadix;
@@ -46,7 +51,9 @@ public:
   
   BitMapID gradient() const
   {
-    return GenerateRotationSet<N>::Transform( m_evaluator.gradient( projected() ), prior() );
+    BitMapID grad = m_evaluator.gradient( projected() );
+    GenerateRotationSet<N>::Transform( grad, prior() );
+    return grad;
   }
   
   BitMapID gradient( const DistID distID ) const
@@ -64,6 +71,7 @@ public:
  
   void init( const PosID * pos, const size_t size, const CubeID orient = 0 )
   {
+    m_lastRadix = pow24( size - 1 );
     m_subgroupMap.init( pos, size, orient );
   }
   
