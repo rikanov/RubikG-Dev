@@ -25,6 +25,7 @@ public:
 
   void     move     ( const RotID );
   BitMapID progress ( const RotID, const DistID );
+  BitMapID gradient ( const DistID );
 };
 
 
@@ -85,13 +86,13 @@ void Engine<N>::move( const RotID rotID )
 }
 
 template< cube_size N >
-BitMapID Engine<N>::progress( const RotID rotID, const DistID distID )
+BitMapID Engine<N>::progress( const RotID rotID, const DistID distance )
 {
   BitMapID result = m_allowed[ rotID ];
 
   auto pInsight = m_insights;
   while ( result > 0 && pInsight != m_nextInsight )
-    result &= *( pInsight ++ ) -> operate( rotID, distID );
+    result &= *( pInsight ++ ) -> operate( rotID, distance );
 
   if ( 0 == result )
   {
@@ -99,6 +100,18 @@ BitMapID Engine<N>::progress( const RotID rotID, const DistID distID )
     while ( m_insights <= -- pInsight )
       *pInsight -> move( inv );
   }
+
+  return result;
+}
+
+template< cube_size N >
+BitMapID Engine<N>::gradient( const DistID distance )
+{
+  BitMapID result = m_allowed[ 0 ];
+
+  auto pInsight = m_insights;
+  while ( result > 0 && pInsight != m_nextInsight )
+    result &= *( pInsight ++ ) -> gradient( distance );
 
   return result;
 }

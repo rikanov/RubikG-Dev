@@ -60,7 +60,7 @@ public:
     {
       return ( 1ULL << ( 9 * N ) ) -1;
     }
-    BitMapID grad = m_evaluator.gradient( projected(), D - distID );
+    BitMapID grad = distID == D ? m_evaluator.grade1( projected() ) : m_evaluator.grade2( projected() );
     GenerateRotationSet<N>::Transform( grad, prior() );
     return grad;
   }
@@ -95,11 +95,11 @@ public:
   {
     m_stateID = m_subgroupMap.lookUp( m_stateID, rotID, false );
   }
-  
-  BitMapID operate( const RotID rotID, const DistID distID )
+
+  BitMapID operate( const RotID rotID, const DistID distance )
   {
     m_stateID = m_subgroupMap.lookUp( m_stateID, rotID, false );
-    return gradient( distID );
+    return gradient( distance );
   }
 
   void print( const bool details = false, const bool projected = false ) const
