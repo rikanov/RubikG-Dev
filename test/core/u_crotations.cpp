@@ -79,8 +79,8 @@ bool UnitTests::unit_CRotations() const
       for( const RotID testRot: rotBase )
       {
         const RotID result = CRotations<4>::GetRotID( testRot, trans );
-        clog_( ( testRot < 10 ? "  " : " " ), Color::cyan, (int) testRot, CRotations<4>::ToString( testRot ), Color::white, "-->" );
-        clog_( ( result  < 10 ? "  " : " " ), Color::cyan, (int) result,  CRotations<4>::ToString( result ) );
+        clog_( Color::cyan, numR( testRot, 3 ), CRotations<4>::ToString( testRot ), Color::white, "-->" );
+        clog_( Color::cyan, numR( result,  3 ), CRotations<4>::ToString( result ) );
         stamp( result == *( nextExpected++ ), successRot );
       }
       tail( testCase, successRot );

@@ -26,6 +26,7 @@ static bool CheckInsight( Insight<N> & insight )
     const RotID t = CRotations<N>::Random();
     deep[i] = insight.distance();
     test[i] = t;
+    NL();
     clog_( CRotations<N>::ToString( t ), "-->" );
     insight.move( t );
     insight.print();
@@ -34,6 +35,7 @@ static bool CheckInsight( Insight<N> & insight )
   for ( int i = 1; i <= NUMBER_OF_TESTS; ++ i)
   {
     const RotID t = CRotations<N>::GetInvRotID( test[ NUMBER_OF_TESTS - i ] );
+    NL();
     clog_( CRotations<N>::ToString( t ), "-->" );
     insight.move( t );
     insight.print();
