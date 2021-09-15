@@ -4,6 +4,7 @@
 
 #include <insight.h>
 #include <bitmap_set.h>
+#include <rubik.h>
 #include <text_output.h>
 
 template< cube_size N >
@@ -22,7 +23,8 @@ public:
 
   void operator << ( Insight<N> & );
   void operator << ( Insight<N> * );
-
+  void toSolve     ( const Rubik<N> & );
+  
   void     move     ( const RotID );
   BitMapID progress ( const RotID, const DistID );
   BitMapID gradient ( const DistID );
@@ -60,9 +62,7 @@ void Engine<N>::init()
     if ( 1 == turn )
       allow -= 7ULL << ( 3 * ( axis * N + layer ) + 1 );
 
-    clog_( CRotations<N>::ToString( rotID ) );
     m_allowed[ rotID ++ ] = allow;
-    BitMap::Print( allow, 9 * N, 3 * N );
   }
 }
 
@@ -79,10 +79,19 @@ void Engine<N>::operator << ( Insight<N> * next )
 }
 
 template< cube_size N >
+void Engine<N>::toSolve( const Rubik<N> & R )
+{
+  for ( auto pInsight = m_insights; pInsight != m_nextInsight; ++ pInsight )
+  {
+    ( *pInsight ) -> toSolve( R );
+  }
+}
+
+template< cube_size N >
 void Engine<N>::move( const RotID rotID )
 {
   for ( auto pInsight = m_insights; pInsight != m_nextInsight; ++ pInsight )
-    *pInsight -> move( rotID );
+    ( *pInsight ) -> move( rotID );
 }
 
 template< cube_size N >
@@ -98,7 +107,7 @@ BitMapID Engine<N>::progress( const RotID rotID, const DistID distance )
   {
     const RotID inv = CRotations<N>::GetInvRotID( rotID );
     while ( m_insights <= -- pInsight )
-      *pInsight -> move( inv );
+      ( *pInsight ) -> move( inv );
   }
 
   return result;

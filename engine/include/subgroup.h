@@ -32,6 +32,8 @@ public:
     return m_size;
   }
   
+  BitMapID getStateID( const Rubik<N> & ) const;
+  
   void print( const GroupID stateID, const bool details = false, const bool projected = false ) const
   {
     PrintMap<N> ( projected ? Projection::LookUp( m_size, stateID) : stateID , m_startPos, m_size, details );
@@ -114,6 +116,16 @@ GroupID Subgroup<N>::lookUp( GroupID stateID, const RotID rotID, const bool prio
   }
 
   return prior ? Projection::LookUp( m_size, result ) : result;
+}
+
+template< cube_size N >
+BitMapID Subgroup<N>::getStateID( const Rubik<N> & Cube ) const
+{
+  BitMapID result = 0;
+  for ( int id = 0; id < m_size; ++ id )
+    result += Cube.transpose( m_startPos[id] ) * pow24( id );
+
+  return result;
 }
 
 template< cube_size N >

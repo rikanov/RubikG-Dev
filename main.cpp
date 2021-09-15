@@ -14,6 +14,7 @@ int main()
   
   success &= tests.testCore();
   success &= tests.testEngine();
+  success &= tests.testAI();
   
   CLS();
   clog( "Quit." );

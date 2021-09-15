@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 
 project(rubikg)
 
+include_directories( rubikAI/include )
 include_directories( engine/include )
 include_directories( core/include )
 include_directories( core/template_h )

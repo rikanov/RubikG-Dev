@@ -21,3 +21,10 @@ bool UnitTests::testEngine() const
   result &= unit_Engine();
   return result;
 }
+
+bool UnitTests::testAI() const
+{
+  bool result = true;
+  result &= unit_RubikAI();
+  return result;
+}

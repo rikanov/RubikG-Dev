@@ -46,9 +46,15 @@ private:
   bool unit_Insight()       const; // engine/insight.h 
   bool unit_Subgroup()      const; // engine/subgroup.h
   bool unit_Engine()        const; // engine/engine.h
+   
+   // Unit tests of engines (rubikAI folder)
+  //----------------------------------------
+  bool unit_RubikAI()       const; // rubikAI/rubik_ai.h
+
 public:
   bool testCore()   const;
   bool testEngine() const;
+  bool testAI()     const;
   
 };
 

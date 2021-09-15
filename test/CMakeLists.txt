@@ -28,6 +28,8 @@ add_library(test  test.h
                   engine/u_insight.cpp
                   engine/u_subgroup.cpp
                   engine/u_engine.cpp
+                  
+                  rubik_ai/u_rubikai.cpp
                  )
 
 

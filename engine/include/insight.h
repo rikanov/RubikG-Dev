@@ -39,6 +39,11 @@ public:
     return m_stateID;
   }
   
+  void toSolve( const Rubik<N> & R )
+  {
+    m_stateID = m_subgroupMap.getStateID( R );
+  }
+  
   GroupID projected() const
   {
     return Projection::LookUp( m_subgroupMap.size(), m_stateID );
