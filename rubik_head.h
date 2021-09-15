@@ -11,17 +11,26 @@
 #include <projection.h>
 #include <rubik.h>
 
+template< cube_size N >
+static void Init()
+{
+  GenerateRotationSet<N>::Instance();
+           CPositions<N>::Instance();
+}
 
+template< cube_size N >
+static void Exit()
+{
+           CPositions<N>::OnExit();
+  GenerateRotationSet<N>::OnExit();
+}
 void exit()
 {
-  CPositions<2>::OnExit();
-  CPositions<3>::OnExit();
-  CPositions<4>::OnExit();
-  CPositions<5>::OnExit();
-  GenerateRotationSet<2>::OnExit();
-  GenerateRotationSet<3>::OnExit();
-  GenerateRotationSet<4>::OnExit();
-  GenerateRotationSet<5>::OnExit();
+  Exit <2> ();
+  Exit <3> ();
+  Exit <4> ();
+  Exit <5> ();
+  
   Projection::OnExit();
   CubeSet::OnExit();
   Simplex::OnExit();
@@ -32,14 +41,12 @@ void init()
   Simplex::Instance();
   CubeSet::Instance();
   Projection::Instance();
-  GenerateRotationSet<2>::Instance();
-  GenerateRotationSet<3>::Instance();
-  GenerateRotationSet<4>::Instance();
-  GenerateRotationSet<5>::Instance();
-  CPositions<2>::Instance();
-  CPositions<3>::Instance();
-  CPositions<4>::Instance();
-  CPositions<5>::Instance();
+ 
+  Init <2> ();
+  Init <3> ();
+  Init <4> ();
+  Init <5> ();
+  
   std::atexit( exit );
 }
 
