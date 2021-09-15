@@ -10,6 +10,8 @@ static void ShowGradients ( const Insight<N> & insight )
   clog( "depth:", (int) D );
   BitMap::Print( insight.gradient( D     ), 9 * N, 3 * N );
   BitMap::Print( insight.gradient( D + 1 ), 9 * N, 3 * N );
+  BitMap::Print( insight.aim( D     ) );
+  BitMap::Print( insight.aim( D + 1 ) );
 }
 
 template< cube_size N >

@@ -23,7 +23,7 @@ bool BitMap::next( uint8_t & nextID )
   return true;
 }
 
-void BitMap::Print( const BitMapID dataSet,  const uint8_t length, const uint8_t slice )
+void BitMap::Print( const BitMapID dataSet, const uint8_t length, const uint8_t slice )
 {
   const Color::Modifier color[2] = { Color::blue, Color::green };
   for( long id = length; id >= 0; --id )
@@ -37,6 +37,11 @@ void BitMap::Print( const BitMapID dataSet,  const uint8_t length, const uint8_t
     slog_ ( "", color[bit], bit, Color::off );
   }
   NL();
+}
+
+void BitMap::Print( const BitMap32ID dataSet, const uint8_t length, const uint8_t slice )
+{
+  Print( (BitMapID) dataSet, length, slice );
 }
 
 void BitMap::print(const uint8_t length, const uint8_t slice) const

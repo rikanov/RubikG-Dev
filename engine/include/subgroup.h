@@ -12,7 +12,8 @@ class Subgroup
   size_t        m_size;
   GroupID     * m_singleCache;
   PosID       * m_startPos;
-  
+  GroupID       m_lastRadix;
+
   void extend( const PosID );
   void dealloc();
 public:
@@ -32,6 +33,16 @@ public:
     return m_size;
   }
   
+  CubeID prior( const GroupID gid ) const
+  {
+    return gid / m_lastRadix;
+  }
+
+  PosID priorPos( const GroupID gid ) const
+  {
+    return CPositions<N>::GetPosID( m_startPos[ m_size - 1 ], prior( gid ) );
+  }
+
   BitMapID getStateID( const Rubik<N> & ) const;
   
   void print( const GroupID stateID, const bool details = false, const bool projected = false ) const
@@ -45,14 +56,16 @@ Subgroup<N>::Subgroup()
  :  m_size        ( 0 )
  ,  m_singleCache ( nullptr )
  ,  m_startPos    ( nullptr )
+ , m_lastRadix    ( 0 )
 {
-   
+
 }
 
 template< cube_size N >
 Subgroup<N>::Subgroup( const PosID * pos, const size_t size, const CubeID orient )
  :  Subgroup()
 {
+  m_lastRadix = pow24( size - 1 );
   init( pos, size, orient );
 }
 
@@ -83,6 +96,8 @@ void Subgroup<N>::dealloc()
 template< cube_size N >
 void Subgroup<N>::extend( const PosID pos )
 {
+  m_lastRadix = ( 0 == m_lastRadix ) ? 1 : 24 * m_lastRadix;
+
   const size_t offset = m_size * 24 * CRotations<N>::AllRotIDs;
   
   all_cubeid( cubeID )

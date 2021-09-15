@@ -1,7 +1,7 @@
 #ifndef CUBE_ROTATIONS__H
 #define CUBE_ROTATIONS__H
 
-#include <simplex.h>
+#include <cube_positions.h>
 #include <random>
 
 // Mapping between all the basic rotations and the set of one-byte size IDs:
@@ -35,8 +35,10 @@ public:
   static Axis  GetAxis  ( const RotID rotID )  { return static_cast< Axis > ( ( rotID - 1 ) / ( 3 * N ) ); }
   static Layer GetLayer ( const RotID rotID )  { return ( ( rotID - 1 ) /3 ) % N;                          }
   static Turn  GetTurn  ( const RotID rotID )  { return ( rotID - 1 ) % 3 + 1;                             }
+  static CubeID GetTilt ( const RotID rotID )  { return Simplex::Tilt( GetAxis( rotID ), GetTurn( rotID ) );  }
 
-  static void Transform( Axis & axis, Layer & layer, Turn & turn, const CubeID cubeID );
+  static bool Act       ( const PosID posID, const RotID rotID ) { return CPositions<N>::GetLayer( posID, GetAxis( rotID ) ) == GetLayer( rotID ); }
+  static void Transform ( Axis & axis, Layer & layer, Turn & turn, const CubeID cubeID );
 
   static RotID Random();
   static std::string ToString( const Axis  );

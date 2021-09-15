@@ -12,7 +12,6 @@ template< cube_size N >
 class Insight
 {
   GroupID       m_stateID   = 0;
-  GroupID       m_lastRadix = 0;
   Subgroup  <N> m_subgroupMap;
   Evaluator <N> m_evaluator;
   
@@ -31,7 +30,7 @@ public:
   
   CubeID prior() const
   {
-    return m_stateID / m_lastRadix;
+    return m_subgroupMap.prior( m_stateID );
   }
   
   GroupID state() const
@@ -63,30 +62,35 @@ public:
     }
     if ( distID > D + 1 )
     {
-      return ( 1ULL << ( 9 * N ) ) -1;
+      return ( 1ULL << ( 9 * N ) ) - 1;
     }
     BitMapID grad = distID == D ? m_evaluator.grade1( projected() ) : m_evaluator.grade2( projected() );
     GenerateRotationSet<N>::Transform( grad, prior() );
     return grad;
   }
  
+  BitMap32ID aim( const DistID distID ) const
+  {
+    const DistID D = distance();
+    if ( distID < D )
+    {
+      return 0;
+    }
+    if ( distID > D + 1 )
+    {
+      return ( 1 << 24 ) - 1;
+    }
+    BitMap32ID aim = distID == D ? m_evaluator.aim1( projected() ) : m_evaluator.aim2( projected() );
+    return CubeSet::GetCubeSet( prior(), aim );
+  }
   void init( const PosID * pos, const size_t size, const CubeID orient = 0 )
   {
-    m_lastRadix = pow24( size - 1 );
     m_subgroupMap.init( pos, size, orient );
   }
   
   void extend( const PosID pos )
   {
     m_subgroupMap.extend( pos );
-    if ( 0 == m_lastRadix )
-    {
-      m_lastRadix = 1;
-    }
-    else
-    {
-      m_lastRadix *= 24;
-    }
   }
   
   void build()

@@ -42,7 +42,7 @@ bool UnitTests::unit_CubeSet() const
   {
     const CubeID state = Simplex::Random();
     tcase( "Multiplication", Simplex::GetCube( state ).toString() );
-    BitMap32ID generated( CubeSet::GetBitMap32ID( state, cubeSetID ) );
+    BitMap32ID generated( CubeSet::GetCubeSet( state, cubeSetID ) );
     BitMap original( cubeSetID );
     CubeID next;
     while( original >> next )
