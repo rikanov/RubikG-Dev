@@ -47,9 +47,14 @@ public:
     return *( m_qeuOut + id );
   }
 
+  bool used( GroupID id ) const
+  {
+    return m_used( id );
+  }
+  
   bool operator << ( const GroupID& id )
   {
-    if ( m_used( id ) == false )
+    if ( used( id ) == false )
     {
       m_used.set( id, true );
       *( m_qeuIn ++ ) = id;
