@@ -10,12 +10,16 @@ class BitMap
 
 public:
   BitMap() = default;
-  BitMap( const unsigned long ds )
+  BitMap( const uint64_t ds )
   {
     set( ds );
   }
-  void set( const unsigned long ds );
+  void set( const uint64_t ds );
   bool next( uint8_t & nextID );
+  bool isEmpty() const
+  {
+    return m_dataSet == 0;
+  }
   bool operator >> ( uint8_t & nextID )
   {
     return next( nextID );
