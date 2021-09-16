@@ -80,7 +80,7 @@ template< cube_size N >
 void Engine<N>::move( const RotID rotID )
 {
   for ( auto pInsight = m_insights; pInsight != m_endInsights; ++ pInsight )
-    ( *pInsight ) -> move( rotID );
+    pInsight -> move( rotID );
 }
 
 template< cube_size N >
@@ -88,18 +88,22 @@ BitMapID Engine<N>::progress( const RotID rotID, const DistID distance )
 {
   BitMapID result = m_allowed[ rotID ];
 
-  auto pInsight = m_insights;
-  while ( result > 0 && pInsight != m_endInsights )
-    result &= *( pInsight ++ ) -> operate( rotID, distance );
-
-  if ( 0 == result )
+  Insight<N> * pInsight = m_insights;
+  BitMap32ID aim = ( 1 << 24 ) - 1;
+  while (  result > 0 && aim > 0 && pInsight != m_endInsights )
+  {
+    result &= pInsight -> operate( rotID, distance );
+    aim    &= pInsight -> aim( distance );
+    ++ pInsight;
+  }
+  if ( 0 == result || 0 == aim )
   {
     const RotID inv = CRotations<N>::GetInvRotID( rotID );
     while ( m_insights <= -- pInsight )
-      ( *pInsight ) -> move( inv );
+      pInsight -> move( inv );
   }
 
-  return result;
+  return aim ? result : 0;
 }
 
 template< cube_size N >
@@ -107,11 +111,16 @@ BitMapID Engine<N>::gradient( const DistID distance )
 {
   BitMapID result = m_allowed[ 0 ];
 
-  auto pInsight = m_insights;
+  const Insight<N> * pInsight = m_insights;
+  BitMap32ID aim = ( 1 << 24 ) - 1;
   while ( result > 0 && pInsight != m_endInsights )
-    result &= *( pInsight ++ ) -> gradient( distance );
+  {
+    result &= pInsight -> gradient( distance );
+    aim    &= pInsight ->aim( distance );
+    ++ pInsight;
+  }
 
-  return result;
+  return aim ? result : 0;
 }
 
 template< cube_size N >
