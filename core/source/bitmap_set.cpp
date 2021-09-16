@@ -26,9 +26,9 @@ bool BitMap::next( uint8_t & nextID )
 void BitMap::Print( const BitMapID dataSet, const uint8_t length, const uint8_t slice )
 {
   const Color::Modifier color[2] = { Color::blue, Color::green };
-  for( long id = length; id >= 0; --id )
+  for( long id = length - 1; id >= 0; --id )
   {
-    if ( slice > 0 && ( length - id ) % slice == 0 )
+    if ( slice > 0 && ( length - 1 - id ) % slice == 0 )
     {
       slog_ ( "", Color::white, '|', Color::off );
     }
