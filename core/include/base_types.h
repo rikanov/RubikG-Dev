@@ -166,7 +166,7 @@ inline char Token( Orient F )
      for ( Layer L = 0; L < N; ++L ) \
        for ( Turn T: { 1, 2, 3 } )
          
-#define all_rotid( rotID ) \
+#define all_rotid( rotID, N ) \
    for ( RotID rotID = 1; rotID < CRotations<N>::AllRotIDs; ++ rotID )
 
 #define for_vector( x, y, z, N )   \
