@@ -9,24 +9,35 @@ bool UnitTests::unit_RubikAI() const
 
   tcase( "Cube size 2" );
   bool ok2 = true;
-  
-    NL(); clog( "test" );
+  {
     bool ok = true;
     Rubik<2> testCube; testCube.print();
     RubikAI<2> test( testCube );
     test.solve();
     stamp( ok, ok2 );
-  
+  }
   tail( "Cube size 2", ok2 );
 
   tcase( "Cube size 3" );
   bool ok3 = true;
   {
-    NL(); clog( "test" );
+    const PosID cross[] = {
+      CPositions<3>::GetPosID( 1, 2, 0 ),
+      CPositions<3>::GetPosID( 0, 2, 1 ),
+      CPositions<3>::GetPosID( 1, 2, 1 ),
+      CPositions<3>::GetPosID( 2, 2, 1 ),
+      CPositions<3>::GetPosID( 1, 2, 2 )
+    };
+    const size_t cross_size = 5;
+    
     bool ok = true;
-    Rubik<3> testCube; testCube.print();
+    Rubik<3> testCube;
+    testCube.shuffle();
+    testCube.print();
     RubikAI<3> test( testCube );
+    test.insight( cross, 5);
     test.solve();
+    testCube.print();
     stamp( ok, ok3 );
   }
   tail( "Cube size 3", ok3 );
@@ -34,7 +45,7 @@ bool UnitTests::unit_RubikAI() const
   tcase( "Cube size 4" );
   bool ok4 = true;
   {
-    NL(); clog( "test" );
+    
     bool ok = true;
     Rubik<4> testCube; testCube.print();
     RubikAI<4> test( testCube );
@@ -46,7 +57,7 @@ bool UnitTests::unit_RubikAI() const
   tcase( "Cube size 5" );
   bool ok5 = true;
   {
-    NL(); clog( "test" );
+    
     bool ok = true;
     Rubik<5> testCube; testCube.print();
     RubikAI<5> test( testCube );

@@ -13,6 +13,7 @@ class RubikAI
 
 public:
   RubikAI( Rubik<N> & );
+  void insight( const PosID *,const size_t );
 
   // iteratively deepening algorithm ( IDA )
   Sequence solve();
@@ -34,6 +35,11 @@ Sequence RubikAI<N>::solve()
   m_path.reset();
   m_engine.toSolve( m_toSolve );
   return m_path;
+}
+
+template< cube_size N >
+void RubikAI<N>::insight( const PosID * startPos, const size_t size )
+{
 }
 
 #endif  // ! RUBIK_AI__H
