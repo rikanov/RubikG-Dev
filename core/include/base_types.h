@@ -56,7 +56,18 @@ struct Coord
   Coord(): x( 0 ), y( 0 ), z( 0 )
   {}
   Coord( Layer x, Layer y, Layer z): x( x ), y( y ), z( z ) 
-  {}  
+  {} 
+  Layer coord( const Axis axis ) const
+  {
+    switch( axis )
+    {
+      case _X: return x;
+      case _Y: return y;
+      case _Z: return z;
+      default: break;
+    }
+    return 0xFF; // error
+  }
   std::string toString() const 
   { 
     return "< " + std::to_string( x ) + ' ' + std::to_string( y ) + ' ' + std::to_string( z ) + " >";
