@@ -8,16 +8,16 @@ static void ShowGradients ( const Insight<N> & insight )
 {
   const DistID D = insight.distance();
   clog( "depth:", (int) D );
-  BitMap::Print( insight.gradient( D     ), 9 * N, 3 * N );
-  BitMap::Print( insight.gradient( D + 1 ), 9 * N, 3 * N );
-  BitMap::Print( insight.aim( D     ) );
-  BitMap::Print( insight.aim( D + 1 ) );
+  BitMap::Print( insight.gradient( D     ), 9 * N + 1, 3 * N );
+  BitMap::Print( insight.gradient( D + 1 ), 9 * N + 1, 3 * N );
+  BitMap::Print( insight.aim( D     ), 24, 4 );
+  BitMap::Print( insight.aim( D + 1 ), 24, 4 );
 }
 
 template< cube_size N >
 static bool CheckInsight( Insight<N> & insight )
 {
-  constexpr size_t NUMBER_OF_TESTS = 6;
+  constexpr size_t NUMBER_OF_TESTS = 10;
   bool ok = true;
   NL(); NL();
   insight.print();
@@ -53,11 +53,11 @@ template< cube_size N >
 static bool CheckGradient( Insight<N> & insight )
 {
   bool ok = true;
-  constexpr size_t NUMBER_OF_TESTS = 6;
+  constexpr size_t NUMBER_OF_TESTS = 10;
   NL();
   for ( int t = 0; t < NUMBER_OF_TESTS; ++ t )
   {
-    for( int rotNum = UnitTests::random( 3 * N, 5 * N ); rotNum > 0; -- rotNum )
+    for( int rotNum = UnitTests::random( N, 2 * N ); rotNum > 0; -- rotNum )
     {
       insight.move( CRotations<N>::Random() ); 
     }

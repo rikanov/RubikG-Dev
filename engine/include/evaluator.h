@@ -24,7 +24,7 @@ class Evaluator
   BitMap32ID mergeSet( const RotID rotID, const BitMap32ID set ) const
   {
     static const BitMap32ID P = m_subgroup -> priorRotIDs();
-    if ( P & rotID )
+    if ( P & ( 1ULL << rotID ) )
     {
       const RotID inv = CRotations<N>::GetInvRotID( rotID );
       return CubeSet::GetCubeSet( CRotations<N>::GetTilt( inv ), set );
@@ -128,15 +128,19 @@ void Evaluator<N>::build()
     grade1[ node ] = 1;
     aim1  [ node ] = 1;
  
-    all_rotid( rotID ) 
-      if ( P & rotID && m_qeueu.used( m_subgroup -> lookUp( node, rotID, true ) ) )
-        aim2[ node ] |= ( 1 << CRotations<N>::GetTilt( rotID ) );   
+    all_rotid ( rotID, N ) 
+    {
+      if ( m_qeueu.used( m_subgroup -> lookUp( node, rotID, true ) ) )
+      {
+        aim2[ node ] |= ( P & ( 1ULL << rotID ) ) ? 1 << CRotations<N>::GetTilt( rotID ) : 1;
+      }
+    }
   }
 
   GroupID parent;
   while ( m_qeueu >> parent )
   {
-    all_rotid ( rotID )
+    all_rotid ( rotID, N )
     {
       const GroupID child = m_subgroup -> lookUp( parent, rotID, true );
       const BitMapID bitRotID = 1ULL << CRotations<N>::GetInvRotID( rotID );

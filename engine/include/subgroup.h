@@ -38,9 +38,9 @@ public:
     return gid / m_lastRadix;
   }
 
-  PosID priorPos( const GroupID gid ) const
+  BitMapID priorRotIDs() const
   {
-    return CPositions<N>::GetPosID( m_startPos[ m_size - 1 ], prior( gid ) );
+    return CRotations<N>::ActOn( m_startPos[ m_size - 1 ] );
   }
 
   BitMapID getStateID( const Rubik<N> & ) const;
