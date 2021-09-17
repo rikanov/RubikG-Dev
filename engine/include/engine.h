@@ -21,8 +21,8 @@ public:
   Engine();
   ~Engine();
 
-  void addInsight  ( const PosID *, const size_t );
-  void toSolve     ( const Rubik<N> & );
+  ObjID setInsight  ( const PosID *, const size_t, const ObjID obj = 0 );
+  void  toSolve     ( const Rubik<N> & );
   
   void     move     ( const RotID );
   BitMapID progress ( const RotID, const DistID );
@@ -62,9 +62,20 @@ void Engine<N>::init()
 }
 
 template< cube_size N >
-void Engine<N>::addInsight( const PosID *, const size_t )
+ObjID Engine<N>::setInsight( const PosID * posID, const size_t size, const ObjID obj )
 {
-  
+  ObjID modified = 0;
+  if ( 0 == obj )
+  {
+    ( m_endInsights ++ ) -> init( posID, size );
+    modified = ( m_endInsights - m_insights );
+  }
+  else
+  {
+    m_insights[ obj - 1 ].init( posID, size );
+    modified = obj;
+  }
+  return modified;
 }
 
 template< cube_size N >
@@ -116,7 +127,7 @@ BitMapID Engine<N>::gradient( const DistID distance )
   while ( result > 0 && pInsight != m_endInsights )
   {
     result &= pInsight -> gradient( distance );
-    aim    &= pInsight ->aim( distance );
+    aim    &= pInsight -> aim( distance );
     ++ pInsight;
   }
 
