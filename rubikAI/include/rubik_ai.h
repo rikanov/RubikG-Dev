@@ -10,15 +10,15 @@ class RubikAI
   Rubik <N> & m_cubeToSolve;
   Engine<N>   m_engine;
   Sequence    m_path;
-  DistID      m_depth;
+  DistID      m_searchDepth;
 
 public:
   RubikAI( Rubik<N> & );
-  ObjID insight( const PosID *, const size_t, const ObjID obj );
+  ObjID insight( const PosID *, const size_t, const ObjID obj = 0 );
 
   // iteratively deepening algorithm ( IDA )
-  Sequence solve();
-  bool ida( const BitMapID );
+  Sequence solve( const bool applySolution = true );
+  bool     ida  ( const BitMapID, const DistID );
 
 };
 
@@ -27,49 +27,62 @@ RubikAI<N>::RubikAI( Rubik<N> & cube )
   :  m_cubeToSolve( cube )
   ,  m_engine()
   ,  m_path()
-  ,  m_depth( 0 )
+  ,  m_searchDepth( 0 )
 {
   
 }
 
 template< cube_size N >
-Sequence RubikAI<N>::solve()
+Sequence RubikAI<N>::solve( const bool applySolution )
 {
-  m_path.reset();
+  m_engine.update();
   m_engine.toSolve( m_cubeToSolve );
-  for ( m_depth = 0; m_depth < 15; ++ m_depth )
-  {
-    BitMapID gradient = m_engine.gradient( m_depth );
-    if ( 0 == gradient )
-      continue;
-    if ( ida( gradient ) )
-      break;
-  }
-  return m_path;
-}
+  m_path.reset();
 
-template< cube_size N >
-bool RubikAI<N>::ida( const BitMapID suggestedMoves )
-{
-  bool result = false;
-  if ( 1 == suggestedMoves )
+  for ( DistID depth = 0; depth < 15; ++ depth )
   {
-    return true;
-  }
-  if ( 0 == m_depth )
-  {
-    return false;
-  }
-  -- m_depth;
-  BitMap moves ( suggestedMoves );
-  for ( RotID next; moves >> next; )
-  {
-    const BitMapID gradient = m_engine.progress( next, m_depth );
+    m_searchDepth = depth;
+    BitMapID gradient = m_engine.gradient( depth );
     if ( 0 == gradient )
     {
       continue;
     }
-    if ( ida( gradient ) )
+    if ( ida( gradient, depth ) )
+    {
+      break;
+    }
+  }
+  
+  if ( applySolution  )
+  {
+    m_cubeToSolve.rotate( m_path.reverse() );
+  }
+
+  return m_path.reverse();
+}
+
+template< cube_size N >
+bool RubikAI<N>::ida( const BitMapID suggestedMoves, const DistID depth )
+{
+  bool result = false;
+  if ( suggestedMoves & 1 )
+  {
+    return true;
+  }
+  if ( 0 == depth )
+  {
+    return false;
+  }
+
+  BitMap moves ( suggestedMoves );
+  for ( RotID next; moves >> next; )
+  {
+    const BitMapID gradient = m_engine.progress( next, depth );
+    if ( 0 == gradient )
+    {
+      continue;
+    }
+    if ( ida( gradient, depth - 1 ) )
     {
       m_path << next;
       result = true;
@@ -77,7 +90,6 @@ bool RubikAI<N>::ida( const BitMapID suggestedMoves )
     }
     m_engine.move( CRotations<N>::GetInvRotID( next ) ); // revert
   }
-  ++ m_depth;
   return result;
 }
 

@@ -11,9 +11,10 @@ bool UnitTests::unit_RubikAI() const
   bool ok2 = true;
   {
     bool ok = true;
-    Rubik<2> testCube; testCube.print();
+    Rubik<2> testCube; 
     RubikAI<2> test( testCube );
     test.solve();
+    testCube.print();
     stamp( ok, ok2 );
   }
   tail( "Cube size 2", ok2 );
@@ -22,17 +23,21 @@ bool UnitTests::unit_RubikAI() const
   bool ok3 = true;
   {
     const PosID cross[] = {
-      CPositions<3>::GetPosID( 1, 2, 0 ),
-      CPositions<3>::GetPosID( 0, 2, 1 ),
-      CPositions<3>::GetPosID( 1, 2, 1 ),
-      CPositions<3>::GetPosID( 2, 2, 1 ),
-      CPositions<3>::GetPosID( 1, 2, 2 )
+      CPositions<3>::GetPosID( 1, 2, 2 ),
+      CPositions<3>::GetPosID( 0, 1, 2 ),
+      CPositions<3>::GetPosID( 1, 1, 2 ),
+      CPositions<3>::GetPosID( 2, 1, 2 ),
+      CPositions<3>::GetPosID( 1, 0, 2 )
     };
     const size_t cross_size = 5;
     
     bool ok = true;
     Rubik<3> testCube;
-    testCube.shuffle();
+    for ( int i = 0; i < 10; ++ i )
+    {
+      const RotID rot = CRotations<3>::Random();
+      testCube.rotate( rot );
+    }
     testCube.print();
     RubikAI<3> test( testCube );
     test.insight( cross, 5);

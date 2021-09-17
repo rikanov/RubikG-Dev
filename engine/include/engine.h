@@ -23,6 +23,7 @@ public:
 
   ObjID setInsight  ( const PosID *, const size_t, const ObjID obj = 0 );
   void  toSolve     ( const Rubik<N> & );
+  void  update      ( void );
   
   void     move     ( const RotID );
   BitMapID progress ( const RotID, const DistID );
@@ -88,10 +89,21 @@ void Engine<N>::toSolve( const Rubik<N> & R )
 }
 
 template< cube_size N >
+void Engine<N>::update()
+{
+  for ( auto pInsight = m_insights; pInsight != m_endInsights; ++ pInsight )
+  {
+    pInsight -> update();
+  }  
+}
+
+template< cube_size N >
 void Engine<N>::move( const RotID rotID )
 {
   for ( auto pInsight = m_insights; pInsight != m_endInsights; ++ pInsight )
+  {
     pInsight -> move( rotID );
+  }
 }
 
 template< cube_size N >

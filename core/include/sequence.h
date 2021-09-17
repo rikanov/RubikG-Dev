@@ -70,6 +70,15 @@ public:
     m_stackPointer = m_rotations;
   }
 
+  Sequence reverse() const
+  {
+    Sequence reversed;
+    for ( const RotID * rot = m_stackPointer - 1; rot >= m_rotations; -- rot )
+    {
+      reversed << *rot;
+    }
+    return reversed;
+  }
 };
 
 

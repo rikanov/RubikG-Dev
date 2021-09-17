@@ -21,16 +21,7 @@ class Evaluator
   
   void dealloc();
   
-  BitMap32ID mergeSet( const RotID rotID, const BitMap32ID set ) const
-  {
-    static const BitMap32ID P = m_subgroup -> priorRotIDs();
-    if ( P & ( 1ULL << rotID ) )
-    {
-      const RotID inv = CRotations<N>::GetInvRotID( rotID );
-      return CubeSet::GetCubeSet( CRotations<N>::GetTilt( inv ), set );
-    }
-    return set;
-  }
+  BitMap32ID mergeSet( const RotID rotID, const BitMap32ID set ) const;
 
 public:
   Evaluator ();
@@ -105,6 +96,18 @@ template< cube_size N >
 void Evaluator<N>::root( const GroupID si )
 {
   m_qeueu << si;
+}
+
+template< cube_size N >
+BitMap32ID Evaluator<N>::mergeSet( const RotID rotID, const BitMap32ID set ) const
+{
+  static const BitMap32ID P = m_subgroup -> priorRotIDs();
+  if ( P & ( 1ULL << rotID ) )
+  {
+    const RotID inv = CRotations<N>::GetInvRotID( rotID );
+    return CubeSet::GetCubeSet( CRotations<N>::GetTilt( inv ), set );
+  }
+  return set;
 }
 
 template< cube_size N >

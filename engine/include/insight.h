@@ -14,6 +14,7 @@ class Insight
   GroupID       m_stateID   = 0;
   Subgroup  <N> m_subgroupMap;
   Evaluator <N> m_evaluator;
+  bool          m_updated = false;
   
 public:
   Insight() = default;
@@ -62,7 +63,7 @@ public:
     }
     if ( distID > D + 1 )
     {
-      return ( 1ULL << ( 9 * N ) ) - 1;
+      return ( 1ULL << ( 9 * N + 1 ) ) - 2;
     }
     BitMapID grad = distID == D ? m_evaluator.grade1( projected() ) : m_evaluator.grade2( projected() );
     GenerateRotationSet<N>::Transform( grad, prior() );
@@ -85,12 +86,22 @@ public:
   }
   void init( const PosID * pos, const size_t size, const CubeID orient = 0 )
   {
+    m_updated = false;
     m_subgroupMap.init( pos, size, orient );
   }
   
   void extend( const PosID pos )
   {
+    m_updated = false;
     m_subgroupMap.extend( pos );
+  }
+  
+  void update()
+  {
+    if ( false == m_updated )
+    {
+      build();
+    }
   }
   
   void build()
@@ -98,6 +109,7 @@ public:
     m_evaluator.map( &m_subgroupMap );
     m_evaluator.root( 0 );
     m_evaluator.build();
+    m_updated = true;
   }
   
   void move( const RotID rotID )
@@ -108,7 +120,7 @@ public:
   BitMapID operate( const RotID rotID, const DistID distance )
   {
     m_stateID = m_subgroupMap.lookUp( m_stateID, rotID, false );
-    return gradient( distance );
+    return gradient( distance - 1 );
   }
 
   void print( const bool details = false, const bool projected = false ) const
