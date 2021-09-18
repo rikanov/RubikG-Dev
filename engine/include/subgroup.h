@@ -43,7 +43,7 @@ public:
     return CRotations<N>::ActOn( m_startPos[ m_size - 1 ] );
   }
 
-  BitMapID getStateID( const Rubik<N> & ) const;
+  BitMapID getStateID( const Rubik<N> &, const CubeID trans ) const;
   
   void print( const GroupID stateID, const bool details = false, const bool projected = false ) const
   {
@@ -134,12 +134,13 @@ GroupID Subgroup<N>::lookUp( GroupID stateID, const RotID rotID, const bool prio
 }
 
 template< cube_size N >
-BitMapID Subgroup<N>::getStateID( const Rubik<N> & Cube ) const
+BitMapID Subgroup<N>::getStateID( const Rubik<N> & Cube, const CubeID trans ) const
 {
   BitMapID result = 0;
   for ( int id = 0; id < m_size; ++ id )
-    result += Cube.transpose( m_startPos[id] ) * pow24( id );
-
+  {
+    result += Cube.transpose( m_startPos[id], trans ) * pow24( id );
+  }
   return result;
 }
 

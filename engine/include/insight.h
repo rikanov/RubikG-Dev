@@ -15,7 +15,8 @@ class Insight
   Subgroup  <N> m_subgroupMap;
   Evaluator <N> m_evaluator;
   bool          m_updated = false;
-  
+  bool          m_reference = false;
+
 public:
   Insight() = default;
   
@@ -24,6 +25,11 @@ public:
     init( pos, size, orient );
   }
   
+  void reference()
+  {
+    m_reference = true;
+  }
+
   size_t size() const
   {
     return m_subgroupMap.size();
@@ -39,9 +45,35 @@ public:
     return m_stateID;
   }
   
-  void toSolve( const Rubik<N> & R )
+  void toSolve( const Rubik<N> & R, CubeID & trans )
   {
-    m_stateID = m_subgroupMap.getStateID( R );
+    m_stateID = m_subgroupMap.getStateID( R, trans );
+
+    if ( false == m_reference )
+    {
+      return;
+    }
+    else
+    {
+      m_reference = false;
+    }
+
+    update();
+
+    DistID  minimum = distance( );
+    GroupID chosen  = m_stateID;
+
+    all_cubeid ( cid )
+    {
+      m_stateID = m_subgroupMap.getStateID( R, cid );
+      if ( distance() < minimum )
+      {
+        trans   = cid;
+        minimum = distance();
+        chosen  = m_stateID;
+      }
+    }
+    m_stateID = chosen;
   }
   
   GroupID projected() const
@@ -84,10 +116,12 @@ public:
     BitMap32ID aim = distID == D ? m_evaluator.aim1( projected() ) : m_evaluator.aim2( projected() );
     return CubeSet::GetCubeSet( prior(), aim );
   }
-  void init( const PosID * pos, const size_t size, const CubeID orient = 0 )
+
+  Insight<N> & init( const PosID * pos, const size_t size, const CubeID orient = 0 )
   {
     m_updated = false;
     m_subgroupMap.init( pos, size, orient );
+    return *this;
   }
   
   void extend( const PosID pos )

@@ -47,7 +47,8 @@ public:
   
   inline PosID whatIs    ( PosID id ) const ;
   inline PosID whereIs   ( PosID id ) const ;
-  inline RotID transpose ( PosID id ) const ;
+
+  CubeID transpose ( PosID id, CubeID trans = 0 ) const ;
 
   Coord   whatIs    ( Coord C )  const { return CPositions<N>::getCoord( whatIs ( CPositions<N>::GetPosID( C ) ) ); }
   Coord   whereIs   ( Coord C )  const { return CPositions<N>::getCoord( whereIs( CPositions<N>::GetPosID( C ) ) ); }
@@ -245,14 +246,15 @@ PosID Rubik<N>::whereIs( PosID id ) const
 }
 
 template< cube_size N >
-RotID Rubik<N>::transpose( PosID id ) const
+CubeID Rubik<N>::transpose( PosID id, CubeID trans ) const
 {
+  id = CPositions<N>::GetPosID( id, trans );
   CubeID rot = 0;
   while ( frameworkSpace[ CPositions<N>::GetPosID( id, rot ) ] != rot )
   {
     ++ rot;
   }
-  return rot;
+  return Simplex::Composition( trans,rot );
 }
 
 template< cube_size N >
