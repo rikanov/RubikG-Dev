@@ -14,9 +14,7 @@ class RubikAI
 
 public:
   RubikAI( Rubik<N> & );
-  Insight<N> & addInsight( const PosID *, const size_t );
-  Insight<N> & addInsight( const PosID *, const size_t, ObjID & );
-  Insight<N> & setInsight( const PosID *, const size_t, const ObjID obj );
+  Insight<N> & addInsight( const PosID *, const size_t, const CubeID trans = 0 );
 
   // iteratively deepening algorithm ( IDA )
   Sequence solve( const bool applySolution = true );
@@ -37,6 +35,10 @@ RubikAI<N>::RubikAI( Rubik<N> & cube )
 template< cube_size N >
 Sequence RubikAI<N>::solve( const bool applySolution )
 {
+  if ( m_engine.empty() )
+  {
+    return Sequence();
+  }
   m_engine.update();
   m_engine.toSolve( m_cubeToSolve );
   m_path.reset();
@@ -66,15 +68,12 @@ Sequence RubikAI<N>::solve( const bool applySolution )
 template< cube_size N >
 bool RubikAI<N>::ida( const BitMapID suggestedMoves, const DistID depth )
 {
-  bool result = false;
-  if ( suggestedMoves & 1 )
-  {
-    return true;
-  }
   if ( 0 == depth )
   {
-    return false;
+    return (suggestedMoves & 1 ) && m_engine.unambiguous();
   }
+
+  bool result = false;
 
   BitMap moves ( suggestedMoves );
   for ( RotID next; moves >> next; )
@@ -96,21 +95,9 @@ bool RubikAI<N>::ida( const BitMapID suggestedMoves, const DistID depth )
 }
 
 template< cube_size N >
-Insight<N> & RubikAI<N>::addInsight(const PosID * startPos, const size_t size )
+Insight<N> & RubikAI<N>::addInsight(const PosID * startPos, const size_t size, const CubeID trans )
 {
-  return m_engine.addInsight( startPos, size );
-}
-
-template< cube_size N >
-Insight<N> & RubikAI<N>::addInsight(const PosID * startPos, const size_t size, ObjID & obj )
-{
-  return m_engine.addInsight( startPos, size, obj );
-}
-
-template< cube_size N >
-Insight<N> & RubikAI<N>::setInsight( const PosID * startPos, const size_t size, const ObjID obj )
-{
-  return m_engine.setInsight( startPos, size, obj );
+  return m_engine.addInsight( startPos, size, trans );
 }
 
 #endif  // ! RUBIK_AI__H

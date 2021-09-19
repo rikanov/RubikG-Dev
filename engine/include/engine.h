@@ -14,6 +14,7 @@ class Engine
   BitMapID     m_allowed  [ CRotations<N>::AllRotIDs ] = {};
   Insight<N>   m_insights [ INSIGHT_BOUND ];
   Insight<N> * m_endOfInsights;
+  CubeID       m_transposeSolution;
 
   void init();
 
@@ -21,16 +22,17 @@ public:
   Engine();
   ~Engine();
 
-  Insight<N> & addInsight ( const PosID *, const size_t );
-  Insight<N> & addInsight ( const PosID *, const size_t, ObjID & );
-  Insight<N> & setInsight ( const PosID *, const size_t, ObjID obj = 0 );
+  Insight<N> & addInsight ( const PosID *, const size_t, const CubeID trans = 0 );
 
-  void  toSolve     ( const Rubik<N> & );
-  void  update      ( void );
+  void  toSolve  ( const Rubik<N> & );
+  void  update   ( void );
+  bool  empty    ( void ) const { return m_insights == m_endOfInsights; }
   
   void     move     ( const RotID );
   BitMapID progress ( const RotID, const DistID );
   BitMapID gradient ( const DistID );
+
+  bool     unambiguous () const;
 };
 
 
@@ -45,7 +47,7 @@ template< cube_size N >
 void Engine<N>::init()
 {
   m_endOfInsights = m_insights;
-
+  m_transposeSolution = 0;
   constexpr BitMapID allRotations = ( 1ULL << CRotations<N>::AllRotIDs ) - 1;
 
 
@@ -66,35 +68,19 @@ void Engine<N>::init()
 }
 
 template< cube_size N >
-Insight<N> & Engine<N>::addInsight( const PosID * posID, const size_t size )
+Insight<N> & Engine<N>::addInsight( const PosID * posID, const size_t size, const CubeID trans )
 {
   Insight<N> & ref = *m_endOfInsights;
-  ( m_endOfInsights ++ ) -> init( posID, size );
+  ( m_endOfInsights ++ ) -> init( posID, size, trans );
   return ref;
-}
-
-template< cube_size N >
-Insight<N> & Engine<N>::addInsight( const PosID * posID, const size_t size, ObjID & obj )
-{
-  Insight<N> & ref = *m_endOfInsights;
-  ( m_endOfInsights ++ ) -> init( posID, size );
-  obj = ( m_endOfInsights - m_insights );
-  return ref;
-}
-
-template< cube_size N >
-Insight<N> & Engine<N>::setInsight( const PosID * posID, const size_t size, const ObjID obj )
-{
-  return m_insights[ obj - 1 ].init( posID, size );
 }
 
 template< cube_size N >
 void Engine<N>::toSolve( const Rubik<N> & R )
 {
-  CubeID trans = 0;
   for ( auto pInsight = m_insights; pInsight != m_endOfInsights; ++ pInsight )
   {
-    pInsight -> toSolve( R, trans );
+    pInsight -> toSolve( R, m_transposeSolution );
   }
 }
 
@@ -123,12 +109,13 @@ BitMapID Engine<N>::progress( const RotID rotID, const DistID distance )
 
   Insight<N> * pInsight = m_insights;
   BitMap32ID aim = ( 1 << 24 ) - 1;
-  while (  result > 0 && aim > 0 && pInsight != m_endOfInsights )
+  while ( pInsight != m_endOfInsights )
   {
     result &= pInsight -> operate( rotID, distance );
     aim    &= pInsight -> aim( distance );
     ++ pInsight;
   }
+
   if ( 0 == result || 0 == aim )
   {
     const RotID inv = CRotations<N>::GetInvRotID( rotID );
@@ -154,6 +141,16 @@ BitMapID Engine<N>::gradient( const DistID distance )
   }
 
   return aim ? result : 0;
+}
+
+template< cube_size N >
+bool Engine<N>::unambiguous() const
+{
+  const Insight<N> * pInsight = m_insights;
+  for ( CubeID priorID = m_insights -> prior(); pInsight != m_endOfInsights &&  pInsight -> prior() == priorID; ++ pInsight )
+  {
+  }
+  return pInsight == m_endOfInsights;
 }
 
 template< cube_size N >
