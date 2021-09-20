@@ -10,10 +10,34 @@ bool UnitTests::unit_RubikAI() const
   tcase( "Cube size 2" );
   bool ok2 = true;
   {
+    const PosID left[] = {
+      CPositions<2>::GetPosID( 0, 0, 0 ),
+      CPositions<2>::GetPosID( 0, 0, 1 ),
+      CPositions<2>::GetPosID( 0, 1, 1 ),
+      CPositions<2>::GetPosID( 0, 1, 0 ),
+    };
+
+
+    const PosID right[] = {
+      CPositions<2>::GetPosID( 1, 0, 0 ),
+      CPositions<2>::GetPosID( 1, 0, 1 ),
+      CPositions<2>::GetPosID( 1, 1, 1 ),
+      CPositions<2>::GetPosID( 1, 1, 0 ),
+    };
     bool ok = true;
-    Rubik<2> testCube; 
+    Rubik<2> testCube;
+    testCube.shuffle();
+    testCube.print();
     RubikAI<2> test( testCube );
-    test.solve();
+
+    test.addInsight( left, 4 );
+    CRotations<2>::PrintSeq( test.solution() );
+   // test.fixCube();
+
+    testCube.print();
+
+    test.addInsight( right, 4 );
+    CRotations<2>::PrintSeq( test.solution() );
     testCube.print();
     stamp( ok, ok2 );
   }
@@ -62,28 +86,29 @@ bool UnitTests::unit_RubikAI() const
     testCube.print();
     RubikAI<3> test( testCube );
 
-    test.addInsight( cross, 5 ).reference();;
-    test.solve();
+    test.addInsight( cross, 5 );
+    CRotations<3>::PrintSeq( test.solution() );
     testCube.print();
 
     test.addInsight( bind, 2 );
-    test.solve();
+    CRotations<3>::PrintSeq( test.solution() );
+    test.fixCube();
     testCube.print();
 
     test.addInsight( block1, 2 );
-    test.solve();
+    CRotations<3>::PrintSeq( test.solution() );
     testCube.print();
 
     test.addInsight( block2, 2 );
-    test.solve();
+    CRotations<3>::PrintSeq( test.solution() );
     testCube.print();
 
     test.addInsight( block3, 2 );
-    test.solve();
+    CRotations<3>::PrintSeq( test.solution() );
     testCube.print();
 
     test.addInsight( block4, 2 );
-    test.solve();
+    CRotations<3>::PrintSeq( test.solution() );
     testCube.print();
 
     stamp( ok, ok3 );
@@ -97,7 +122,7 @@ bool UnitTests::unit_RubikAI() const
     bool ok = true;
     Rubik<4> testCube; testCube.print();
     RubikAI<4> test( testCube );
-    test.solve();
+    CRotations<3>::PrintSeq( test.solution() );
     stamp( ok, ok4 );
   }
   tail( "Cube size 4", ok4 );
@@ -109,7 +134,7 @@ bool UnitTests::unit_RubikAI() const
     bool ok = true;
     Rubik<5> testCube; testCube.print();
     RubikAI<5> test( testCube );
-    test.solve();
+    CRotations<3>::PrintSeq( test.solution() );
     stamp( ok, ok5 );
   }
   tail( "Cube size 5", ok5 );

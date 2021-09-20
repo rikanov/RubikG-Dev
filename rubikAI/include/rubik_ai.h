@@ -14,11 +14,16 @@ class RubikAI
 
 public:
   RubikAI( Rubik<N> & );
-  Insight<N> & addInsight( const PosID *, const size_t, const CubeID trans = 0 );
+  void addInsight( const PosID *, const size_t, const CubeID trans = 0 );
+
+  void fixCube()
+  {
+    m_engine.fixCube();
+  }
 
   // iteratively deepening algorithm ( IDA )
-  Sequence solve( const bool applySolution = true );
-  bool     ida  ( const BitMapID, const DistID );
+  Sequence solution( const bool applySolution = true );
+  bool     ida     ( const BitMapID, const DistID );
 
 };
 
@@ -33,7 +38,7 @@ RubikAI<N>::RubikAI( Rubik<N> & cube )
 }
 
 template< cube_size N >
-Sequence RubikAI<N>::solve( const bool applySolution )
+Sequence RubikAI<N>::solution( const bool applySolution )
 {
   if ( m_engine.empty() )
   {
@@ -95,9 +100,9 @@ bool RubikAI<N>::ida( const BitMapID suggestedMoves, const DistID depth )
 }
 
 template< cube_size N >
-Insight<N> & RubikAI<N>::addInsight(const PosID * startPos, const size_t size, const CubeID trans )
+void RubikAI<N>::addInsight(const PosID * startPos, const size_t size, const CubeID trans )
 {
-  return m_engine.addInsight( startPos, size, trans );
+  m_engine.addInsight( startPos, size, trans );
 }
 
 #endif  // ! RUBIK_AI__H

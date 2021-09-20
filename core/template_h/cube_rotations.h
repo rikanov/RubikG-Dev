@@ -2,6 +2,7 @@
 #define CUBE_ROTATIONS__H
 
 #include <cube_positions.h>
+#include <sequence.h>
 #include <random>
 
 // Mapping between all the basic rotations and the set of one-byte size IDs:
@@ -44,6 +45,7 @@ public:
   static std::string ToString( const Axis  );
   static std::string ToString( const RotID );
   static std::string ToString( const Axis, const Layer, const Turn );
+  static void        PrintSeq( const Sequence & S );
 };
 
 template< cube_size N >
@@ -146,6 +148,15 @@ std::string CRotations<N>::ToString( const RotID rotID )
 {
   return ToString ( GetAxis ( rotID ), GetLayer ( rotID ), GetTurn ( rotID ) );
 }
+
+template< cube_size N >
+void CRotations<N>::PrintSeq( const Sequence & S )
+{
+  clog( "size:", S.size() );
+  for( RotID n = S.start(); n; n = S.next() )
+   clog( ToString( n ) );
+}
+
 
 template< cube_size N >
 class CExtRotations

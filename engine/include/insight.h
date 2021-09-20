@@ -15,7 +15,6 @@ class Insight
   Subgroup  <N> m_subgroupMap;
   Evaluator <N> m_evaluator;
   bool          m_updated = false;
-  bool          m_reference = false;
 
 public:
   Insight() = default;
@@ -25,11 +24,6 @@ public:
     init( pos, size, orient );
   }
   
-  void reference()
-  {
-    m_reference = true;
-  }
-
   size_t size() const
   {
     return m_subgroupMap.size();
@@ -40,22 +34,23 @@ public:
     return m_subgroupMap.prior( m_stateID );
   }
   
+  PosID priorPos() const
+  {
+    return m_subgroupMap.priorPos( m_stateID );
+  }
+
   GroupID state() const
   {
     return m_stateID;
   }
   
-  void toSolve( const Rubik<N> & R, CubeID & trans )
+  void toSolve( const Rubik<N> & R, CubeID & trans, const bool ref )
   {
     m_stateID = m_subgroupMap.getStateID( R, trans );
 
-    if ( false == m_reference )
+    if ( false == ref )
     {
       return;
-    }
-    else
-    {
-      m_reference = false;
     }
 
     update();

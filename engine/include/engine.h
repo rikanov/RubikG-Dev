@@ -12,6 +12,7 @@ class Engine
 {
   static constexpr size_t INSIGHT_BOUND = 40;
   BitMapID     m_allowed  [ CRotations<N>::AllRotIDs ] = {};
+  BitMap32ID   m_target = ( 1 << 24 ) - 1;
   Insight<N>   m_insights [ INSIGHT_BOUND ];
   Insight<N> * m_endOfInsights;
   CubeID       m_transposeSolution;
@@ -22,7 +23,7 @@ public:
   Engine();
   ~Engine();
 
-  Insight<N> & addInsight ( const PosID *, const size_t, const CubeID trans = 0 );
+  void addInsight ( const PosID *, const size_t, const CubeID trans = 0 );
 
   void  toSolve  ( const Rubik<N> & );
   void  update   ( void );
@@ -33,6 +34,7 @@ public:
   BitMapID gradient ( const DistID );
 
   bool     unambiguous () const;
+  void     fixCube();
 };
 
 
@@ -67,12 +69,16 @@ void Engine<N>::init()
   }
 }
 
+template<cube_size N> void Engine<N>::fixCube()
+{clog( "prior:", Simplex::GetCube( m_insights -> prior() ).toString(), Simplex::GetCube( m_transposeSolution ).toString(), CPositions<N>::GetCoord( m_insights -> priorPos() ).toString() );
+  m_target = 1 <<  m_insights -> prior();
+  BitMap::Print( m_target, 24, 8 );
+}
+
 template< cube_size N >
-Insight<N> & Engine<N>::addInsight( const PosID * posID, const size_t size, const CubeID trans )
+void Engine<N>::addInsight( const PosID * posID, const size_t size, const CubeID trans )
 {
-  Insight<N> & ref = *m_endOfInsights;
   ( m_endOfInsights ++ ) -> init( posID, size, trans );
-  return ref;
 }
 
 template< cube_size N >
@@ -80,7 +86,7 @@ void Engine<N>::toSolve( const Rubik<N> & R )
 {
   for ( auto pInsight = m_insights; pInsight != m_endOfInsights; ++ pInsight )
   {
-    pInsight -> toSolve( R, m_transposeSolution );
+    pInsight -> toSolve( R, m_transposeSolution, pInsight == m_insights );
   }
 }
 
@@ -108,7 +114,7 @@ BitMapID Engine<N>::progress( const RotID rotID, const DistID distance )
   BitMapID result = m_allowed[ rotID ];
 
   Insight<N> * pInsight = m_insights;
-  BitMap32ID aim = ( 1 << 24 ) - 1;
+  BitMap32ID aim = m_target;
   while ( result > 0 && aim > 0 && pInsight != m_endOfInsights )
   {
     result &= pInsight -> operate( rotID, distance );
@@ -132,7 +138,7 @@ BitMapID Engine<N>::gradient( const DistID distance )
   BitMapID result = m_allowed[ 0 ];
 
   const Insight<N> * pInsight = m_insights;
-  BitMap32ID aim = ( 1 << 24 ) - 1;
+  BitMap32ID aim = m_target;
   while ( result > 0 && aim > 0 && pInsight != m_endOfInsights )
   {
     result &= pInsight -> gradient( distance );
