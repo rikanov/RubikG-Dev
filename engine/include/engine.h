@@ -48,7 +48,7 @@ void Engine<N>::init()
 {
   m_endOfInsights = m_insights;
   m_transposeSolution = 0;
-  constexpr BitMapID allRotations = ( 1ULL << CRotations<N>::AllRotIDs ) - 1;
+  constexpr BitMapID allRotations = ( 1ULL << CRotations<N>::AllRotIDs ) - 1; // include the solved bit
 
 
   RotID rotID           = 0;
@@ -109,7 +109,7 @@ BitMapID Engine<N>::progress( const RotID rotID, const DistID distance )
 
   Insight<N> * pInsight = m_insights;
   BitMap32ID aim = ( 1 << 24 ) - 1;
-  while ( pInsight != m_endOfInsights )
+  while ( result > 0 && aim > 0 && pInsight != m_endOfInsights )
   {
     result &= pInsight -> operate( rotID, distance );
     aim    &= pInsight -> aim( distance );
@@ -133,7 +133,7 @@ BitMapID Engine<N>::gradient( const DistID distance )
 
   const Insight<N> * pInsight = m_insights;
   BitMap32ID aim = ( 1 << 24 ) - 1;
-  while ( result > 0 && pInsight != m_endOfInsights )
+  while ( result > 0 && aim > 0 && pInsight != m_endOfInsights )
   {
     result &= pInsight -> gradient( distance );
     aim    &= pInsight -> aim( distance );
