@@ -53,8 +53,8 @@ bool UnitTests::unit_RubikAI() const
     };
 
     const PosID bind[] = {
+      CPositions<3>::GetPosID( 1, 0, 1 ),
       CPositions<3>::GetPosID( 1, 0, 2 ),
-      CPositions<3>::GetPosID( 1, 0, 1 )
     };
     const PosID block1[] = {
       CPositions<3>::GetPosID( 2, 0, 2 ),

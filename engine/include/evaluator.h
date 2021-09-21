@@ -4,6 +4,8 @@
 #include <cube_set.h>
 #include <qeueu.h>
 #include <subgroup.h>
+#include <bitmap_set.h>
+#include <acceptance.h>
 
 typedef uint8_t DistID;
 
@@ -17,9 +19,11 @@ class Evaluator
   const BitMap32ID  * m_aim1;
   const BitMap32ID  * m_aim2;
 
+  AcceptFunction      m_accept;
   Qeueu               m_qeueu;
   
   void dealloc();
+  void addSolution ( const size_t, GroupID gid );
   
   BitMap32ID mergeSet( const RotID rotID, const BitMap32ID set ) const;
 
@@ -27,9 +31,10 @@ public:
   Evaluator ();
   ~Evaluator();
   
-  void map  ( const Subgroup<N> * );
-  void root ( const GroupID );
-  void build();
+  void map    ( const Subgroup<N> * );
+  void root   ( const GroupID );
+  void accept ( AcceptFunction );
+  void build  ();
   
   DistID distance( const GroupID gid ) const
   {
@@ -65,6 +70,7 @@ Evaluator<N>::Evaluator()
  , m_grade2   ( nullptr )
  , m_aim1     ( nullptr )
  , m_aim2     ( nullptr )
+ , m_accept   ( Accept<N>::Normal )
 {
    
 }
@@ -99,6 +105,29 @@ void Evaluator<N>::root( const GroupID si )
 }
 
 template< cube_size N >
+void Evaluator<N>::accept( AcceptFunction func )
+{
+  m_accept = func;
+}
+
+template< cube_size N >
+void Evaluator<N>::addSolution( const size_t id, GroupID gid )
+{
+  BitMap cubeSet( m_accept( m_subgroup -> positions( id ) ) );
+  for ( CubeID next; cubeSet >> next; )
+  {
+    if ( 0 == id )
+    {
+      m_qeueu << Projection::LookUp( m_subgroup -> size(), gid + next );
+    }
+    else
+    {
+      addSolution( id - 1, gid + next * pow24( id ) );
+    }
+  }
+}
+
+template< cube_size N >
 BitMap32ID Evaluator<N>::mergeSet( const RotID rotID, const BitMap32ID set ) const
 {
   static const BitMap32ID P = m_subgroup -> priorRotIDs();
@@ -114,6 +143,7 @@ template< cube_size N >
 void Evaluator<N>::build()
 {
   dealloc();
+  addSolution( m_subgroup -> size() - 1, 0 );
   const BitMapID P = m_subgroup -> priorRotIDs();
   const size_t size = pow24( m_subgroup -> size() - 1 );
   DistID   * nodeValue = new DistID    [ size ] {};

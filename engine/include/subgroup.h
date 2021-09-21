@@ -48,6 +48,11 @@ public:
     return CRotations<N>::ActOn( m_startPos[ m_size - 1 ] );
   }
 
+  PosID positions( const size_t id ) const
+  {
+    return m_startPos[id];
+  }
+
   BitMapID getStateID( const Rubik<N> &, const CubeID trans ) const;
   
   void print( const GroupID stateID, const bool details = false, const bool projected = false ) const

@@ -136,7 +136,6 @@ public:
   void build()
   {
     m_evaluator.map( &m_subgroupMap );
-    m_evaluator.root( 0 );
     m_evaluator.build();
     m_updated = true;
   }

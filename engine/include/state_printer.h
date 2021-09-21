@@ -74,7 +74,9 @@ void PrintMap( GroupID cacheID, const PosID * pos, const size_t size, const bool
   }
   for ( size_t m = 0; details && m < size; ++ m )
   {
-    clog( CPositions<N>::GetCoord( pos[m] ).toString(), "-->",  CPositions<N>::GetCoord( CPositions<N>::GetPosID( pos[m], subspace[m] ) ).toString() );
+    clog_( CPositions<N>::GetCoord( pos[m] ).toString(), "-->" );
+    clog_( CPositions<N>::GetCoord( CPositions<N>::GetPosID( pos[m], subspace[m] ) ).toString() );
+    clog ( Simplex::GetCube( subspace[m] ).toString() );
   }
   for ( size_t raw = 0; raw < 3 * N; ++ raw )
   {
