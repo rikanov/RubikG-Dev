@@ -26,19 +26,17 @@ bool UnitTests::unit_RubikAI() const
     };
     bool ok = true;
     Rubik<2> testCube;
+   // testCube.rotate( CRotations<2>::GetRotID( _X, 1, 1 ) );
     testCube.shuffle();
     testCube.print();
     RubikAI<2> test( testCube );
 
     test.addInsight( left, 4 );
-    CRotations<2>::PrintSeq( test.solution() );
-   // test.fixCube();
-
-    testCube.print();
-
     test.addInsight( right, 4 );
     CRotations<2>::PrintSeq( test.solution() );
+
     testCube.print();
+
     stamp( ok, ok2 );
   }
   tail( "Cube size 2", ok2 );
@@ -82,6 +80,7 @@ bool UnitTests::unit_RubikAI() const
     
     bool ok = true;
     Rubik<3> testCube;
+    //testCube.rotate( CRotations<3>::GetRotID( _Y, 1, 1 ) );
     testCube.shuffle();
     testCube.print();
     RubikAI<3> test( testCube );
@@ -92,7 +91,6 @@ bool UnitTests::unit_RubikAI() const
 
     test.addInsight( bind, 2 );
     CRotations<3>::PrintSeq( test.solution() );
-    test.fixCube();
     testCube.print();
 
     test.addInsight( block1, 2 );

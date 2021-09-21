@@ -33,8 +33,17 @@ public:
   BitMapID progress ( const RotID, const DistID );
   BitMapID gradient ( const DistID );
 
-  bool     unambiguous () const;
-  void     fixCube();
+  bool unambiguous () const;
+  void fixCube();
+  
+  BitMap32ID target() const
+  {
+    return m_target;
+  }
+  void target( const BitMap32ID tr )
+  {
+    m_target = tr;
+  }
 };
 
 
@@ -69,12 +78,6 @@ void Engine<N>::init()
   }
 }
 
-template<cube_size N> void Engine<N>::fixCube()
-{clog( "prior:", Simplex::GetCube( m_insights -> prior() ).toString(), Simplex::GetCube( m_transposeSolution ).toString(), CPositions<N>::GetCoord( m_insights -> priorPos() ).toString() );
-  m_target = 1 <<  m_insights -> prior();
-  BitMap::Print( m_target, 24, 8 );
-}
-
 template< cube_size N >
 void Engine<N>::addInsight( const PosID * posID, const size_t size, const CubeID trans )
 {
@@ -93,6 +96,7 @@ void Engine<N>::toSolve( const Rubik<N> & R )
 template< cube_size N >
 void Engine<N>::update()
 {
+  m_target = ( 1 << 24 ) - 1;
   for ( auto pInsight = m_insights; pInsight != m_endOfInsights; ++ pInsight )
   {
     pInsight -> update();
@@ -111,25 +115,21 @@ void Engine<N>::move( const RotID rotID )
 template< cube_size N >
 BitMapID Engine<N>::progress( const RotID rotID, const DistID distance )
 {
+  move( rotID );
+
   BitMapID result = m_allowed[ rotID ];
-
-  Insight<N> * pInsight = m_insights;
-  BitMap32ID aim = m_target;
-  while ( result > 0 && aim > 0 && pInsight != m_endOfInsights )
+  for ( const Insight<N> * P = m_insights; result > 0 && m_target > 0 && P != m_endOfInsights; ++ P )
   {
-    result &= pInsight -> operate( rotID, distance );
-    aim    &= pInsight -> aim( distance );
-    ++ pInsight;
+    result   &= P -> gradient( distance );
+    m_target &= P -> aim( distance );
   }
 
-  if ( 0 == result || 0 == aim )
+  if ( 0 == distance && ( result & 1 ) )
   {
-    const RotID inv = CRotations<N>::GetInvRotID( rotID );
-    while ( m_insights <= -- pInsight )
-      pInsight -> move( inv );
+    return result;
   }
-
-  return aim ? result : 0;
+  
+  return m_target ? result: 0; 
 }
 
 template< cube_size N >

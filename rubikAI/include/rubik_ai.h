@@ -51,15 +51,13 @@ Sequence RubikAI<N>::solution( const bool applySolution )
   for ( DistID depth = 0; depth < 15; ++ depth )
   {
     m_searchDepth = depth;
+    const BitMap32ID aim = m_engine.target();
     BitMapID gradient = m_engine.gradient( depth );
-    if ( 0 == gradient )
-    {
-      continue;
-    }
-    if ( ida( gradient, depth ) )
-    {
+    if ( 0 != gradient && ida( gradient, depth ) )
+    { 
       break;
     }
+    m_engine.target( aim );
   }
   
   if ( applySolution  )
@@ -75,7 +73,7 @@ bool RubikAI<N>::ida( const BitMapID suggestedMoves, const DistID depth )
 {
   if ( 0 == depth )
   {
-    return (suggestedMoves & 1 ) && m_engine.unambiguous();
+    return ( suggestedMoves & 1 ) && m_engine.unambiguous();
   }
 
   bool result = false;
@@ -83,17 +81,15 @@ bool RubikAI<N>::ida( const BitMapID suggestedMoves, const DistID depth )
   BitMap moves ( suggestedMoves );
   for ( RotID next; moves >> next; )
   {
-    const BitMapID gradient = m_engine.progress( next, depth );
-    if ( 0 == gradient )
-    {
-      continue;
-    }
-    if ( ida( gradient, depth - 1 ) )
+    const BitMap32ID aim = m_engine.target();
+    const BitMapID gradient = m_engine.progress( next, depth - 1 );
+    if ( 0 < gradient && ida( gradient, depth - 1 ) )
     {
       m_path << next;
       result = true;
       break;
     }
+    m_engine.target( aim );
     m_engine.move( CRotations<N>::GetInvRotID( next ) ); // revert
   }
   return result;
