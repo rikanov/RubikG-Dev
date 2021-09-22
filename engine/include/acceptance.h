@@ -7,6 +7,9 @@
 using AcceptFunction = std::function< BitMap32ID( PosID ) >;
 enum Axis;
 
+AcceptFunction operator | ( AcceptFunction A, AcceptFunction B );
+AcceptFunction operator & ( AcceptFunction A, AcceptFunction B );
+
 template< cube_size N >
 class Accept
 {
@@ -15,6 +18,7 @@ class Accept
 public:
   static AcceptFunction RotAxis ( const Axis axis );
   static BitMap32ID     Normal  ( PosID posID );
+  static BitMap32ID     OnPlace ( PosID posID );
 };
 
 template< cube_size N >
@@ -55,6 +59,20 @@ template< cube_size N >
 BitMap32ID Accept<N>::Normal( PosID posID )
 {
   return RotAxis(  OnSide( posID ) )( posID );
+}
+
+template< cube_size N >
+BitMap32ID Accept<N>::OnPlace( PosID posID )
+{
+  BitMap32ID result = 0;
+  all_cubeid ( cid )
+  {
+    if ( CPositions<N>::GetPosID( posID, cid ) == posID )
+    {
+      result |= ( 1 << cid );
+    }
+  }
+  return result;
 }
 
 #endif  //  ! ACCEPTANCE__H
