@@ -1,8 +1,8 @@
 #include <test.h>
-#include <rubik_ai.h>
+#include <resolver.h>
 
 
-bool UnitTests::unit_RubikAI() const
+bool UnitTests::unit_Resolver() const
 {
   bool success = true;
   head( "AI" );
@@ -29,11 +29,11 @@ bool UnitTests::unit_RubikAI() const
    // testCube.rotate( CRotations<2>::GetRotID( _X, 1, 1 ) );
     testCube.shuffle();
     
-    RubikAI<2> test( testCube );
+    Resolver<2> test( testCube );
 
     test.addInsight( left, 4 );
     test.addInsight( right, 4 );
-    test.solution();
+    test.solve();
 
     
 
@@ -83,18 +83,18 @@ bool UnitTests::unit_RubikAI() const
     //testCube.rotate( CRotations<3>::GetRotID( _Y, 1, 1 ) );
     testCube.shuffle();
     
-    RubikAI<3> test( testCube );
+    Resolver<3> test( testCube );
 
     test.addInsight( cross, 5 );
     test.addInsight( bind, 2 );
-    test.solution();
+    test.solve();
     
 
     test.addInsight( block1, 2 );
     test.addInsight( block2, 2 );
     test.addInsight( block3, 2 );
     test.addInsight( block4, 2 );
-    test.solution( false );
+    test.solve( false );
     
 
     stamp( ok, ok3 );
@@ -107,8 +107,8 @@ bool UnitTests::unit_RubikAI() const
     
     bool ok = true;
     Rubik<4> testCube; 
-    RubikAI<4> test( testCube );
-    test.solution();
+    Resolver<4> test( testCube );
+    test.solve();
     stamp( ok, ok4 );
   }
   tail( "Cube size 4", ok4 );
@@ -119,8 +119,8 @@ bool UnitTests::unit_RubikAI() const
     
     bool ok = true;
     Rubik<5> testCube; 
-    RubikAI<5> test( testCube );
-    test.solution();
+    Resolver<5> test( testCube );
+    test.solve();
     stamp( ok, ok5 );
   }
   tail( "Cube size 5", ok5 );

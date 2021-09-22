@@ -49,7 +49,7 @@ private:
    
    // Unit tests of engines (rubikAI folder)
   //----------------------------------------
-  bool unit_RubikAI()       const; // rubikAI/rubik_ai.h
+  bool unit_Resolver()       const; // rubikAI/rubik_ai.h
 
 public:
   bool testCore()   const;

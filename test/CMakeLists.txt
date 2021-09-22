@@ -29,7 +29,7 @@ add_library(test  test.h
                   engine/u_subgroup.cpp
                   engine/u_engine.cpp
                   
-                  rubik_ai/u_rubikai.cpp
+                  rubik_ai/u_resolver.cpp
                  )
 
 

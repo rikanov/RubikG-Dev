@@ -25,6 +25,6 @@ bool UnitTests::testEngine() const
 bool UnitTests::testAI() const
 {
   bool result = true;
-  result &= unit_RubikAI();
+  result &= unit_Resolver();
   return result;
 }

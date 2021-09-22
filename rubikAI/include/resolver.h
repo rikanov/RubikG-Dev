@@ -1,19 +1,21 @@
-#ifndef RUBIK_AI__H
-#define RUBIK_AI__H
+#ifndef RESOLVER__H
+#define RESOLVER__H
 
 #include <engine.h>
 #include <sequence.h>
 
 template< cube_size N >
-class RubikAI
+class Resolver
 {
   Rubik <N> & m_cubeToSolve;
   Engine<N>   m_engine;
   Sequence    m_path;
   DistID      m_searchDepth;
 
+  void task();
+
 public:
-  RubikAI( Rubik<N> & );
+  Resolver( Rubik<N> & );
   void addInsight( const PosID *, const size_t, const CubeID trans = 0 );
 
   void fixCube()
@@ -22,13 +24,13 @@ public:
   }
 
   // iteratively deepening algorithm ( IDA )
-  void  solution( const bool closed = true, const bool show = true );
-  bool  ida     ( const BitMapID, const DistID );
+  void  solve ( const bool closed = true, const bool show = true );
+  bool  ida   ( const BitMapID, const DistID );
 
 };
 
 template< cube_size N >
-RubikAI<N>::RubikAI( Rubik<N> & cube )
+Resolver<N>::Resolver( Rubik<N> & cube )
   :  m_cubeToSolve( cube )
   ,  m_engine()
   ,  m_path()
@@ -38,7 +40,7 @@ RubikAI<N>::RubikAI( Rubik<N> & cube )
 }
 
 template< cube_size N >
-void RubikAI<N>::solution( const bool closed, const bool show )
+void Resolver<N>::solve( const bool closed, const bool show )
 {
   if ( show )
   {
@@ -59,32 +61,39 @@ void RubikAI<N>::solution( const bool closed, const bool show )
 
   do
   {
-    m_engine.toSolve( m_cubeToSolve );
-    m_path.reset();
-    for ( DistID depth = 0; depth < 15; ++ depth )
-    {
-      m_searchDepth = depth;
-      const BitMap32ID aim = m_engine.target();
-      BitMapID gradient = m_engine.gradient( depth );
-      if ( 0 != gradient && ida( gradient, depth ) )
-      { 
-        break;
-      }
-      m_engine.target( aim );
-    }
-    m_cubeToSolve.rotate( m_path.reverse() );
+    task();
     if ( show )
     {
       CRotations<N>::PrintSeq( m_path.reverse() );
       m_cubeToSolve.print();
       NL();
     }
+  }
+  while ( ! m_engine.closed() );
 
-  } while ( ! m_engine.closed() );
 }
 
 template< cube_size N >
-bool RubikAI<N>::ida( const BitMapID suggestedMoves, const DistID depth )
+void Resolver<N>::task()
+{
+  m_engine.toSolve( m_cubeToSolve );
+  m_path.reset();
+  for ( DistID depth = 0; depth < 15; ++ depth )
+  {
+    m_searchDepth = depth;
+    const BitMap32ID aim = m_engine.target();
+    BitMapID gradient = m_engine.gradient( depth );
+    if ( 0 != gradient && ida( gradient, depth ) )
+    {
+      break;
+    }
+    m_engine.target( aim );
+  }
+  m_cubeToSolve.rotate( m_path.reverse() );
+}
+
+template< cube_size N >
+bool Resolver<N>::ida( const BitMapID suggestedMoves, const DistID depth )
 {
   if ( 0 == depth )
   {
@@ -112,9 +121,9 @@ bool RubikAI<N>::ida( const BitMapID suggestedMoves, const DistID depth )
 }
 
 template< cube_size N >
-void RubikAI<N>::addInsight(const PosID * startPos, const size_t size, const CubeID trans )
+void Resolver<N>::addInsight(const PosID * startPos, const size_t size, const CubeID trans )
 {
   m_engine.addInsight( startPos, size, trans );
 }
 
-#endif  // ! RUBIK_AI__H
+#endif  // ! RESOLVER__H
