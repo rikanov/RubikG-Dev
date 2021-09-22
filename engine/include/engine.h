@@ -11,6 +11,7 @@ template< cube_size N >
 class Engine
 {
   static constexpr size_t INSIGHT_BOUND = 40;
+  BitMapID     m_progress;
   BitMapID     m_allowed  [ CRotations<N>::AllRotIDs ] = {};
   BitMap32ID   m_target = ( 1 << 24 ) - 1;
   Insight<N>   m_insights [ INSIGHT_BOUND ];
@@ -44,12 +45,23 @@ public:
   {
     m_target = tr;
   }
+  
+  void close()
+  {
+    m_progress = ( 1ULL << ( m_endOfInsights - m_insights ) ) - 1;
+  }
+
+  bool closed() const
+  {
+    return m_progress == ( 1ULL << ( m_endOfInsights - m_insights ) ) - 1;
+  }
 };
 
 
 template< cube_size N >
 Engine<N>::Engine()
- :  m_endOfInsights ( nullptr )
+ :  m_progress( 0 )
+ ,  m_endOfInsights ( nullptr )
 {
   init();
 }
@@ -90,7 +102,12 @@ void Engine<N>::toSolve( const Rubik<N> & R )
   for ( auto pInsight = m_insights; pInsight != m_endOfInsights; ++ pInsight )
   {
     pInsight -> toSolve( R, m_transposeSolution, pInsight == m_insights );
+    if ( pInsight -> distance() == 0 )
+    {
+      m_progress |= 1ULL << ( pInsight - m_insights );
+    }
   }
+  BitMap::Print( m_progress );
 }
 
 template< cube_size N >
@@ -115,15 +132,29 @@ void Engine<N>::move( const RotID rotID )
 template< cube_size N >
 BitMapID Engine<N>::progress( const RotID rotID, const DistID distance )
 {
-  move( rotID );
+  BitMapID progAND  = m_allowed[ rotID ];
+  BitMapID progOR   = closed() ? ( 1ULL << ( 9 * N + 1 ) ) - 1 : 0;
+  BitMap32ID aimAND = m_target;
+  BitMap32ID aimOR  = closed() ? ( 1 << 24 ) - 1 : 0;
 
-  BitMapID result = m_allowed[ rotID ];
-  for ( const Insight<N> * P = m_insights; result > 0 && m_target > 0 && P != m_endOfInsights; ++ P )
+  BitMapID step = 1;
+  for ( const Insight<N> * P = m_insights; progAND > 0 && aimAND > 0 && P != m_endOfInsights; ++ P )
   {
-    result   &= P -> gradient( distance );
-    m_target &= P -> aim( distance );
+    if ( m_progress & step )
+    {
+      progAND &= P -> gradient( distance );
+      aimAND  &= P -> aim( distance );
+    }
+    else
+    {
+      progOR  |= P -> gradient( distance );
+      aimOR   |= P -> aim( distance );
+    }
+    step <<= 1;
   }
 
+  const BitMapID result = progAND & progOR;
+  m_target = aimAND & aimOR;
   if ( 0 == distance && ( result & 1 ) )
   {
     return result;

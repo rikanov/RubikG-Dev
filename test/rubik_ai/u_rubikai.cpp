@@ -28,14 +28,14 @@ bool UnitTests::unit_RubikAI() const
     Rubik<2> testCube;
    // testCube.rotate( CRotations<2>::GetRotID( _X, 1, 1 ) );
     testCube.shuffle();
-    testCube.print();
+    
     RubikAI<2> test( testCube );
 
     test.addInsight( left, 4 );
     test.addInsight( right, 4 );
-    CRotations<2>::PrintSeq( test.solution() );
+    test.solution();
 
-    testCube.print();
+    
 
     stamp( ok, ok2 );
   }
@@ -82,32 +82,20 @@ bool UnitTests::unit_RubikAI() const
     Rubik<3> testCube;
     //testCube.rotate( CRotations<3>::GetRotID( _Y, 1, 1 ) );
     testCube.shuffle();
-    testCube.print();
+    
     RubikAI<3> test( testCube );
 
     test.addInsight( cross, 5 );
-    CRotations<3>::PrintSeq( test.solution() );
-    testCube.print();
-
     test.addInsight( bind, 2 );
-    CRotations<3>::PrintSeq( test.solution() );
-    testCube.print();
+    test.solution();
+    
 
     test.addInsight( block1, 2 );
-    CRotations<3>::PrintSeq( test.solution() );
-    testCube.print();
-
     test.addInsight( block2, 2 );
-    CRotations<3>::PrintSeq( test.solution() );
-    testCube.print();
-
     test.addInsight( block3, 2 );
-    CRotations<3>::PrintSeq( test.solution() );
-    testCube.print();
-
     test.addInsight( block4, 2 );
-    CRotations<3>::PrintSeq( test.solution() );
-    testCube.print();
+    test.solution( false );
+    
 
     stamp( ok, ok3 );
   }
@@ -118,9 +106,9 @@ bool UnitTests::unit_RubikAI() const
   {
     
     bool ok = true;
-    Rubik<4> testCube; testCube.print();
+    Rubik<4> testCube; 
     RubikAI<4> test( testCube );
-    CRotations<3>::PrintSeq( test.solution() );
+    test.solution();
     stamp( ok, ok4 );
   }
   tail( "Cube size 4", ok4 );
@@ -130,9 +118,9 @@ bool UnitTests::unit_RubikAI() const
   {
     
     bool ok = true;
-    Rubik<5> testCube; testCube.print();
+    Rubik<5> testCube; 
     RubikAI<5> test( testCube );
-    CRotations<3>::PrintSeq( test.solution() );
+    test.solution();
     stamp( ok, ok5 );
   }
   tail( "Cube size 5", ok5 );

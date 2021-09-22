@@ -22,8 +22,8 @@ public:
   }
 
   // iteratively deepening algorithm ( IDA )
-  Sequence solution( const bool applySolution = true );
-  bool     ida     ( const BitMapID, const DistID );
+  void  solution( const bool closed = true, const bool show = true );
+  bool  ida     ( const BitMapID, const DistID );
 
 };
 
@@ -38,34 +38,49 @@ RubikAI<N>::RubikAI( Rubik<N> & cube )
 }
 
 template< cube_size N >
-Sequence RubikAI<N>::solution( const bool applySolution )
+void RubikAI<N>::solution( const bool closed, const bool show )
 {
-  if ( m_engine.empty() )
+  if ( show )
   {
-    return Sequence();
-  }
-  m_engine.update();
-  m_engine.toSolve( m_cubeToSolve );
-  m_path.reset();
-
-  for ( DistID depth = 0; depth < 15; ++ depth )
-  {
-    m_searchDepth = depth;
-    const BitMap32ID aim = m_engine.target();
-    BitMapID gradient = m_engine.gradient( depth );
-    if ( 0 != gradient && ida( gradient, depth ) )
-    { 
-      break;
-    }
-    m_engine.target( aim );
+    m_cubeToSolve.print();
   }
   
-  if ( applySolution  )
+  if ( m_engine.empty() )
   {
-    m_cubeToSolve.rotate( m_path.reverse() );
+    return;
   }
 
-  return m_path.reverse();
+  if ( closed )
+  {
+    m_engine.close();
+  }
+
+  m_engine.update();
+
+  do
+  {
+    m_engine.toSolve( m_cubeToSolve );
+    m_path.reset();
+    for ( DistID depth = 0; depth < 15; ++ depth )
+    {
+      m_searchDepth = depth;
+      const BitMap32ID aim = m_engine.target();
+      BitMapID gradient = m_engine.gradient( depth );
+      if ( 0 != gradient && ida( gradient, depth ) )
+      { 
+        break;
+      }
+      m_engine.target( aim );
+    }
+    m_cubeToSolve.rotate( m_path.reverse() );
+    if ( show )
+    {
+      CRotations<N>::PrintSeq( m_path.reverse() );
+      m_cubeToSolve.print();
+      NL();
+    }
+
+  } while ( ! m_engine.closed() );
 }
 
 template< cube_size N >
@@ -81,6 +96,7 @@ bool RubikAI<N>::ida( const BitMapID suggestedMoves, const DistID depth )
   BitMap moves ( suggestedMoves );
   for ( RotID next; moves >> next; )
   {
+    m_engine.move( next );
     const BitMap32ID aim = m_engine.target();
     const BitMapID gradient = m_engine.progress( next, depth - 1 );
     if ( 0 < gradient && ida( gradient, depth - 1 ) )
