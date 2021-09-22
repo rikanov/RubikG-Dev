@@ -107,7 +107,15 @@ void Engine<N>::toSolve( const Rubik<N> & R )
       m_progress |= 1ULL << ( pInsight - m_insights );
     }
   }
-  BitMap::Print( m_progress );
+  for ( int i = 0; i < ( m_endOfInsights - m_insights ); ++ i )
+  {
+    if ( ( 1ULL << ( m_endOfInsights - m_insights ) ) - 1 == ( m_progress | ( 1ULL << i ) ) )
+    {
+      close();
+      break;
+    }
+  }
+  BitMap::Print( m_progress, m_endOfInsights - m_insights );
 }
 
 template< cube_size N >
