@@ -80,7 +80,8 @@ bool UnitTests::unit_Resolver() const
     
     bool ok = true;
     Rubik<3> testCube;
-    //testCube.rotate( CRotations<3>::GetRotID( _Y, 1, 1 ) );
+    testCube.rotate( CRotations<3>::GetRotID( _Y, 1, 1 ) );
+    
     testCube.shuffle();
     
     Resolver<3> test( testCube );

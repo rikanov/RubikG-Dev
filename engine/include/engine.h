@@ -19,6 +19,7 @@ class Engine
   CubeID       m_transposeSolution;
 
   void init();
+  void findStage();
 
 public:
   Engine();
@@ -99,22 +100,25 @@ void Engine<N>::addInsight( const PosID * posID, const size_t size, const CubeID
 template< cube_size N >
 void Engine<N>::toSolve( const Rubik<N> & R )
 {
+  DistID   min   = 0xFF;
+  BitMapID next  = 1;
+  BitMapID stage = 1;
   for ( auto pInsight = m_insights; pInsight != m_endOfInsights; ++ pInsight )
   {
     pInsight -> toSolve( R, m_transposeSolution, pInsight == m_insights );
-    if ( pInsight -> distance() == 0 )
+    const DistID dist = pInsight -> distance();
+    if ( 0 == dist )
     {
       m_progress |= 1ULL << ( pInsight - m_insights );
     }
-  }
-  for ( int i = 0; i < ( m_endOfInsights - m_insights ); ++ i )
-  {
-    if ( ( 1ULL << ( m_endOfInsights - m_insights ) ) - 1 == ( m_progress | ( 1ULL << i ) ) )
+    else if ( dist < min )
     {
-      close();
-      break;
+      min = dist;
+      stage = next;
     }
+    next <<= 1;
   }
+  m_progress |= stage;
   BitMap::Print( m_progress, m_endOfInsights - m_insights );
 }
 
@@ -140,62 +144,31 @@ void Engine<N>::move( const RotID rotID )
 template< cube_size N >
 BitMapID Engine<N>::progress( const RotID rotID, const DistID distance )
 {
-  BitMapID progAND  = m_allowed[ rotID ];
-  BitMapID progOR   = closed() ? ( 1ULL << ( 9 * N + 1 ) ) - 1 : 0;
-  BitMap32ID aimAND = m_target;
-  BitMap32ID aimOR  = closed() ? ( 1 << 24 ) - 1 : 0;
-
+  BitMapID gradient = m_allowed[ rotID ];
   BitMapID step = 1;
-  for ( const Insight<N> * P = m_insights; progAND > 0 && aimAND > 0 && P != m_endOfInsights; ++ P )
+
+  for ( const Insight<N> * P = m_insights; gradient > 0 && m_target > 0 && P != m_endOfInsights; ++ P )
   {
     if ( m_progress & step )
     {
-      progAND &= P -> gradient( distance );
-      aimAND  &= P -> aim( distance );
-    }
-    else
-    {
-      progOR  |= P -> gradient( distance );
-      aimOR   |= P -> aim( distance );
+      gradient &= P -> gradient( distance );
+      m_target &= P -> aim( distance );
     }
     step <<= 1;
   }
 
-  const BitMapID result = progAND & progOR;
-  m_target = aimAND & aimOR;
-  if ( 0 == distance && ( result & 1 ) )
+  if ( 0 == distance && ( gradient & 1 ) )
   {
-    return result;
+    return gradient;
   }
   
-  return m_target ? result: 0; 
-}
-
-template< cube_size N >
-BitMapID Engine<N>::gradient( const DistID distance )
-{
-  BitMapID result = m_allowed[ 0 ];
-
-  const Insight<N> * pInsight = m_insights;
-  BitMap32ID aim = m_target;
-  while ( result > 0 && aim > 0 && pInsight != m_endOfInsights )
-  {
-    result &= pInsight -> gradient( distance );
-    aim    &= pInsight -> aim( distance );
-    ++ pInsight;
-  }
-
-  return aim ? result : 0;
+  return m_target ? gradient : 0; 
 }
 
 template< cube_size N >
 bool Engine<N>::unambiguous() const
 {
-  const Insight<N> * pInsight = m_insights;
-  for ( CubeID priorID = m_insights -> prior(); pInsight != m_endOfInsights &&  pInsight -> prior() == priorID; ++ pInsight )
-  {
-  }
-  return pInsight == m_endOfInsights;
+  return m_insights -> aim( 0 ) == m_target;
 }
 
 template< cube_size N >

@@ -82,7 +82,7 @@ void Resolver<N>::task()
   {
     m_searchDepth = depth;
     const BitMap32ID aim = m_engine.target();
-    BitMapID gradient = m_engine.gradient( depth );
+    BitMapID gradient = m_engine.progress( 0, depth );
     if ( 0 != gradient && ida( gradient, depth ) )
     {
       break;
