@@ -16,7 +16,7 @@ class Resolver
 
 public:
   Resolver( Rubik<N> & );
-  void addInsight( const PosID *, const size_t, const CubeID trans = 0 );
+  void addInsight( const PosID *, const size_t, const CubeID trans = 0, AcceptFunction af = Accept<N>::Normal  );
 
   void fixCube()
   {
@@ -78,7 +78,7 @@ void Resolver<N>::task()
 {
   m_engine.toSolve( m_cubeToSolve );
   m_path.reset();
-  for ( DistID depth = 0; depth < 15; ++ depth )
+  for ( DistID depth = 0; depth < 10; ++ depth )
   {
     m_searchDepth = depth;
     const BitMap32ID aim = m_engine.target();
@@ -121,9 +121,9 @@ bool Resolver<N>::ida( const BitMapID suggestedMoves, const DistID depth )
 }
 
 template< cube_size N >
-void Resolver<N>::addInsight(const PosID * startPos, const size_t size, const CubeID trans )
+void Resolver<N>::addInsight(const PosID * startPos, const size_t size, const CubeID trans, AcceptFunction af )
 {
-  m_engine.addInsight( startPos, size, trans );
+  m_engine.addInsight( startPos, size, trans, af );
 }
 
 #endif  // ! RESOLVER__H

@@ -76,6 +76,20 @@ bool UnitTests::unit_Resolver() const
       CPositions<3>::GetPosID( 0, 0, 1 ),
       CPositions<3>::GetPosID( 1, 0, 1 ),
     };
+    
+    const PosID cross2[] = {
+      CPositions<3>::GetPosID( 1, 2, 0 ),
+      CPositions<3>::GetPosID( 0, 1, 0 ),
+      CPositions<3>::GetPosID( 2, 1, 0 ),
+      CPositions<3>::GetPosID( 1, 0, 0 )
+    };
+
+    const PosID corners[] = {
+      CPositions<3>::GetPosID( 0, 0, 0 ),
+      CPositions<3>::GetPosID( 0, 2, 0 ),
+      CPositions<3>::GetPosID( 2, 0, 0 ),
+      CPositions<3>::GetPosID( 2, 2, 0 ),
+    };
     const size_t cross_size = 5;
     
     bool ok = true;
@@ -97,7 +111,14 @@ bool UnitTests::unit_Resolver() const
     test.addInsight( block4, 2 );
     test.solve( false );
     
-
+    clog( "bottom cross" );
+    test.addInsight( cross2, 4, 0, Accept<3>::OnPlace );
+    test.solve();
+    
+    clog( "bottom corners" );
+    test.addInsight( corners, 4, 0, Accept<3>::OnPlace );
+    test.solve();
+    
     stamp( ok, ok3 );
   }
   tail( "Cube size 3", ok3 );

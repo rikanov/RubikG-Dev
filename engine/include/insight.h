@@ -112,10 +112,11 @@ public:
     return CubeSet::GetCubeSet( prior(), aim );
   }
 
-  Insight<N> & init( const PosID * pos, const size_t size, const CubeID orient = 0 )
+  Insight<N> & init( const PosID * pos, const size_t size, const CubeID orient = 0, AcceptFunction af = Accept<N>::Normal )
   {
     m_updated = false;
     m_subgroupMap.init( pos, size, orient );
+    m_evaluator.accept( af );
     return *this;
   }
   

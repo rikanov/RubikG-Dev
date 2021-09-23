@@ -25,7 +25,7 @@ public:
   Engine();
   ~Engine();
 
-  void addInsight ( const PosID *, const size_t, const CubeID trans = 0 );
+  void addInsight ( const PosID *, const size_t, const CubeID trans = 0, AcceptFunction af = Accept<N>::Normal );
 
   void  toSolve  ( const Rubik<N> & );
   void  update   ( void );
@@ -92,9 +92,9 @@ void Engine<N>::init()
 }
 
 template< cube_size N >
-void Engine<N>::addInsight( const PosID * posID, const size_t size, const CubeID trans )
+void Engine<N>::addInsight( const PosID * posID, const size_t size, const CubeID trans, AcceptFunction af )
 {
-  ( m_endOfInsights ++ ) -> init( posID, size, trans );
+  ( m_endOfInsights ++ ) -> init( posID, size, trans, af );
 }
 
 template< cube_size N >
