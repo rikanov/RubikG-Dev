@@ -11,7 +11,8 @@
 template< cube_size N >
 class Insight
 {
-  GroupID       m_stateID   = 0;
+  GroupID       m_stateStack[ N * N * 10 ] = {};
+  GroupID    *  m_stateID ;
   Subgroup  <N> m_subgroupMap;
   Evaluator <N> m_evaluator;
   bool          m_updated = false;
@@ -31,22 +32,23 @@ public:
   
   CubeID prior() const
   {
-    return m_subgroupMap.prior( m_stateID );
+    return m_subgroupMap.prior( *m_stateID );
   }
   
   PosID priorPos() const
   {
-    return m_subgroupMap.priorPos( m_stateID );
+    return m_subgroupMap.priorPos( *m_stateID );
   }
 
   GroupID state() const
   {
-    return m_stateID;
+    return *m_stateID;
   }
   
   void toSolve( const Rubik<N> & R, CubeID & trans, const bool ref )
   {
-    m_stateID = m_subgroupMap.getStateID( R, trans );
+     m_stateID = m_stateStack;
+    *m_stateID = m_subgroupMap.getStateID( R, trans );
 
     if ( false == ref )
     {
@@ -56,24 +58,24 @@ public:
     update();
 
     DistID  minimum = distance( );
-    GroupID chosen  = m_stateID;
+    GroupID chosen  = *m_stateID;
 
     all_cubeid ( cid )
     {
-      m_stateID = m_subgroupMap.getStateID( R, cid );
+      *m_stateID = m_subgroupMap.getStateID( R, cid );
       if ( distance() < minimum )
       {
         trans   = cid;
         minimum = distance();
-        chosen  = m_stateID;
+        chosen  = *m_stateID;
       }
     }
-    m_stateID = chosen;
+    *m_stateID = chosen;
   }
   
   GroupID projected() const
   {
-    return Projection::LookUp( m_subgroupMap.size(), m_stateID );
+    return Projection::LookUp( m_subgroupMap.size(), *m_stateID );
   }
   
   DistID distance() const
@@ -143,7 +145,13 @@ public:
   
   void move( const RotID rotID )
   {
-    m_stateID = m_subgroupMap.lookUp( m_stateID, rotID, false );
+    *( m_stateID + 1 ) = m_subgroupMap.lookUp( *m_stateID, rotID, false );
+    ++ m_stateID;
+  }
+
+  void back()
+  {
+    -- m_stateID;
   }
 
   BitMapID operate( const RotID rotID, const DistID distance )
@@ -154,7 +162,7 @@ public:
 
   void print( const bool details = false, const bool projected = false ) const
   {
-    m_subgroupMap.print( m_stateID, details, projected ); 
+    m_subgroupMap.print( *m_stateID, details, projected );
   }
 };
 

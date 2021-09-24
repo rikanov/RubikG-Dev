@@ -1,3 +1,5 @@
+#ifndef ENGINE_SEARCH__H
+#define ENGINE_SEARCH__H
 
 template< cube_size N >
 BitMapID Engine<N>::progress( const RotID rotID, const DistID distance )
@@ -64,7 +66,9 @@ bool Engine<N>::ida( const BitMapID suggestedMoves, const DistID depth )
       break;
     }
     m_target = aim;
-    move( CRotations<N>::GetInvRotID( next ) ); // revert
+    back(); // revert
   }
   return result;
 }
+
+#endif  //  ! ENGINE_SEARCH__H

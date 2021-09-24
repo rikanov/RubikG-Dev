@@ -27,6 +27,7 @@ class Engine
   // moving and query
   bool unambiguous () const;
   void move( const RotID );
+  void back();
   
   // iteratively deepening algorithm IDA
   BitMapID progress ( const RotID, const DistID );
@@ -127,6 +128,15 @@ void Engine<N>::move( const RotID rotID )
   for ( auto pInsight = m_insights; pInsight != m_endOfInsights; ++ pInsight )
   {
     pInsight -> move( rotID );
+  }
+}
+
+template< cube_size N >
+void Engine<N>::back()
+{
+  for ( auto pInsight = m_insights; pInsight != m_endOfInsights; ++ pInsight )
+  {
+    pInsight -> back();;
   }
 }
 
