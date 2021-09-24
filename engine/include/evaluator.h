@@ -155,6 +155,7 @@ void Evaluator<N>::build()
   // first-grade gradient = 0 --> unsolvable
   // first_grade gradient = 1 --> solved state
   // initialize root nodes as solved with zero RotID --> first-grade gradient = 1
+  clog ( "Qeueu size:", m_qeueu.count() );
   for ( size_t i = 0; i < m_qeueu.count(); ++ i )
   {
     const GroupID node = m_qeueu.at( i );

@@ -105,12 +105,14 @@ bool UnitTests::unit_Resolver() const
     test.solve();
     
 
-    test.addInsight( block1, 2 );
-    test.addInsight( block2, 2 );
-    test.addInsight( block3, 2 );
-    test.addInsight( block4, 2 );
+    test.addInsight( block1, 3 );
+    test.addInsight( block2, 3 );
+    test.addInsight( block3, 3 );
+    test.addInsight( block4, 3 );
     test.solve( false );
     
+    test.fixCube();
+
     clog( "bottom cross" );
     test.addInsight( cross2, 4, 0, Accept<3>::OnPlace );
     test.solve();

@@ -36,7 +36,10 @@ public:
   BitMapID gradient ( const DistID );
 
   bool unambiguous () const;
-  void fixCube();
+  void fixCube()
+  {
+    m_target = ( 1ULL << m_insights -> prior() );
+  }
   
   BitMap32ID target() const
   {
@@ -107,7 +110,7 @@ void Engine<N>::toSolve( const Rubik<N> & R )
   {
     pInsight -> toSolve( R, m_transposeSolution, pInsight == m_insights );
     const DistID dist = pInsight -> distance();
-    if ( 0 == dist )
+    if ( 0 == dist && pInsight -> prior() == m_insights -> prior() )
     {
       m_progress |= 1ULL << ( pInsight - m_insights );
     }

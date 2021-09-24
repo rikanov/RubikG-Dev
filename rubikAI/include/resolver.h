@@ -78,7 +78,7 @@ void Resolver<N>::task()
 {
   m_engine.toSolve( m_cubeToSolve );
   m_path.reset();
-  for ( DistID depth = 0; depth < 10; ++ depth )
+  for ( DistID depth = 0; depth < 12; ++ depth )
   {
     m_searchDepth = depth;
     const BitMap32ID aim = m_engine.target();
