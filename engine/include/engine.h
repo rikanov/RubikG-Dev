@@ -17,9 +17,20 @@ class Engine
   Insight<N>   m_insights [ INSIGHT_BOUND ];
   Insight<N> * m_endOfInsights;
   CubeID       m_transposeSolution;
+  Sequence     m_solutionPath;
 
+  // initializers
   void init();
   void findStage();
+  void toSolve  ( const Rubik<N> & );
+ 
+  // moving and query
+  bool unambiguous () const;
+  void move( const RotID );
+  
+  // iteratively deepening algorithm IDA
+  BitMapID progress ( const RotID, const DistID );
+  bool     ida      ( const BitMapID, const DistID );
 
 public:
   Engine();
@@ -27,38 +38,13 @@ public:
 
   void addInsight ( const PosID *, const size_t, const CubeID trans = 0, AcceptFunction af = Accept<N>::Normal );
 
-  void  toSolve  ( const Rubik<N> & );
   void  update   ( void );
   bool  empty    ( void ) const { return m_insights == m_endOfInsights; }
-  
-  void     move     ( const RotID );
-  BitMapID progress ( const RotID, const DistID );
-  BitMapID gradient ( const DistID );
+ 
+  Sequence searchPath( Rubik<N> & );
 
-  bool unambiguous () const;
-  void fixCube()
-  {
-    m_target = ( 1ULL << m_insights -> prior() );
-  }
-  
-  BitMap32ID target() const
-  {
-    return m_target;
-  }
-  void target( const BitMap32ID tr )
-  {
-    m_target = tr;
-  }
-  
-  void close()
-  {
-    m_progress = ( 1ULL << ( m_endOfInsights - m_insights ) ) - 1;
-  }
-
-  bool closed() const
-  {
-    return m_progress == ( 1ULL << ( m_endOfInsights - m_insights ) ) - 1;
-  }
+  void close();
+  bool closed() const;
 };
 
 
@@ -145,27 +131,15 @@ void Engine<N>::move( const RotID rotID )
 }
 
 template< cube_size N >
-BitMapID Engine<N>::progress( const RotID rotID, const DistID distance )
+void Engine<N>::close()
 {
-  BitMapID gradient = m_allowed[ rotID ];
-  BitMapID step = 1;
+  m_progress = ( 1ULL << ( m_endOfInsights - m_insights ) ) - 1;
+}
 
-  for ( const Insight<N> * P = m_insights; gradient > 0 && m_target > 0 && P != m_endOfInsights; ++ P )
-  {
-    if ( m_progress & step )
-    {
-      gradient &= P -> gradient( distance );
-      m_target &= P -> aim( distance );
-    }
-    step <<= 1;
-  }
-
-  if ( 0 == distance && ( gradient & 1 ) )
-  {
-    return gradient;
-  }
-  
-  return m_target ? gradient : 0; 
+template< cube_size N >
+bool Engine<N>::closed() const
+{
+  return m_progress == ( 1ULL << ( m_endOfInsights - m_insights ) ) - 1;
 }
 
 template< cube_size N >
@@ -178,5 +152,8 @@ template< cube_size N >
 Engine<N>::~Engine()
 {
 }
+
+// template functions including
+#include <engine_search.h>
 
 #endif  //  ! ENGINE__H_INCLUDED
