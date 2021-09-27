@@ -13,7 +13,7 @@ bool UnitTests::unit_CubeSet() const
   std::set<int> stdSet;
   
   // create bitmap for random CubeIDs
-  BitMap32ID cubeSetID = 0;
+  BitMapID cubeSetID = 0;
   
   // fill up with random cubeIDs
   for( int i = 0; i < 20; ++ i )

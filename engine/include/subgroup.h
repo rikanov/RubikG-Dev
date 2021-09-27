@@ -57,6 +57,7 @@ public:
   
   void print( const GroupID stateID, const bool details = false, const bool projected = false ) const
   {
+    clog_( stateID );
     PrintMap<N> ( projected ? Projection::LookUp( m_size, stateID) : stateID , m_startPos, m_size, details );
   }
 };

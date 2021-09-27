@@ -14,9 +14,10 @@ public:
   {
     set( ds );
   }
-  void set( const uint64_t ds );
-  bool next( uint8_t & nextID );
-  bool isEmpty() const
+  void    set( const uint64_t ds );
+  bool    next( uint8_t & nextID );
+  uint8_t next();
+  bool    empty() const
   {
     return m_dataSet == 0;
   }

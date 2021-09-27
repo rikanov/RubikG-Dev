@@ -12,7 +12,8 @@ static bool testRotationActing( const int testNumber )
   {
     const PosID P   = CPositions<N>::Random();
     const Coord pos = CPositions<N>::GetCoord( P );
-    BitMap set( CRotations<N>::ActOn( P ) );
+    BitMapID rotations = CRotations<N>::ActOn( P );
+    BitMap set( rotations );
     NL();
     clog( Color::white, (int) P, pos.toString() );
     all_rot( axis, layer, turn, N )
@@ -26,7 +27,7 @@ static bool testRotationActing( const int testNumber )
         UnitTests::stamp( ok, result );
       }
     }
-    UnitTests::stamp( set.isEmpty(), result );
+    UnitTests::stamp( set.empty(), result );
   }
   UnitTests::tail( tCase, result );
   return result;

@@ -11,16 +11,21 @@
 template< cube_size N >
 class Insight
 {
-  GroupID       m_stateStack[ N * N * 10 ] = {};
+  GroupID       m_stateStack[ N * N * 100] = {};
   GroupID    *  m_stateID ;
   Subgroup  <N> m_subgroupMap;
   Evaluator <N> m_evaluator;
   bool          m_updated = false;
 
 public:
-  Insight() = default;
-  
+  Insight()
+   : m_stateID( m_stateStack )
+  {
+
+  }
+
   Insight( const PosID * pos, const size_t size, const CubeID orient = 0 )
+   : m_stateID( m_stateStack )
   {
     init( pos, size, orient );
   }
@@ -47,7 +52,6 @@ public:
   
   void toSolve( const Rubik<N> & R, CubeID & trans, const bool ref )
   {
-     m_stateID = m_stateStack;
     *m_stateID = m_subgroupMap.getStateID( R, trans );
 
     if ( false == ref )
@@ -162,6 +166,8 @@ public:
 
   void print( const bool details = false, const bool projected = false ) const
   {
+    clog_( "stateID:" );
+    clog( *m_stateID );
     m_subgroupMap.print( *m_stateID, details, projected );
   }
 };

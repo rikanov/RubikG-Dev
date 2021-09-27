@@ -10,28 +10,40 @@
 template< cube_size N >
 class Engine
 {
+  static constexpr size_t StackSize = N * N * 10;
   static constexpr size_t INSIGHT_BOUND = 40;
+
   BitMapID     m_progress;
   BitMapID     m_allowed  [ CRotations<N>::AllRotIDs ] = {};
-  BitMap32ID   m_target = ( 1 << 24 ) - 1;
+  DistID       m_depth;
+  DistID       m_maxDepth;
+
+  BitMap32ID   m_targetStack[ StackSize ] = {};
+  BitMap32ID * m_target;
+
+  BitMap       m_gradientStack[ StackSize ];
+  BitMap     * m_gradient;
+
+  CubeID       m_transposeSolution;
+  RotID        m_solutionStack[ StackSize ] = {};
+  RotID      * m_solution;
+
   Insight<N>   m_insights [ INSIGHT_BOUND ];
   Insight<N> * m_endOfInsights;
-  CubeID       m_transposeSolution;
-  Sequence     m_solutionPath;
 
   // initializers
   void init();
-  void findStage();
   void toSolve  ( const Rubik<N> & );
  
   // moving and query
-  bool unambiguous () const;
+  bool solved () const;
   void move( const RotID );
   void back();
   
   // iteratively deepening algorithm IDA
-  BitMapID progress ( const RotID, const DistID );
-  bool     ida      ( const BitMapID, const DistID );
+  void progress ( const RotID );
+  void revert   ();
+  bool iterativelyDeepening      ();
 
 public:
   Engine();
@@ -52,8 +64,12 @@ public:
 template< cube_size N >
 Engine<N>::Engine()
  :  m_progress( 0 )
+ ,  m_target   ( m_targetStack   )
+ ,  m_gradient ( m_gradientStack )
+ ,  m_solution ( m_solutionStack )
  ,  m_endOfInsights ( nullptr )
 {
+  *m_target = ( 1 << 24 ) - 1;
   init();
 }
 
@@ -63,7 +79,6 @@ void Engine<N>::init()
   m_endOfInsights = m_insights;
   m_transposeSolution = 0;
   constexpr BitMapID allRotations = ( 1ULL << CRotations<N>::AllRotIDs ) - 1; // include the solved bit
-
 
   RotID rotID           = 0;
   BitMapID allow        = allRotations;
@@ -115,7 +130,6 @@ void Engine<N>::toSolve( const Rubik<N> & R )
 template< cube_size N >
 void Engine<N>::update()
 {
-  m_target = ( 1 << 24 ) - 1;
   for ( auto pInsight = m_insights; pInsight != m_endOfInsights; ++ pInsight )
   {
     pInsight -> update();
@@ -125,19 +139,29 @@ void Engine<N>::update()
 template< cube_size N >
 void Engine<N>::move( const RotID rotID )
 {
+  -- m_depth;
+  *( m_solution ++ ) = rotID;
+
   for ( auto pInsight = m_insights; pInsight != m_endOfInsights; ++ pInsight )
   {
     pInsight -> move( rotID );
   }
+
+  progress( rotID );
 }
 
 template< cube_size N >
 void Engine<N>::back()
 {
+  ++ m_depth;
+  -- m_solution;
+
   for ( auto pInsight = m_insights; pInsight != m_endOfInsights; ++ pInsight )
   {
-    pInsight -> back();;
+    pInsight -> back();
   }
+
+  revert();
 }
 
 template< cube_size N >
@@ -153,9 +177,18 @@ bool Engine<N>::closed() const
 }
 
 template< cube_size N >
-bool Engine<N>::unambiguous() const
+bool Engine<N>::solved() const
 {
-  return m_insights -> aim( 0 ) == m_target;
+  if ( m_gradient -> next() != 0 )
+  {
+    return false;
+  }
+  for ( auto pInsight = m_insights; pInsight != m_endOfInsights; ++ pInsight )
+  {
+    if ( pInsight -> prior() != m_insights -> prior() )
+      return false;
+  }
+  return true;
 }
 
 template< cube_size N >

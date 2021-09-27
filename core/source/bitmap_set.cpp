@@ -23,6 +23,19 @@ bool BitMap::next( uint8_t & nextID )
   return true;
 }
 
+uint8_t BitMap::next()
+{
+  if( m_dataSet == 0 )
+  {
+    return 0xFF;
+  }
+
+  // skip zero valued bits
+  for( ; ( m_dataSet & 1 ) == 0; m_dataSet >>= 1, ++ m_nextID );
+
+  return m_nextID;
+}
+
 void BitMap::Print( const BitMapID dataSet, const uint8_t length, const uint8_t slice )
 {
   const Color::Modifier color[2] = { Color::blue, Color::green };

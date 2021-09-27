@@ -1,73 +1,88 @@
 #ifndef ENGINE_SEARCH__H
 #define ENGINE_SEARCH__H
 
-template< cube_size N >
-BitMapID Engine<N>::progress( const RotID rotID, const DistID distance )
-{
-  BitMapID gradient = m_allowed[ rotID ];
-  BitMapID step = 1;
+#include <engine.h>
 
-  for ( const Insight<N> * P = m_insights; gradient > 0 && m_target > 0 && P != m_endOfInsights; ++ P )
+
+template< cube_size N >
+void Engine<N>::revert()
+{
+  -- m_target;
+  -- m_gradient;
+}
+
+template< cube_size N >
+void Engine<N>::progress( const RotID rotID )
+{
+  *( m_target + 1 ) = *m_target;
+  ++ m_target;
+
+  BitMapID gradient = m_allowed[ rotID ];
+
+  BitMapID step = 1;
+  for ( const Insight<N> * P = m_insights; gradient > 0 && *m_target > 0 && P != m_endOfInsights; ++ P )
   {
     if ( m_progress & step )
     {
-      gradient &= P -> gradient( distance );
-      m_target &= P -> aim( distance );
+       gradient &= P -> gradient( m_depth );
+      *m_target &= P -> aim( m_depth );
     }
     step <<= 1;
   }
-
-  if ( 0 == distance && ( gradient & 1 ) )
-  {
-    return gradient;
-  }
-  
-  return m_target ? gradient : 0; 
+  ( ++ m_gradient ) -> set( 0 == *m_target ? 0: gradient );
 }
 
 template< cube_size N >
 Sequence Engine<N>::searchPath( Rubik<N> & cube )
 {
-  m_solutionPath.reset();
+  Sequence result;
   toSolve( cube );
-  for ( DistID depth = 0; depth < 12; ++ depth )
+  m_solution = m_solutionStack;
+  for ( m_maxDepth = 1; m_maxDepth < 12; ++ m_maxDepth )
   {
-    const BitMap32ID aim = m_target;
-    BitMapID gradient = progress( 0, depth );
-    if ( 0 != gradient && ida( gradient, depth ) )
+    if ( iterativelyDeepening() )
     {
+      result.set( m_solutionStack, m_maxDepth );
       break;
     }
-    m_target = aim;
   }
-  return m_solutionPath.reverse();
+  return result;
 }
 
 template< cube_size N >
-bool Engine<N>::ida( const BitMapID suggestedMoves, const DistID depth )
+bool Engine<N>::iterativelyDeepening()
 {
-  if ( 0 == depth )
-  {
-    return ( suggestedMoves & 1 ) && unambiguous();
-  }
-
   bool result = false;
+  m_depth = m_maxDepth;
+  progress( 0 );
 
-  BitMap moves ( suggestedMoves );
-  for ( RotID next; moves >> next; )
+  while ( m_depth < m_maxDepth || ! m_gradient -> empty() )
   {
-    move( next );
-    const BitMap32ID aim = m_target;
-    const BitMapID gradient = progress( next, depth - 1 );
-    if ( 0 < gradient && ida( gradient, depth - 1 ) )
+    if ( 0 == m_depth && solved() )
     {
-      m_solutionPath << next;
       result = true;
       break;
     }
-    m_target = aim;
-    back(); // revert
+    if ( 0 == m_depth )
+    {
+      back();
+      continue;
+    }
+    for ( RotID next = 0; m_gradient -> next( next ); )
+    {
+      move ( next );
+      if ( ! m_gradient -> empty() )
+      {
+        break;
+      }
+      back();
+    }
+    if ( m_depth < m_maxDepth && m_gradient -> empty() )
+    {
+      back();
+    }
   }
+  revert();
   return result;
 }
 

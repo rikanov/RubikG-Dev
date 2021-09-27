@@ -19,8 +19,8 @@ static bool CheckInsight( Insight<N> & insight )
 {
   constexpr size_t NUMBER_OF_TESTS = 10;
   bool ok = true;
-  NL(); NL();
-  insight.print();
+  NL(); NL(); clog("teszt");
+  insight.print(true );
   DistID deep[ NUMBER_OF_TESTS ] = {};
   RotID  test[ NUMBER_OF_TESTS ] = {};
   for ( int i = 0; i < NUMBER_OF_TESTS; ++ i)

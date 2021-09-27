@@ -26,7 +26,9 @@ bool UnitTests::unit_Resolver() const
     };
     bool ok = true;
     Rubik<2> testCube;
-   // testCube.rotate( CRotations<2>::GetRotID( _X, 1, 1 ) );
+    testCube.rotate( CRotations<2>::GetRotID( _X, 0, 1 ) );
+    testCube.rotate( CRotations<2>::GetRotID( _Y, 1, 2 ) );
+    testCube.rotate( CRotations<2>::GetRotID( _X, 0, 1 ) );
     testCube.shuffle();
     
     Resolver<2> test( testCube );
@@ -120,7 +122,7 @@ bool UnitTests::unit_Resolver() const
     clog( "bottom corners" );
     test.addInsight( corners, 5, 0, Accept<3>::OnPlace );
     test.solve();
-    
+
     stamp( ok, ok3 );
   }
   tail( "Cube size 3", ok3 );
