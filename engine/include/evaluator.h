@@ -130,7 +130,7 @@ void Evaluator<N>::addSolution( const size_t id, GroupID gid )
 template< cube_size N >
 BitMap32ID Evaluator<N>::mergeSet( const RotID rotID, const BitMap32ID set ) const
 {
-  static const BitMap32ID P = m_subgroup -> priorRotIDs();
+  const BitMap32ID P = m_subgroup -> priorRotIDs();
   if ( P & ( 1ULL << rotID ) )
   {
     const RotID inv = CRotations<N>::GetInvRotID( rotID );

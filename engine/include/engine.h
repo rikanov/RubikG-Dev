@@ -33,17 +33,16 @@ class Engine
 
   // initializers
   void init();
-  void toSolve  ( const Rubik<N> & );
+  void toSolve( const Rubik<N> & );
  
-  // moving and query
-  bool solved () const;
+  // moving in the tree
   void move( const RotID );
   void back();
   
   // iteratively deepening algorithm IDA
-  void progress ( const RotID );
-  void revert   ();
-  bool iterativelyDeepening      ();
+  void progress( const RotID );
+  void revert();
+  bool iterativelyDeepening();
 
 public:
   Engine();
@@ -174,21 +173,6 @@ template< cube_size N >
 bool Engine<N>::closed() const
 {
   return m_progress == ( 1ULL << ( m_endOfInsights - m_insights ) ) - 1;
-}
-
-template< cube_size N >
-bool Engine<N>::solved() const
-{
-  if ( m_gradient -> next() != 0 )
-  {
-    return false;
-  }
-  for ( auto pInsight = m_insights; pInsight != m_endOfInsights; ++ pInsight )
-  {
-    if ( pInsight -> prior() != m_insights -> prior() )
-      return false;
-  }
-  return true;
 }
 
 template< cube_size N >

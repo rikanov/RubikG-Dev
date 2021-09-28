@@ -76,7 +76,7 @@ bool UnitTests::unit_Resolver() const
     const PosID block4[] = {
       CPositions<3>::GetPosID( 0, 0, 2 ),
       CPositions<3>::GetPosID( 0, 0, 1 ),
-      CPositions<3>::GetPosID( 1, 0, 1 ),
+      CPositions<3>::GetPosID( 1, 0, 2 ),
     };
     
     const PosID cross2[] = {

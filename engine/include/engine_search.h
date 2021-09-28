@@ -29,6 +29,7 @@ void Engine<N>::progress( const RotID rotID )
     }
     step <<= 1;
   }
+  
   ( ++ m_gradient ) -> set( 0 == *m_target ? 0: gradient );
 }
 
@@ -39,7 +40,7 @@ Sequence Engine<N>::searchPath( Rubik<N> & cube )
   toSolve( cube );
   m_solution = m_solutionStack;
   for ( m_maxDepth = 1; m_maxDepth < 12; ++ m_maxDepth )
-  {
+  {clog( "max depth:", (int) m_maxDepth );
     if ( iterativelyDeepening() )
     {
       result.set( m_solutionStack, m_maxDepth );
@@ -55,31 +56,26 @@ bool Engine<N>::iterativelyDeepening()
   bool result = false;
   m_depth = m_maxDepth;
   progress( 0 );
-
+  RotID next = 0; 
   while ( m_depth < m_maxDepth || ! m_gradient -> empty() )
   {
-    if ( 0 == m_depth && solved() )
-    {
-      result = true;
-      break;
-    }
     if ( 0 == m_depth )
     {
-      back();
-      continue;
-    }
-    for ( RotID next = 0; m_gradient -> next( next ); )
-    {
-      move ( next );
-      if ( ! m_gradient -> empty() )
-      {
+      // 0th bit is high --> all subgroup are found in solved state
+      if ( m_gradient -> next() == 0 ) 
+      { 
+        result = true;
         break;
       }
-      back();
+      back(); // no more state to resolve
     }
     if ( m_depth < m_maxDepth && m_gradient -> empty() )
     {
       back();
+    }
+    if ( m_gradient -> next( next ) )
+    {
+      move ( next );
     }
   }
   revert();
