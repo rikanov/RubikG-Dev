@@ -1,0 +1,1 @@
+/usr/bin/c++ -fsanitize=address -g -rdynamic CMakeFiles/rubikg.dir/main.cpp.o -o rubikg  core/libcore.a CLi/libcli.a test/libtest.a core/libcore.a CLi/libcli.a 
