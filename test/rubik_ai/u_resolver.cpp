@@ -56,7 +56,8 @@ bool UnitTests::unit_Resolver() const
 
     const PosID bind[] = {
       CPositions<3>::GetPosID( 1, 0, 1 ),
-      CPositions<3>::GetPosID( 1, 0, 2 ),
+      CPositions<3>::GetPosID( 1, 1, 0 ),
+      CPositions<3>::GetPosID( 0, 1, 1 ),
     };
     const PosID block1[] = {
       CPositions<3>::GetPosID( 2, 0, 2 ),
@@ -82,9 +83,9 @@ bool UnitTests::unit_Resolver() const
     const PosID cross2[] = {
       CPositions<3>::GetPosID( 1, 2, 0 ),
       CPositions<3>::GetPosID( 0, 1, 0 ),
-      CPositions<3>::GetPosID( 1, 1, 0 ),
       CPositions<3>::GetPosID( 2, 1, 0 ),
-      CPositions<3>::GetPosID( 1, 0, 0 )
+      CPositions<3>::GetPosID( 1, 0, 0 ),
+      CPositions<3>::GetPosID( 1, 1, 0 ),
     };
 
     const PosID corners[] = {
@@ -105,14 +106,14 @@ bool UnitTests::unit_Resolver() const
     Resolver<3> test( testCube );
 
     test.addInsight( cross, 5 );
-    test.addInsight( bind, 2 );
+    test.addInsight( bind, 3 );
     test.solve();
     
 
-    test.addInsight( block1, 3 );
-    test.addInsight( block2, 3 );
-    test.addInsight( block3, 3 );
-    test.addInsight( block4, 3 );
+    test.addInsight( block1, 2 );
+    test.addInsight( block2, 2 );
+    test.addInsight( block3, 2 );
+    test.addInsight( block4, 2 );
     test.solve( false );
 
     clog( "bottom cross" );

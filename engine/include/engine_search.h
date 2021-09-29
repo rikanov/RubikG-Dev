@@ -47,8 +47,7 @@ void Engine<N>::progress()
 template< cube_size N >
 void Engine<N>::startIDA()
 {
-  *( m_target + 1 ) = ( 1 << 24 ) - 1;
-  ++ m_target;
+  *m_target = ( 1 << 24 ) - 1;
 
   BitMapID gradient = m_allowed[ 0 ];
 
@@ -63,14 +62,7 @@ void Engine<N>::startIDA()
     step <<= 1;
   }
   
-  ( ++ m_gradient ) -> set( 0 == *m_target ? 0: gradient );
-}
-
-template< cube_size N >
-void Engine<N>::finishIDA()
-{
-  -- m_target;
-  -- m_gradient;
+  m_gradient -> set( 0 == *m_target ? 0: gradient );
 }
 
 template< cube_size N >
@@ -107,12 +99,11 @@ bool Engine<N>::iterativelyDeepening()
     }
     while ( m_depth < m_maxDepth && m_gradient -> empty() )
     {
+      clog_( "\rback", (int) m_depth );
       back();
     }
     progress();
   }
-
-  finishIDA();
   return result;
 }
 

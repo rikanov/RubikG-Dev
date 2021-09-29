@@ -38,7 +38,6 @@ class Engine
 
   // iteratively deepening algorithm IDA
   void startIDA();
-  void finishIDA();
   void progress();
   void back();
   bool iterativelyDeepening();
@@ -104,6 +103,7 @@ template< cube_size N >
 DistID Engine<N>::approx( const BitMapID insight )
 {/// FixMe
   DistID result = 0;
+  const BitMapID orig = m_progress;
   m_progress |= insight;
 
   for ( m_depth = 0; 0 == result && m_depth < 12; ++ m_depth )
@@ -113,10 +113,9 @@ DistID Engine<N>::approx( const BitMapID insight )
     {
       result = m_depth;
     }
-    finishIDA();
   }
 
-  m_progress -= insight;
+  m_progress = orig;
   m_depth = 0;
   return result;
 }
