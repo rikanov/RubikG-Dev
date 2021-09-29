@@ -34,14 +34,13 @@ class Engine
   // initializers
   void init();
   void toSolve( const Rubik<N> & );
- 
-  // moving in the tree
-  void move( const RotID );
-  void back();
-  
+  DistID approx( const BitMapID );
+
   // iteratively deepening algorithm IDA
-  void progress( const RotID );
-  void revert();
+  void startIDA();
+  void finishIDA();
+  void progress();
+  void back();
   bool iterativelyDeepening();
 
 public:
@@ -102,6 +101,27 @@ void Engine<N>::addInsight( const PosID * posID, const size_t size, const CubeID
 }
 
 template< cube_size N >
+DistID Engine<N>::approx( const BitMapID insight )
+{/// FixMe
+  DistID result = 0;
+  m_progress |= insight;
+
+  for ( m_depth = 0; 0 == result && m_depth < 12; ++ m_depth )
+  {
+    startIDA();
+    if ( ! m_gradient -> empty() )
+    {
+      result = m_depth;
+    }
+    finishIDA();
+  }
+
+  m_progress -= insight;
+  m_depth = 0;
+  return result;
+}
+
+template< cube_size N >
 void Engine<N>::toSolve( const Rubik<N> & R )
 {
   DistID   min   = 0xFF;
@@ -115,7 +135,7 @@ void Engine<N>::toSolve( const Rubik<N> & R )
     {
       m_progress |= 1ULL << ( pInsight - m_insights );
     }
-    else if ( dist < min )
+    else if ( dist < min) // FixMe
     {
       min = dist;
       stage = next;
@@ -136,31 +156,18 @@ void Engine<N>::update()
 }
 
 template< cube_size N >
-void Engine<N>::move( const RotID rotID )
-{
-  -- m_depth;
-  *( m_solution ++ ) = rotID;
-
-  for ( auto pInsight = m_insights; pInsight != m_endOfInsights; ++ pInsight )
-  {
-    pInsight -> move( rotID );
-  }
-
-  progress( rotID );
-}
-
-template< cube_size N >
 void Engine<N>::back()
 {
   ++ m_depth;
   -- m_solution;
 
+  -- m_target;
+  -- m_gradient;
+
   for ( auto pInsight = m_insights; pInsight != m_endOfInsights; ++ pInsight )
   {
     pInsight -> back();
   }
-
-  revert();
 }
 
 template< cube_size N >

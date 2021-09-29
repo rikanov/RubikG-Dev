@@ -10,13 +10,16 @@ void BitMap::set( const uint64_t ds )
 
 bool BitMap::next( uint8_t & nextID )
 {
-  if( m_dataSet == 0 )
+  if( 0 == m_dataSet )
   {
     return false;
   }
 
   // skip zero valued bits
-  for( ; ( m_dataSet & 1 ) == 0; m_dataSet >>= 1, ++ m_nextID );
+  for( ; ( m_dataSet & 1 ) == 0; m_dataSet >>= 1 )
+  {
+     ++ m_nextID;
+  }
 
   m_dataSet >>= 1;
   nextID = m_nextID ++;
@@ -25,13 +28,16 @@ bool BitMap::next( uint8_t & nextID )
 
 uint8_t BitMap::next()
 {
-  if( m_dataSet == 0 )
+  if( 0 == m_dataSet )
   {
     return 0xFF;
   }
 
   // skip zero valued bits
-  for( ; ( m_dataSet & 1 ) == 0; m_dataSet >>= 1, ++ m_nextID );
+  for( ; ( m_dataSet & 1 ) == 0; m_dataSet >>= 1 )
+  {
+    ++ m_nextID;
+  }
 
   return m_nextID;
 }
