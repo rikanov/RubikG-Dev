@@ -6,7 +6,7 @@ CubeSet * CubeSet::Singleton = nullptr;
 const BitMap32ID * CubeSet::m_lowMap  = nullptr;
 const BitMap32ID * CubeSet::m_highMap = nullptr;
 
-static BitMap32ID MultipleRotation( const CubeID state, BitMapID cubeSet, const CubeSet::TransMode tr = CubeSet::trNormal  )
+BitMap32ID CubeSet::MultipleRotation( const CubeID state, BitMapID cubeSet, const CubeSet::TransMode tr )
 {
   BitMap32ID result = 0;
   if( tr == CubeSet::trHigh )

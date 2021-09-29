@@ -1,4 +1,5 @@
 #include <simplex.h>
+#include <random>
 
 Simplex * Simplex::Singleton = nullptr;
 
@@ -49,7 +50,8 @@ void Simplex::initGroup()
       const CubeID c = GetGroupID ( cr, cu );
 
       m_composition [a][b] = c;
-      m_transform   [a][c] = b;
+      if ( 0 == c )
+        m_inverse [a] = b;
     }
 
   // init tilts  
@@ -63,9 +65,28 @@ void Simplex::initGroup()
       m_tilt [a][t] = composition( m_tilt [a][t-1], m_tilt [a][1] );
     }
   }
-  all_cubeid( id )
+
+  for ( Axis a: { _X, _Y, _Z } )
   {
-    for( Orient F: { _F, _R, _U, _L, _D, _B } )
-      m_align[ id ][F] = GetCube( id ).aligned( F ); 
+    all_cubeid( c )
+    {
+      m_tiltCube [c][a][0]   = c;
+    }
+    for ( int t: { 1, 2, 3 } )
+    {
+      all_cubeid( c )
+      {
+        m_tiltCube [c][a][t] = Composition( c, m_tilt [a][t] );
+      }
+    }
   }
+}
+
+CubeID Simplex::random() const
+{
+  static std::random_device                 randomDevice;
+  static std::default_random_engine         randomEngine( randomDevice() );
+  static std::uniform_int_distribution<int> distribution( 0, 23 );
+
+  return distribution( randomEngine );
 }

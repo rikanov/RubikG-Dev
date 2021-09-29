@@ -1,7 +1,8 @@
 #ifndef CUBE_ROTATIONS__H
 #define CUBE_ROTATIONS__H
 
-#include <simplex.h>
+#include <cube_positions.h>
+#include <sequence.h>
 #include <random>
 
 // Mapping between all the basic rotations and the set of one-byte size IDs:
@@ -14,49 +15,11 @@
 // ID = 3 * N * Axis + 3 * Layer + Turn 
 // ID < 3 * N * 3
 
-static void permute3( BitMapID & rotationSet, const uint8_t length, const uint8_t c, const uint8_t b, const uint8_t a )
-{
-  const BitMapID mask = ( 1ULL << length ) - 1;
-  const BitMapID A = ( rotationSet               ) & mask;
-  const BitMapID B = ( rotationSet >>     length ) & mask;
-  const BitMapID C = ( rotationSet >> 2 * length ) & mask;
-  rotationSet =  A << ( a * length );
-  rotationSet += B << ( b * length );
-  rotationSet += C << ( c * length );
-}
-
-static void reverseSequence( BitMapID & rotationSet, int a, int b )
-{
-  for( ; a - b > 1; --a, ++b )
-  {
-    if( rotationSet & ( 1ULL << a ) != rotationSet & ( 1ULL << b ) )
-    {
-      rotationSet ^= 1ULL << a;
-      rotationSet ^= 1ULL << b;
-    }
-  }
-}
-
 enum RotStyle
 {
   normal,
   extended
 };
-
-static Orient GetBaseOrient( Axis axis )
-{
-  switch( axis )
-  {
-    case _X:
-      return _L;
-    case _Y:
-      return _D;
-    case _Z:
-      return _B;
-    default:
-      return _NF;
-  }
-}
 
 template< cube_size N >
 class CRotations
@@ -73,19 +36,22 @@ public:
   static Axis  GetAxis  ( const RotID rotID )  { return static_cast< Axis > ( ( rotID - 1 ) / ( 3 * N ) ); }
   static Layer GetLayer ( const RotID rotID )  { return ( ( rotID - 1 ) /3 ) % N;                          }
   static Turn  GetTurn  ( const RotID rotID )  { return ( rotID - 1 ) % 3 + 1;                             }
+  static CubeID GetTilt ( const RotID rotID )  { return Simplex::Tilt( GetAxis( rotID ), GetTurn( rotID ) );  }
 
-  static void Transform( Axis & axis, Layer & layer, Turn & turn, const CubeID cubeID );
+  static BitMapID ActOn ( const PosID posID );
+  static void Transform ( Axis & axis, Layer & layer, Turn & turn, const CubeID cubeID );
 
   static RotID Random();
   static std::string ToString( const Axis  );
   static std::string ToString( const RotID );
   static std::string ToString( const Axis, const Layer, const Turn );
+  static void        PrintSeq( const Sequence & S );
 };
 
 template< cube_size N >
 void CRotations<N>::Transform( Axis & axis, Layer & layer, Turn & turn, const CubeID cubeID )
 {
-  const Orient base  = GetBaseOrient( axis );
+  const Orient base  = GetAxisBase( axis );
   const Orient trans = Simplex::GetCube( cubeID ).whereIs( base );
   switch( trans )
   {
@@ -138,6 +104,13 @@ RotID CRotations<N>::GetRotID( const RotID rotID, const CubeID cubeID )
 }
 
 template< cube_size N >
+BitMapID CRotations<N>::ActOn( const PosID posID )
+{
+  const Coord pos = CPositions<N>::GetCoord( posID );
+  return ( 14ULL << ( 3 * pos.x ) ) | ( 14ULL << ( 3 * N + 3 * pos.y ) ) | ( 14ULL << ( 6 * N + 3 * pos.z ) );
+}
+
+template< cube_size N >
 RotID CRotations<N>::Random()
 {
  static std::random_device                 randomDevice;
@@ -175,6 +148,15 @@ std::string CRotations<N>::ToString( const RotID rotID )
 {
   return ToString ( GetAxis ( rotID ), GetLayer ( rotID ), GetTurn ( rotID ) );
 }
+
+template< cube_size N >
+void CRotations<N>::PrintSeq( const Sequence & S )
+{
+  clog( "size:", S.size() );
+  for( RotID n = S.start(); n; n = S.next() )
+   clog( ToString( n ) );
+}
+
 
 template< cube_size N >
 class CExtRotations
@@ -251,7 +233,7 @@ void CExtRotations<N>::Transform( Axis & axis, Layer & layer, Turn & turn, const
     return;
   }
 
-  const Orient base  = GetBaseOrient( axis );
+  const Orient base  = GetAxisBase( axis );
   const Orient trans = Simplex::GetCube( cubeID ).whereIs( base );
 
   switch( trans )

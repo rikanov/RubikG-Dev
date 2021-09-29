@@ -1,0 +1,2 @@
+/usr/bin/ar qc libengine.a CMakeFiles/engine.dir/source/acceptance.cpp.o
+/usr/bin/ranlib libengine.a

@@ -1,5 +1,37 @@
 #include <test.h>
+#include <bitmap_set.h>
 #include <cube_rotations.h>
+
+template< cube_size N >
+static bool testRotationActing( const int testNumber )
+{
+  bool result =true;
+  const std::string tCase = std::string( "Rotations acting on positions of R#" ) + std::to_string(N);
+  UnitTests::tcase( tCase );
+  for ( int i = 0; i < testNumber; ++ i )
+  {
+    const PosID P   = CPositions<N>::Random();
+    const Coord pos = CPositions<N>::GetCoord( P );
+    BitMapID rotations = CRotations<N>::ActOn( P );
+    BitMap set( rotations );
+    NL();
+    clog( Color::white, (int) P, pos.toString() );
+    all_rot( axis, layer, turn, N )
+    {
+      if ( pos.coord( axis ) == layer )
+      {
+        RotID rotID = 0;
+        const bool ok = set >> rotID && ( CRotations<N>::GetRotID( axis, layer, turn ) == rotID );
+        clog_( Color::cyan, CRotations<N>::ToString( CRotations<N>::GetRotID( axis, layer, turn ) ) );
+        clog_( Color::yellow, "-->", Color::cyan, CRotations<N>::ToString( rotID ) );
+        UnitTests::stamp( ok, result );
+      }
+    }
+    UnitTests::stamp( set.empty(), result );
+  }
+  UnitTests::tail( tCase, result );
+  return result;
+}
 
 bool UnitTests::unit_CRotations() const
 {
@@ -79,8 +111,8 @@ bool UnitTests::unit_CRotations() const
       for( const RotID testRot: rotBase )
       {
         const RotID result = CRotations<4>::GetRotID( testRot, trans );
-        clog_( ( testRot < 10 ? "  " : " " ), Color::cyan, (int) testRot, CRotations<4>::ToString( testRot ), Color::white, "-->" );
-        clog_( ( result  < 10 ? "  " : " " ), Color::cyan, (int) result,  CRotations<4>::ToString( result ) );
+        clog_( Color::cyan, numR( testRot, 3 ), CRotations<4>::ToString( testRot ), Color::white, "-->" );
+        clog_( Color::cyan, numR( result,  3 ), CRotations<4>::ToString( result ) );
         stamp( result == *( nextExpected++ ), successRot );
       }
       tail( testCase, successRot );
@@ -88,6 +120,12 @@ bool UnitTests::unit_CRotations() const
       NL();
     }
   }
+  
+  success &= testRotationActing <2> ( 5 );
+  success &= testRotationActing <3> ( 5 );
+  success &= testRotationActing <4> ( 5 );
+  success &= testRotationActing <5> ( 5 );
+
   finish( "Cube rotations", success );
   return success;
 }

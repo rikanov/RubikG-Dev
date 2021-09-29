@@ -10,33 +10,60 @@ void BitMap::set( const uint64_t ds )
 
 bool BitMap::next( uint8_t & nextID )
 {
-  if( m_dataSet == 0 )
+  if( 0 == m_dataSet )
   {
     return false;
   }
 
-  for( ; ( m_dataSet & 1 ) == 0; m_dataSet >>= 1, ++ m_nextID );
+  // skip zero valued bits
+  for( ; ( m_dataSet & 1 ) == 0; m_dataSet >>= 1 )
+  {
+     ++ m_nextID;
+  }
 
   m_dataSet >>= 1;
   nextID = m_nextID ++;
   return true;
 }
 
-void BitMap::reverse(const uint8_t a, const uint8_t b)
+uint8_t BitMap::next()
 {
+  if( 0 == m_dataSet )
+  {
+    return 0xFF;
+  }
 
+  // skip zero valued bits
+  for( ; ( m_dataSet & 1 ) == 0; m_dataSet >>= 1 )
+  {
+    ++ m_nextID;
+  }
+
+  return m_nextID;
 }
 
-void BitMap::print( const uint8_t length ) const
+void BitMap::Print( const BitMapID dataSet, const uint8_t length, const uint8_t slice )
 {
-  for( long id = 63; id >= 0; --id )
+  const Color::Modifier color[2] = { Color::blue, Color::green };
+  for( long id = length - 1; id >= 0; --id )
   {
-    uint64_t mask = ( 1ULL << id );
-    slog_ ( "",  ( m_dataSet & mask ) == mask );
-    if ( length > 0 && id % length == 0 )
+    if ( slice > 0 && ( length - 1 - id ) % slice == 0 )
     {
-      slog_ ( "", '.' );
+      slog_ ( "", Color::white, '|', Color::off );
     }
+    uint64_t mask = ( 1ULL << id );
+    const bool bit = ( dataSet & mask ) == mask;
+    slog_ ( "", color[bit], bit, Color::off );
   }
   NL();
+}
+
+void BitMap::Print( const BitMap32ID dataSet, const uint8_t length, const uint8_t slice )
+{
+  Print( (BitMapID) dataSet, length, slice );
+}
+
+void BitMap::print(const uint8_t length, const uint8_t slice) const
+{
+  Print( m_dataSet, length, slice );
 }

@@ -1,8 +1,10 @@
 #engine
 
+
 include_directories(include)
 include_directories( ../CLi/include)
-include_directories( ../core/include/containers)
-include_directories( ../core/include/logic)
+include_directories(template_h)
 
-link_directories( ../build/engine )
+link_directories( ../build/CLi )
+
+add_library( engine     source/acceptance.cpp )

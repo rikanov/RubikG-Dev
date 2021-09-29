@@ -53,11 +53,9 @@ void OCube::init( Orient r, Orient u, CubeID groupID )
   all_orient( ID )
   {
     m_whereIs[m_whatIs[ID]] = ID;
-    m_aligned[ID] = ( m_whatIs[ID] == ID );
   }
   m_whatIs[_NF]  = _NF;
   m_whereIs[_NF] = _NF;
-  m_aligned[_NF] = false;
   m_cubeID = groupID;
 
   // Set a readable name 

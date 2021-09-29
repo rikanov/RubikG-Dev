@@ -1,17 +1,17 @@
 #include <test.h>
 #include <text_output.h>
 
-void UnitTests::head(const std::string& unit)
+void UnitTests::head( const std::string& unit )
 {
   CLS();
-  clog( Color::light, Color::flash, ">>>>>  ", Color::off, Color::gray, "Starting unit test of", Color::white,  unit);
+  clog( Color::off, Color::light, Color::flash, ">>>>>  ", Color::off, Color::gray, "Starting unit test of", Color::white,  unit);
   clog(               "       ", std::string( 22 + unit.length(), '-' ) );
   NL();
 }
 
-void UnitTests::tail(const std::string& unit, bool success)
+void UnitTests::tail( const std::string& unit, bool success )
 {
-  NL();
+  NL( Color::off );
   clog_( Color::white, unit, "test result:" );
   if ( success )
   {
@@ -26,6 +26,7 @@ void UnitTests::tail(const std::string& unit, bool success)
 
 void UnitTests::stamp( bool success, bool& result )
 {
+  clog_( Color::off );
   if ( success )
   {
     clog( Color::green, "OK", Color::off );
@@ -37,9 +38,9 @@ void UnitTests::stamp( bool success, bool& result )
   result &= success;
 }
 
-void UnitTests::finish(const std::string& unit, bool success)
+void UnitTests::finish( const std::string& unit, bool success )
 {
-  NL();
+  NL( Color::off );
   clog_( Color::gray, "Unit test of", Color::white,  unit, Color::off, ':');
   if ( success )
   {
@@ -57,9 +58,9 @@ void UnitTests::finish(const std::string& unit, bool success)
   std::cin.get();
 }
 
-void UnitTests::tcase(const std::string& unit, const std::string& msg1, const std::string& msg2)
+void UnitTests::tcase( const std::string& unit, const std::string& msg1, const std::string& msg2 )
 {
-  slog_( "", Color::white, Color::uline, unit, Color::off, ": ");
+  slog_( "", Color::off, Color::white, Color::uline, unit, Color::off, ": ");
   if( ! msg1.empty() )
   {
     clog_( Color::gray, msg1 );
@@ -71,6 +72,10 @@ void UnitTests::tcase(const std::string& unit, const std::string& msg1, const st
   NL( Color::off );
 }
 
+void UnitTests::tcase( const std::string& unit, const std::string& msg, const long num )
+{
+  clog( Color::white, Color::uline, unit, Color::gray, msg, num, ':', Color::off );
+}
 
 void UnitTests::done()
 { 

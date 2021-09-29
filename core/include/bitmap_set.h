@@ -10,19 +10,25 @@ class BitMap
 
 public:
   BitMap() = default;
-  BitMap( const unsigned long ds )
+  BitMap( const uint64_t ds )
   {
     set( ds );
   }
-  void set( const unsigned long ds );
-  bool next( uint8_t & nextID );
+  void    set( const uint64_t ds );
+  bool    next( uint8_t & nextID );
+  uint8_t next();
+  bool    empty() const
+  {
+    return m_dataSet == 0;
+  }
   bool operator >> ( uint8_t & nextID )
   {
     return next( nextID );
   }
 
-  void reverse( const uint8_t a, const uint8_t b );
-  void print( const uint8_t length = 0 ) const;
+  void print( const uint8_t length = 63, const uint8_t slice = 0 ) const;
+  static void Print( const BitMapID, const uint8_t length = 63, const uint8_t slice = 0 );
+  static void Print( const BitMap32ID, const uint8_t length = 32, const uint8_t slice = 0 );
 };
 
 #endif  //  ! BITMAP__H
