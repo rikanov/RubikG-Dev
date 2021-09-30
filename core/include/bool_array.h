@@ -47,6 +47,11 @@ public:
     return get( index );
   }
   
+  inline bool at( const uint32_t index ) const
+  {
+    return get( index );
+  }
+ 
   void clean()
   {
     uint32_t * P = m_boolArray;

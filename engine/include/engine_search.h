@@ -12,12 +12,12 @@ void Engine<N>::progress()
     BitMap32ID target   = ( 1 << 24 ) - 1;
     BitMapID   gradient = m_allowed[ next ];
 
-    BitMapID step = 1;
     Insight<N> * pInsight = m_insights;
 
+    BitMapID active = 1;
     while (  gradient > 0 && target > 0 && pInsight != m_endOfInsights )
     {
-      if ( m_progress & step )
+      if ( m_progress & active )
       {
         pInsight -> move( next );
 
@@ -25,7 +25,7 @@ void Engine<N>::progress()
         gradient &= pInsight -> gradient( m_depth );
       }
       ++ pInsight;
-      step <<= 1;
+      active <<= 1;
     }
 
     if ( gradient > 0 && target > 0 )
@@ -36,9 +36,13 @@ void Engine<N>::progress()
       return;
     }
 
-    while ( m_insights != pInsight )
+    active = 1;
+    for ( auto revInsight = m_insights; revInsight != pInsight; ++ revInsight )
     {
-      ( -- pInsight ) -> back();
+      if ( m_progress & active )
+        revInsight -> back();
+      
+      active <<= 1;
     }
   }
   ++ m_depth;
@@ -47,19 +51,23 @@ void Engine<N>::progress()
 template< cube_size N >
 void Engine<N>::startIDA()
 {
+  m_target   = m_targetStack;
+  m_gradient = m_gradientStack;
+  m_solution = m_solutionStack;
+
   *m_target = ( 1 << 24 ) - 1;
 
   BitMapID gradient = m_allowed[ 0 ];
 
-  BitMapID step = 1;
+  BitMapID active = 1;
   for ( const Insight<N> * P = m_insights; gradient > 0 && *m_target > 0 && P != m_endOfInsights; ++ P )
   {
-    if ( m_progress & step )
+    if ( m_progress & active )
     {
        gradient &= P -> gradient( m_depth );
       *m_target &= P -> aim( m_depth );
     }
-    step <<= 1;
+    active <<= 1;
   }
   
   m_gradient -> set( 0 == *m_target ? 0: gradient );
@@ -71,14 +79,17 @@ Sequence Engine<N>::searchPath( Rubik<N> & cube )
   Sequence result;
   toSolve( cube );
   m_solution = m_solutionStack;
+  clog_( "max depth:" );
   for ( m_maxDepth = 0; m_maxDepth < 12; ++ m_maxDepth )
-  {clog( "max depth:", (int) m_maxDepth );
+  {
+    clog_( "..", (int) m_maxDepth );
     if ( iterativelyDeepening() )
     {
       result.set( m_solutionStack, m_maxDepth );
       break;
     }
   }
+  NL();
   return result;
 }
 
@@ -88,7 +99,6 @@ bool Engine<N>::iterativelyDeepening()
   bool result = false;
   m_depth = m_maxDepth;
   startIDA();
-
   RotID next = 0; 
   while ( m_depth < m_maxDepth || ! m_gradient -> empty() )
   {
@@ -99,7 +109,6 @@ bool Engine<N>::iterativelyDeepening()
     }
     while ( m_depth < m_maxDepth && m_gradient -> empty() )
     {
-      clog_( "\rback", (int) m_depth );
       back();
     }
     progress();

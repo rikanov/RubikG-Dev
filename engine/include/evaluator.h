@@ -20,7 +20,7 @@ class Evaluator
   const BitMap32ID  * m_aim2;
 
   AcceptFunction      m_accept;
-  Qeueu               m_qeueu;
+  Qeueu             * m_qeueu;
   
   void dealloc();
   void addSolution ( const size_t, GroupID gid );
@@ -70,6 +70,7 @@ Evaluator<N>::Evaluator()
  , m_grade2   ( nullptr )
  , m_aim1     ( nullptr )
  , m_aim2     ( nullptr )
+ , m_qeueu    ( new Qeueu )
  , m_accept   ( Accept<N>::Normal )
 {
    
@@ -79,6 +80,7 @@ template< cube_size N >
 Evaluator<N>::~Evaluator()
 {
   dealloc();
+  delete m_qeueu;
 }
 
 template< cube_size N >
@@ -94,14 +96,14 @@ void Evaluator<N>::dealloc()
 template< cube_size N >
 void Evaluator<N>::map( const Subgroup<N> * sg )
 {
-  m_qeueu.resize( sg -> size() );
+  m_qeueu -> resize( sg -> size() );
   m_subgroup = sg;
 }
 
 template< cube_size N >
 void Evaluator<N>::root( const GroupID si )
 {
-  m_qeueu << si;
+  *m_qeueu << si;
 }
 
 template< cube_size N >
@@ -118,7 +120,7 @@ void Evaluator<N>::addSolution( const size_t id, GroupID gid )
   {
     if ( 0 == id )
     {
-      m_qeueu << Projection::LookUp( m_subgroup -> size(), gid + next );
+      *m_qeueu << Projection::LookUp( m_subgroup -> size(), gid + next );
     }
     else
     {
@@ -155,30 +157,30 @@ void Evaluator<N>::build()
   // first-grade gradient = 0 --> unsolvable
   // first_grade gradient = 1 --> solved state
   // initialize root nodes as solved with zero RotID --> first-grade gradient = 1
-  clog ( "Qeueu size:", m_qeueu.count() );
-  for ( size_t i = 0; i < m_qeueu.count(); ++ i )
+  clog ( "Qeueu size:", m_qeueu -> count() );
+  for ( size_t i = 0; i < m_qeueu -> count(); ++ i )
   {
-    const GroupID node = m_qeueu.at( i );
+    const GroupID node = m_qeueu -> at( i );
     grade1[ node ] = 1;
     aim1  [ node ] = 1;
  
     all_rotid ( rotID, N ) 
     {
-      if ( m_qeueu.used( m_subgroup -> lookUp( node, rotID, true ) ) )
+      if ( m_qeueu -> used( m_subgroup -> lookUp( node, rotID, true ) ) )
       {
-        aim2[ node ] |= ( P & ( 1ULL << rotID ) ) ? 1 << CRotations<N>::GetTilt( rotID ) : 1;
+        aim2  [ node ] |= ( P & ( 1ULL << rotID ) ) ? 1 << CRotations<N>::GetTilt( rotID ) : 1;
       }
     }
   }
 
   GroupID parent;
-  while ( m_qeueu >> parent )
+  while ( *m_qeueu >> parent )
   {
     all_rotid ( rotID, N )
     {
       const GroupID child = m_subgroup -> lookUp( parent, rotID, true );
       const BitMapID bitRotID = 1ULL << CRotations<N>::GetInvRotID( rotID );
-      if ( m_qeueu << child )
+      if ( *m_qeueu << child )
       {
         nodeValue[ child ] = nodeValue[ parent ] + 1;
       }
@@ -202,6 +204,6 @@ void Evaluator<N>::build()
   m_grade2    = grade2,
   m_aim1      = aim1;
   m_aim2      = aim2;
-  m_qeueu.resize( 0 ); //  de-alloc queeu memory
+  m_qeueu -> resize( 0 ); //  de-alloc queeu memory
 }
 #endif
