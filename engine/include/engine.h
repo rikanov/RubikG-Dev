@@ -11,24 +11,24 @@ template< cube_size N >
 class Engine
 {
   static constexpr size_t StackSize = N * N * 10;
-  static constexpr size_t INSIGHT_BOUND = 40;
+  static constexpr size_t InsightsBound = 40;
 
   BitMapID     m_progress;
-  BitMapID     m_allowed  [ CRotations<N>::AllRotIDs ] = {};
+  BitMapID   * m_allowed;
   DistID       m_depth;
   DistID       m_maxDepth;
 
-  BitMap32ID   m_targetStack[ StackSize ] = {};
+  BitMap32ID * m_targetStack;
   BitMap32ID * m_target;
 
-  BitMap       m_gradientStack[ StackSize ];
+  BitMap     * m_gradientStack;
   BitMap     * m_gradient;
 
   CubeID       m_transposeSolution;
-  RotID        m_solutionStack[ StackSize ] = {};
+  RotID      * m_solutionStack;
   RotID      * m_solution;
 
-  Insight<N>   m_insights [ INSIGHT_BOUND ];
+  Insight<N> * m_insights;
   Insight<N> * m_endOfInsights;
 
   // initializers
@@ -61,9 +61,14 @@ public:
 template< cube_size N >
 Engine<N>::Engine()
  :  m_progress( 0 )
- ,  m_target   ( m_targetStack   )
- ,  m_gradient ( m_gradientStack )
- ,  m_solution ( m_solutionStack )
+ ,  m_allowed       ( new BitMapID   [ CRotations<N>::AllRotIDs ] )
+ ,  m_targetStack   ( new BitMap32ID [ StackSize ] )
+ ,  m_target        ( m_targetStack   )
+ ,  m_gradientStack ( new BitMap [ StackSize ] )
+ ,  m_gradient      ( m_gradientStack )
+ ,  m_solutionStack ( new RotID  [ StackSize ] )
+ ,  m_solution      ( m_solutionStack )
+ ,  m_insights      ( new Insight <N> [ InsightsBound ] )
  ,  m_endOfInsights ( nullptr )
 {
   *m_target = ( 1 << 24 ) - 1;
@@ -163,9 +168,13 @@ void Engine<N>::back()
   -- m_target;
   -- m_gradient;
 
+  BitMapID active = 1;
   for ( auto pInsight = m_insights; pInsight != m_endOfInsights; ++ pInsight )
   {
-    pInsight -> back();
+    if ( m_progress & active )
+      pInsight -> back();
+    
+    active <<= 1;
   }
 }
 
@@ -184,6 +193,11 @@ bool Engine<N>::closed() const
 template< cube_size N >
 Engine<N>::~Engine()
 {
+  delete[] m_allowed;
+  delete[] m_targetStack;
+  delete[] m_gradientStack;
+  delete[] m_solutionStack;
+  delete[] m_insights;
 }
 
 // template functions including

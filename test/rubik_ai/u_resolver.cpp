@@ -36,9 +36,7 @@ bool UnitTests::unit_Resolver() const
     test.addInsight( left, 4 );
     test.addInsight( right, 4 );
     test.solve();
-
-    
-
+   
     stamp( ok, ok2 );
   }
   tail( "Cube size 2", ok2 );

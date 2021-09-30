@@ -9,15 +9,16 @@ class Qeueu
 {
   size_t m_size;
 
-  GroupID * m_qeueudCubes ;
-  GroupID * m_qeuIn ;
-  GroupID * m_qeuOut;
-  BoolArray m_used;
+  GroupID   * m_qeueudCubes ;
+  GroupID   * m_qeuIn ;
+  GroupID   * m_qeuOut;
+  BoolArray * m_used;
 public:
 
   Qeueu()
   : m_size( 0 )
   , m_qeueudCubes( nullptr )
+  , m_used ( new BoolArray() )
   {
   }
 
@@ -26,19 +27,19 @@ public:
     m_size = size;
     delete[] m_qeueudCubes;
     m_qeueudCubes = ( size == 0 ) ? nullptr : new GroupID [ pow24( size ) + 1 ];
-    m_used.resize( pow24( m_size ) + 1 );
+    m_used -> resize( pow24( m_size ) + 1 );
     m_qeuIn = m_qeuOut = m_qeueudCubes;    
   }
   
   void clean()
   {
-    m_used.clean();
+    m_used -> clean();
     m_qeuIn = m_qeuOut = m_qeueudCubes;    
   }
   
   void push_back( const GroupID& id )
   {
-    m_used.set( id, true );
+    m_used -> set( id, true );
     *( m_qeuIn ++ ) = id;
   }
 
@@ -49,14 +50,14 @@ public:
 
   bool used( GroupID id ) const
   {
-    return m_used( id );
+    return m_used -> at( id );
   }
   
   bool operator << ( const GroupID& id )
   {
     if ( used( id ) == false )
     {
-      m_used.set( id, true );
+      m_used -> set( id, true );
       *( m_qeuIn ++ ) = id;
       return true;
     }
@@ -77,6 +78,7 @@ public:
   ~Qeueu()
   {
     delete[] m_qeueudCubes;
+    delete   m_used;
   }
 };
 

@@ -24,7 +24,7 @@ public:
   
   void resize( const size_t size )
   {
-    m_arraySize = size;
+    m_arraySize = 1 + size / 32;
     delete[] m_boolArray;
     m_boolArray = ( size == 0 ) ? nullptr : new uint32_t [ m_arraySize ] {};
   }
@@ -47,6 +47,11 @@ public:
     return get( index );
   }
   
+  inline bool at( const uint32_t index ) const
+  {
+    return get( index );
+  }
+ 
   void clean()
   {
     uint32_t * P = m_boolArray;
