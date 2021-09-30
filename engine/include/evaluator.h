@@ -70,8 +70,8 @@ Evaluator<N>::Evaluator()
  , m_grade2   ( nullptr )
  , m_aim1     ( nullptr )
  , m_aim2     ( nullptr )
- , m_qeueu    ( new Qeueu )
  , m_accept   ( Accept<N>::Normal )
+ , m_qeueu    ( new Qeueu )
 {
    
 }

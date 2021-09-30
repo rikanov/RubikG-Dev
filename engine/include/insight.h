@@ -11,7 +11,7 @@
 template< cube_size N >
 class Insight
 {
-  static constexpr size_t StateStackSize = 13;
+  static constexpr size_t StateStackSize = 20;
 
   GroupID      * m_stateStack;
   GroupID      * m_stateID ;
@@ -21,7 +21,7 @@ class Insight
 
 public:
   Insight()
-   :  m_stateStack  ( new GroupID [ StateStackSize ] )
+   :  m_stateStack  ( new GroupID [ StateStackSize ] {} )
    ,  m_stateID     ( m_stateStack )
    ,  m_subgroupMap ( new Subgroup <N> () )
    ,  m_evaluator   ( new Evaluator<N> () )
@@ -30,7 +30,7 @@ public:
   }
 
   Insight( const PosID * pos, const size_t size, const CubeID orient = 0 )
-   :  m_stateStack  ( new GroupID [ StateStackSize ] )
+   :  m_stateStack  ( new GroupID [ StateStackSize ] {} )
    ,  m_stateID     ( m_stateStack )
    ,  m_subgroupMap ( new Subgroup <N> () )
    ,  m_evaluator   ( new Evaluator<N> () )
@@ -156,6 +156,11 @@ public:
     m_updated = true;
   }
   
+  void reset()
+  {
+    m_stateID = m_stateStack;
+  }
+
   void move( const RotID rotID )
   {
     *( m_stateID + 1 ) = m_subgroupMap -> lookUp( *m_stateID, rotID, false );

@@ -17,17 +17,15 @@ static void ShowGradients ( const Insight<N> & insight )
 template< cube_size N >
 static bool CheckInsight( Insight<N> & insight )
 {
-  constexpr size_t NUMBER_OF_TESTS = 10;
+  constexpr size_t NUMBER_OF_TESTS = 6;
   bool ok = true;
   NL(); NL(); clog("teszt");
   insight.print(true );
   DistID deep[ NUMBER_OF_TESTS ] = {};
-  RotID  test[ NUMBER_OF_TESTS ] = {};
   for ( int i = 0; i < NUMBER_OF_TESTS; ++ i)
   {
     const RotID t = CRotations<N>::Random();
     deep[i] = insight.distance();
-    test[i] = t;
     NL();
     clog_( CRotations<N>::ToString( t ), "-->" );
     insight.move( t );
@@ -36,12 +34,8 @@ static bool CheckInsight( Insight<N> & insight )
   }
   for ( int i = 1; i <= NUMBER_OF_TESTS; ++ i)
   {
-    const RotID t = CRotations<N>::GetInvRotID( test[ NUMBER_OF_TESTS - i ] );
-    NL();
-    clog_( CRotations<N>::ToString( t ), "-->" );
-    insight.move( t );
+    insight.back();
     insight.print();
-    const DistID D = insight.distance();
     ShowGradients( insight );
     UnitTests::stamp ( insight.distance() == deep[ NUMBER_OF_TESTS - i ] , ok );
   }
@@ -62,6 +56,7 @@ static bool CheckGradient( Insight<N> & insight )
       insight.move( CRotations<N>::Random() ); 
     }
     ShowGradients( insight );
+    insight.reset();
   }
   return ok;
 }
