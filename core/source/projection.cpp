@@ -4,7 +4,7 @@
 const Projection * Projection::Singleton = nullptr;
 
 Projection::Projection()
- : m_projection( new const GroupID * [ SUBGROUP_SIZE_BOUND ] )
+ : m_projection( new const GroupID * [ SUBGROUP_SIZE_BOUND ] {} )
 {
   
 }

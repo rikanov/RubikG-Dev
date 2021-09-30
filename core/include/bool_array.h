@@ -24,7 +24,7 @@ public:
   
   void resize( const size_t size )
   {
-    m_arraySize = size;
+    m_arraySize = 1 + size / 32;
     delete[] m_boolArray;
     m_boolArray = ( size == 0 ) ? nullptr : new uint32_t [ m_arraySize ] {};
   }
