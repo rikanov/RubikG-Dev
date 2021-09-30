@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 
 project(rubikg)
 
+include_directories( rubikAI/include )
 include_directories( engine/include )
 include_directories( core/include )
 include_directories( core/template_h )
@@ -15,4 +16,5 @@ add_subdirectory(test)
 
 add_executable(rubikg main.cpp)
 
+set_property(TARGET rubikg PROPERTY CXX_STANDARD 17)
 target_link_libraries(rubikg core cli test)

@@ -1,0 +1,15 @@
+/home/rikanov/Contents/Documents/Projects/RubikG-Dev/TD/build/CMakeFiles/rebuild_cache.dir
+/home/rikanov/Contents/Documents/Projects/RubikG-Dev/TD/build/CMakeFiles/edit_cache.dir
+/home/rikanov/Contents/Documents/Projects/RubikG-Dev/TD/build/CMakeFiles/rubikg.dir
+/home/rikanov/Contents/Documents/Projects/RubikG-Dev/TD/build/engine/CMakeFiles/rebuild_cache.dir
+/home/rikanov/Contents/Documents/Projects/RubikG-Dev/TD/build/engine/CMakeFiles/edit_cache.dir
+/home/rikanov/Contents/Documents/Projects/RubikG-Dev/TD/build/engine/CMakeFiles/engine.dir
+/home/rikanov/Contents/Documents/Projects/RubikG-Dev/TD/build/core/CMakeFiles/rebuild_cache.dir
+/home/rikanov/Contents/Documents/Projects/RubikG-Dev/TD/build/core/CMakeFiles/edit_cache.dir
+/home/rikanov/Contents/Documents/Projects/RubikG-Dev/TD/build/core/CMakeFiles/core.dir
+/home/rikanov/Contents/Documents/Projects/RubikG-Dev/TD/build/CLi/CMakeFiles/rebuild_cache.dir
+/home/rikanov/Contents/Documents/Projects/RubikG-Dev/TD/build/CLi/CMakeFiles/edit_cache.dir
+/home/rikanov/Contents/Documents/Projects/RubikG-Dev/TD/build/CLi/CMakeFiles/cli.dir
+/home/rikanov/Contents/Documents/Projects/RubikG-Dev/TD/build/test/CMakeFiles/rebuild_cache.dir
+/home/rikanov/Contents/Documents/Projects/RubikG-Dev/TD/build/test/CMakeFiles/edit_cache.dir
+/home/rikanov/Contents/Documents/Projects/RubikG-Dev/TD/build/test/CMakeFiles/test.dir

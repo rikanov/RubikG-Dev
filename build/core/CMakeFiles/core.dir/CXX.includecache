@@ -1,0 +1,40 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../CLi/include/def_colors.h
+iostream
+-
+windows.h
+-
+
+../core/include/base_types.h
+cstdint
+-
+def_colors.h
+-
+string
+-
+
+../core/include/oriented_cube.h
+base_types.h
+-
+
+../core/include/simplex.h
+oriented_cube.h
+-
+
+/home/rikanov/Contents/Documents/Projects/RubikG-Dev/TD/core/source/oriented_cube.cpp
+oriented_cube.h
+-
+string
+-
+
+/home/rikanov/Contents/Documents/Projects/RubikG-Dev/TD/core/source/simplex.cpp
+simplex.h
+-
+

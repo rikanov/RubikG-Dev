@@ -1,163 +1,206 @@
 #ifndef ENGINE__H_INCLUDED
 #define ENGINE__H_INCLUDED
 
+
 #include <insight.h>
+#include <bitmap_set.h>
+#include <rubik.h>
+#include <text_output.h>
 
 template< cube_size N >
 class Engine
 {
-  using _crot = CExtRotations<N>;
+  static constexpr size_t StackSize = N * N * 10;
+  static constexpr size_t InsightsBound = 40;
 
-  static constexpr size_t s_Size = CPositions<N>::GetSize();
-  Insight <N> ** m_insights;
-  Insight <N> ** m_lastInsight;
-  Rubik   <N> &  m_rubik;
+  BitMapID     m_progress;
+  BitMapID   * m_allowed;
+  DistID       m_depth;
+  DistID       m_maxDepth;
 
-  DistID  m_depth;
-  RotID * m_stackPointer;
-  RotID   m_rotStack[200];
-  void rotate( const RotID rotID )
-  {
-    for ( Insight<N> ** p = m_insights; p < m_lastInsight; ++ p )
-      (*p) -> rotate( rotID );
-  }
+  BitMap32ID * m_targetStack;
+  BitMap32ID * m_target;
 
-  Insight<N> * getGuide() const
-  {
-    for ( Insight<N> ** p = m_insights; p < m_lastInsight; ++ p )
-    {
-      if ( ( *p ) -> distance() >= m_depth )
-        return *p;
-    }
-    return nullptr;
-  }
-  bool isSolved() const
-  {
-    for ( Insight<N> ** p = m_insights; p < m_lastInsight; ++ p )
-    {
-      if ( ( *p ) -> distance() > 0 )
-        return false;
-    }
-    return true;
-  }
+  BitMap     * m_gradientStack;
+  BitMap     * m_gradient;
 
-  bool guidedSearch( Insight<N> * );
+  CubeID       m_transposeSolution;
+  RotID      * m_solutionStack;
+  RotID      * m_solution;
+
+  Insight<N> * m_insights;
+  Insight<N> * m_endOfInsights;
+
+  // initializers
+  void init();
+  void toSolve( const Rubik<N> & );
+  DistID approx( const BitMapID );
+
+  // iteratively deepening algorithm IDA
+  void startIDA();
+  void progress();
+  void back();
+  bool iterativelyDeepening();
 
 public:
-  Engine( Rubik<N> & );
+  Engine();
   ~Engine();
 
-  void operator << ( Insight<N> & );
-  void operator << ( Insight<N> * );
+  void addInsight ( const PosID *, const size_t, const CubeID trans = 0, AcceptFunction af = Accept<N>::Normal );
 
-  void run  ( const int depth );
-  bool exec ( const Axis refA, const Layer refL );
+  void  update   ( void );
+  bool  empty    ( void ) const { return m_insights == m_endOfInsights; }
+ 
+  Sequence searchPath( Rubik<N> & );
+
+  void close();
+  bool closed() const;
 };
 
-template< cube_size N > 
-Engine<N>::Engine( Rubik <N> & rubik )
-  : m_insights( new Insight<N> * [ s_Size ]{} )
-  , m_lastInsight( m_insights )
-  , m_rubik( rubik )
+
+template< cube_size N >
+Engine<N>::Engine()
+ :  m_progress( 0 )
+ ,  m_allowed       ( new BitMapID   [ CRotations<N>::AllRotIDs ] )
+ ,  m_targetStack   ( new BitMap32ID [ StackSize ] )
+ ,  m_target        ( m_targetStack   )
+ ,  m_gradientStack ( new BitMap [ StackSize ] )
+ ,  m_gradient      ( m_gradientStack )
+ ,  m_solutionStack ( new RotID  [ StackSize ] )
+ ,  m_solution      ( m_solutionStack )
+ ,  m_insights      ( new Insight <N> [ InsightsBound ] )
+ ,  m_endOfInsights ( nullptr )
 {
+  *m_target = ( 1 << 24 ) - 1;
+  init();
 }
 
 template< cube_size N >
-void Engine<N>::operator << ( Insight<N> & next )
+void Engine<N>::init()
 {
-  *( m_lastInsight ++ ) = &next;
-}
+  m_endOfInsights = m_insights;
+  m_transposeSolution = 0;
+  constexpr BitMapID allRotations = ( 1ULL << CRotations<N>::AllRotIDs ) - 1; // include the solved bit
 
-template< cube_size N >
-void Engine<N>::operator << ( Insight<N> * next )
-{
-  *( m_lastInsight ++ ) = next;
-}
+  RotID rotID           = 0;
+  BitMapID allow        = allRotations;
+  m_allowed[ rotID ++ ] = allRotations;
 
-template< cube_size N >
-bool Engine<N>::guidedSearch( Insight<N> * insight )
-{
-  if ( insight == nullptr || insight -> distance() > m_depth )
+  all_rot( axis, layer, turn, N )
   {
-    return false;
+    if ( 1 == turn && 0 == layer )
+      allow = allRotations;
+
+    if ( 1 == turn )
+      allow -= 7ULL << ( 3 * ( axis * N + layer ) + 1 );
+
+    m_allowed[ rotID ++ ] = allow;
   }
-  if ( insight -> distance() == 0 )
+}
+
+template< cube_size N >
+void Engine<N>::addInsight( const PosID * posID, const size_t size, const CubeID trans, AcceptFunction af )
+{
+  ( m_endOfInsights ++ ) -> init( posID, size, trans, af );
+}
+
+template< cube_size N >
+DistID Engine<N>::approx( const BitMapID insight )
+{/// FixMe
+  DistID result = 0;
+  const BitMapID orig = m_progress;
+  m_progress |= insight;
+
+  for ( m_depth = 0; 0 == result && m_depth < 12; ++ m_depth )
   {
-    return isSolved();
-  }
-  --m_depth;
-  ++m_stackPointer;
-  for( RotID next = insight -> start(); next != 0; next = insight -> next() )
-  {
-    *m_stackPointer = next;
-    rotate( next );
-    if ( guidedSearch( insight ) )
+    startIDA();
+    if ( ! m_gradient -> empty() )
     {
-      return true;
-    }
-    rotate( _crot::GetInvRotID( next ) ); // revert
-  }
-  --m_stackPointer;
-  ++m_depth;
-  return false;
-}
-
-template< cube_size N >
-bool Engine<N>::exec( const Axis refA, const Layer refL )
-{
-  if ( getGuide() )
-  {
-    return guidedSearch( getGuide() );
-  }
-  ++ m_stackPointer;
-  -- m_depth;
-  for( Axis axis : { _X, _Y, _Z } )
-  {
-    for( Layer layer = axis == refA ? refL + 1 : 0; layer < _crot::NT; ++ layer )
-    {
-      const RotID rotID = _crot::GetRotID( axis, layer, 1 );
-      RotID turned =  rotID;
-      for( Turn turn: { 1, 2, 3} )
-      {
-        rotate( rotID );
-        *m_stackPointer = turned ++;
-        if ( exec( axis, layer ) )
-        {
-          return true;
-        }
-      }
-      rotate( rotID ); // fourth turn --> revert
+      result = m_depth;
     }
   }
+
+  m_progress = orig;
+  m_depth = 0;
+  return result;
+}
+
+template< cube_size N >
+void Engine<N>::toSolve( const Rubik<N> & R )
+{
+  DistID   min   = 0xFF;
+  BitMapID next  = 1;
+  BitMapID stage = 1;
+  for ( auto pInsight = m_insights; pInsight != m_endOfInsights; ++ pInsight )
+  {
+    pInsight -> toSolve( R, m_transposeSolution, pInsight == m_insights );
+    const DistID dist = pInsight -> distance();
+    if ( 0 == dist && pInsight -> prior() == m_insights -> prior() )
+    {
+      m_progress |= 1ULL << ( pInsight - m_insights );
+    }
+    else if ( dist < min) // FixMe
+    {
+      min = dist;
+      stage = next;
+    }
+    next <<= 1;
+  }
+  m_progress |= stage;
+  BitMap::Print( m_progress, m_endOfInsights - m_insights );
+}
+
+template< cube_size N >
+void Engine<N>::update()
+{
+  for ( auto pInsight = m_insights; pInsight != m_endOfInsights; ++ pInsight )
+  {
+    pInsight -> update();
+  }  
+}
+
+template< cube_size N >
+void Engine<N>::back()
+{
   ++ m_depth;
-  -- m_stackPointer;
-  return false;
+  -- m_solution;
+
+  -- m_target;
+  -- m_gradient;
+
+  BitMapID active = 1;
+  for ( auto pInsight = m_insights; pInsight != m_endOfInsights; ++ pInsight )
+  {
+    if ( m_progress & active )
+      pInsight -> back();
+    
+    active <<= 1;
+  }
 }
 
 template< cube_size N >
-void Engine<N>::run( const int depth )
+void Engine<N>::close()
 {
-  for( auto P = m_insights; P != m_lastInsight; ++ P )
-  {
-    ( *P ) -> set( m_rubik );
-  }
-  m_stackPointer = m_rotStack - 1;
-  for ( int d = 0; d < depth; ++ d)
-  {
-    m_depth = d;
-    if ( exec( _NA, 0 ) )
-    {
-      *( m_stackPointer + 1 ) = 0; // termination sign
-      m_rubik.rotate( m_rotStack );
-      break;
-    }
-  }
+  m_progress = ( 1ULL << ( m_endOfInsights - m_insights ) ) - 1;
+}
+
+template< cube_size N >
+bool Engine<N>::closed() const
+{
+  return m_progress == ( 1ULL << ( m_endOfInsights - m_insights ) ) - 1;
 }
 
 template< cube_size N >
 Engine<N>::~Engine()
 {
+  delete[] m_allowed;
+  delete[] m_targetStack;
+  delete[] m_gradientStack;
+  delete[] m_solutionStack;
   delete[] m_insights;
 }
+
+// template functions including
+#include <engine_search.h>
 
 #endif  //  ! ENGINE__H_INCLUDED

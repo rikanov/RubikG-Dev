@@ -28,12 +28,14 @@ typedef uint8_t byte;
 
  // ID types
 //  --------
-typedef uint8_t        cube_size;
-typedef uint_fast8_t  CubeID;
-typedef uint8_t       RotID;
-typedef uint8_t       PosID;
-typedef uint8_t       DistID;
-typedef uint32_t      CacheID;
+typedef uint8_t  cube_size;
+typedef uint8_t  CubeID;
+typedef uint8_t  RotID;
+typedef uint8_t  PosID;
+typedef uint8_t  DistID;
+typedef uint32_t GroupID;
+typedef uint32_t BitMap32ID;
+typedef uint64_t BitMapID;
 
  // Components
 //  ----------
@@ -54,7 +56,18 @@ struct Coord
   Coord(): x( 0 ), y( 0 ), z( 0 )
   {}
   Coord( Layer x, Layer y, Layer z): x( x ), y( y ), z( z ) 
-  {}  
+  {} 
+  Layer coord( const Axis axis ) const
+  {
+    switch( axis )
+    {
+      case _X: return x;
+      case _Y: return y;
+      case _Z: return z;
+      default: break;
+    }
+    return 0xFF; // error
+  }
   std::string toString() const 
   { 
     return "< " + std::to_string( x ) + ' ' + std::to_string( y ) + ' ' + std::to_string( z ) + " >";
@@ -70,6 +83,12 @@ enum Orient
 
  // Auxiliary inline functions
 // ---------------------------
+inline size_t pow24( const int pow )
+{
+  static constexpr size_t _pow24[] = { 1, 24, 576, 13824, 331776, 7962624, 191102976 };
+  return _pow24[ pow ];
+}
+
 inline void operator++ ( Orient& id )
 {
   id = Orient( int( id ) + 1 );
@@ -83,6 +102,21 @@ inline Orient SideOpposite( Orient S )
 inline bool Coaxial( Orient a, Orient b )
 { 
   return  a == b || a == SideOpposite( b ); 
+}
+
+inline Orient GetAxisBase( const Axis axis )
+{
+  switch( axis )
+  {
+    case _X:
+      return _L;
+    case _Y:
+      return _D;
+    case _Z:
+      return _B;
+    default:
+      return _NF;
+  }
 }
 
 inline Color::Modifier colorOf( Orient F )
@@ -131,6 +165,9 @@ inline char Token( Orient F )
    for ( Axis A: { _X, _Y, _Z } )   \
      for ( Layer L = 0; L < N; ++L ) \
        for ( Turn T: { 1, 2, 3 } )
+         
+#define all_rotid( rotID, N ) \
+   for ( RotID rotID = 1; rotID < CRotations<N>::AllRotIDs; ++ rotID )
 
 #define for_vector( x, y, z, N )   \
    for ( Layer x = 0; x < N; ++x )  \

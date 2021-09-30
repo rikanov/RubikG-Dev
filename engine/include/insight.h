@@ -1,176 +1,190 @@
 #ifndef INSIGHT__H
 #define INSIGHT__H
 
-#include <cache_generator.h>
-#include <rubik.h>
+#include <projection.h>
+#include <gen_rotation_set.h>
+#include <evaluator.h>
 
+/*
+ * Insight object: { Actual state by ID } X { Subgroup map } X { Node evaluator object }
+ */
 template< cube_size N >
 class Insight
 {
-  using _crot = CExtRotations<N>;
+  static constexpr size_t StateStackSize = 20;
 
-  CacheID        m_stateID;
-  CubeID         m_prior;
-
-  const size_t   m_size;
-  const CubeID * m_priorCache;
-  const RotID  * m_transRotation;
-  const PosID  * m_pos;
-
-  mutable const RotID  * m_nextSuggested;
-  const CacheIDmap<N>  * m_map;
-
-  void initMap( SubSpace, const CubeID );
-  void initPrior();
-  void initRotIDs();
+  GroupID      * m_stateStack;
+  GroupID      * m_stateID ;
+  Subgroup <N> * m_subgroupMap;
+  Evaluator<N> * m_evaluator;
+  bool          m_updated = false;
 
 public:
-  Insight( SubSpace P, const CubeID cid = 0 );
-  ~Insight();
-  Insight( const Insight<N> & ) = delete;
-
-  void set( const Rubik<N> & );
-
-  int rotate( const Axis axis, const Layer layer, const Turn turn );
-  int rotate( const RotID rotID );
-
-  CacheID state() const
+  Insight()
+   :  m_stateStack  ( new GroupID [ StateStackSize ] {} )
+   ,  m_stateID     ( m_stateStack )
+   ,  m_subgroupMap ( new Subgroup <N> () )
+   ,  m_evaluator   ( new Evaluator<N> () )
   {
-    return m_stateID;
+
+  }
+
+  Insight( const PosID * pos, const size_t size, const CubeID orient = 0 )
+   :  m_stateStack  ( new GroupID [ StateStackSize ] {} )
+   ,  m_stateID     ( m_stateStack )
+   ,  m_subgroupMap ( new Subgroup <N> () )
+   ,  m_evaluator   ( new Evaluator<N> () )
+  {
+    init( pos, size, orient );
   }
   
-  size_t prior() const
+  size_t size() const
   {
-    return m_prior;
+    return m_subgroupMap -> size();
+  }
+  
+  CubeID prior() const
+  {
+    return m_subgroupMap -> prior( *m_stateID );
+  }
+  
+  PosID priorPos() const
+  {
+    return m_subgroupMap -> priorPos( *m_stateID );
   }
 
-  OCube priorCube() const
+  GroupID state() const
   {
-    return Simplex::GetCube( m_prior );
+    return *m_stateID;
   }
+  
+  void toSolve( const Rubik<N> & R, CubeID & trans, const bool ref )
+  {
+    m_stateID = m_stateStack;
+    *m_stateID = m_subgroupMap -> getStateID( R, trans );
 
+    if ( false == ref )
+    {
+      return;
+    }
+
+    update();
+
+    DistID  minimum = distance( );
+    GroupID chosen  = *m_stateID;
+
+    all_cubeid ( cid )
+    {
+      *m_stateID = m_subgroupMap -> getStateID( R, cid );
+      if ( distance() < minimum )
+      {
+        trans   = cid;
+        minimum = distance();
+        chosen  = *m_stateID;
+      }
+    }
+    *m_stateID = chosen;
+  }
+  
+  GroupID projected() const
+  {
+    return Projection::LookUp( m_subgroupMap -> size(), *m_stateID );
+  }
+  
   DistID distance() const
   {
-    return m_map -> distance( m_stateID );
+    return m_evaluator -> distance( projected() );
   }
-
-  RotID start() const
+  
+  BitMapID gradient( const DistID distID ) const
   {
-    m_nextSuggested = m_map -> router( m_stateID );
-    return next();
+    const DistID D = distance();
+    if ( distID < D )
+    {
+      return 0;
+    }
+    if ( distID > D + 1 )
+    {
+      return ( 1ULL << ( 9 * N + 1 ) ) - 2;
+    }
+    BitMapID grad = distID == D ? m_evaluator -> grade1( projected() ) : m_evaluator -> grade2( projected() );
+    GenerateRotationSet<N>::Transform( grad, prior() );
+    return grad;
   }
-
-  RotID next() const
+ 
+  BitMap32ID aim( const DistID distID ) const
   {
-    return  *m_nextSuggested == 0 ? 0 : _crot::GetRotID( *( m_nextSuggested ++ ), m_prior);
+    const DistID D = distance();
+    if ( distID < D )
+    {
+      return 0;
+    }
+    if ( distID > D + 1 )
+    {
+      return ( 1 << 24 ) - 1;
+    }
+    BitMap32ID aim = distID == D ? m_evaluator -> aim1( projected() ) : m_evaluator -> aim2( projected() );
+    return CubeSet::GetCubeSet( prior(), aim );
   }
 
-  void print( const bool details = false ) const;
+  Insight<N> & init( const PosID * pos, const size_t size, const CubeID orient = 0, AcceptFunction af = Accept<N>::Normal )
+  {
+    m_updated = false;
+    m_subgroupMap -> init( pos, size, orient );
+    m_evaluator -> accept( af );
+    return *this;
+  }
+  
+  void extend( const PosID pos )
+  {
+    m_updated = false;
+    m_subgroupMap -> extend( pos );
+  }
+  
+  void update()
+  {
+    if ( false == m_updated )
+    {
+      build();
+    }
+  }
+  
+  void build()
+  {
+    m_evaluator -> map( m_subgroupMap );
+    m_evaluator -> build();
+    m_updated = true;
+  }
+  
+  void reset()
+  {
+    m_stateID = m_stateStack;
+  }
+
+  void move( const RotID rotID )
+  {
+    *( m_stateID + 1 ) = m_subgroupMap -> lookUp( *m_stateID, rotID, false );
+    ++ m_stateID;
+  }
+
+  void back()
+  {
+    -- m_stateID;
+  }
+
+  void print( const bool details = false, const bool projected = false ) const
+  {
+    clog_( "stateID:" );
+    clog( *m_stateID );
+    m_subgroupMap -> print( *m_stateID, details, projected );
+  }
+  
+  ~Insight()
+  {
+    delete[] m_stateStack;
+    delete   m_subgroupMap;
+    delete   m_evaluator;
+  }
 };
 
-template< cube_size N >
-Insight<N>::Insight( SubSpace P, const CubeID cid )
-  : m_size  ( P.size() )
-{
-  initMap( P, cid );
-  initRotIDs();
-  initPrior();
-}
-
-template< cube_size N > 
-void Insight<N>::initMap( SubSpace P, const CubeID cid )
-{
-  CacheIDmapper<N> * mapBuilder = new CacheIDmapper<N>;
-  CacheIDmap<N>    * map = new CacheIDmap<N>();
-
-  PosID * pos = new PosID [ P.size() ];
-  size_t i = 0;
-  for( auto p: P )
-  {
-    pos[ i++ ] = CPositions<N>::GetPosID( p, cid );
-  }
-  mapBuilder -> initialPosition( pos, P.size() );
-  mapBuilder -> createMap( *map );
-  m_map = map;
-  m_pos = pos;
-  delete mapBuilder;
-}
-
-template< cube_size N >
-void Insight<N>::initPrior()
-{
-  CubeID * priorCache = new CubeID [ _crot::AllRotIDs * 24 ];
-  all_rot( axis, layer, turn, _crot::NT )
-  {
-    all_cubeid( prior )
-    {
-      const RotID rotID = m_transRotation[ prior * _crot::AllRotIDs + _crot::GetRotID( axis, layer, turn ) ];
-
-      if ( ( layer  < N && layer         == CPositions<N>::GetLayer( m_pos[0], prior, axis ) ) ||
-           ( layer >= N && layer - N + 1 >= CPositions<N>::GetLayer( m_pos[0], prior, axis ) ) )
-      {
-        priorCache[ 24 * rotID + prior ] = Simplex::Tilt( prior, axis, turn );
-      }
-      else
-      {
-        priorCache[ 24 * rotID + prior ] = prior;
-      }
-    }
-  }
-  m_priorCache = priorCache;
-}
-
-template< cube_size N >
-void Insight<N>::initRotIDs()
-{
-  RotID * transRotation = new RotID [ 24 * _crot::AllRotIDs ];
-  all_rot( axis, layer, turn, _crot::NT )
-  {
-    all_cubeid( prior )
-    {
-      transRotation[ prior * _crot::AllRotIDs + _crot::GetRotID( axis, layer, turn ) ] = _crot::GetRotID( axis, layer, turn, Simplex::Inverse( prior ) );
-    }
-  }
-  m_transRotation = transRotation;
-}
-
-template< cube_size N >
-void Insight<N>::set( const Rubik<N> & R )
-{
-  CubeID * subset = new CubeID [ m_size ];
-  for( size_t posIndex = 0; posIndex < m_size; ++ posIndex )
-  {
-    subset[ posIndex ] = R.transpose( m_pos[ posIndex ] );
-  }
-  m_prior = subset[0];
-  m_stateID = GetCacheID( subset, m_size );
-  delete[] subset;
-}
-
-template< cube_size N >
-int Insight<N>::rotate( const Axis axis, const Layer layer, const Turn turn )
-{
-  return rotate( _crot::GetRotID( axis, layer, turn ) );
-}
-
-template< cube_size N >
-int Insight<N>::rotate( const RotID rotID )
-{
-  const RotID rotIDt = m_transRotation[ m_prior * _crot::AllRotIDs + rotID ];
-
-  m_prior   = m_priorCache[ 24 * rotIDt + m_prior ] ;
-  m_stateID = m_map -> getState( m_stateID, rotIDt ) ;
-  return distance();
-}
-
-template< cube_size N >
-Insight<N>::~Insight()
-{
-  delete   m_map;
-  delete[] m_pos;
-  delete[] m_priorCache;
-  delete[] m_transRotation;
-}
-
-#include <insight_print.h>
 #endif //  ! INSIGHT__H

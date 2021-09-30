@@ -22,6 +22,7 @@
 
 #include <text_output.h>
 #include <simplex.h>
+#include <random>
 
 static constexpr bool SHOW_LOG = false; // setting true is only for debuging purposes
 
@@ -52,7 +53,7 @@ class CPositions
   static PosID* GetNode  ( int x, int y, int z )   { return GetNode( GetPosID ( x, y, z) );   }
 
 public:
-  static constexpr int GetSize ( ) { return FrameworkSize [ N ]; }
+  static constexpr size_t GetSize ( ) { return FrameworkSize [ N ]; }
   
   static   void    Instance  ( void )                                  { if ( Singleton == nullptr ) new CPositions<N>;          }
   static   void    OnExit    ( void )                                  { delete Singleton; Singleton = nullptr;                  }
@@ -65,14 +66,8 @@ public:
   static   Layer   LayerSize ( Layer l )                               { return l == 0 || l == N - 1 ? N * N : 4 * ( N - 1 );    }
   static   Layer   GetLayer  ( PosID p, Axis a )                       { return Singleton -> m_indexToCoord [ p ][ a ];          }
   static   Layer   GetLayer  ( PosID p, CubeID r, Axis a )             { return Singleton -> m_indexToCoord [ GetPosID( p, r ) ][ a ]; }
-  static   Coord   GetCoord  ( PosID p ) 
-  { 
-    return Coord( 
-      Singleton->m_indexToCoord [ p ][ _X ], 
-      Singleton->m_indexToCoord [ p ][ _Y ], 
-      Singleton->m_indexToCoord [ p ][ _Z ]
-      ); 
-  }
+  static   Coord   GetCoord  ( PosID );
+  static   PosID   Random    ();
 };
 
 /// ----------------------------------- Template definitions starts here ------------------------------------- ///
@@ -153,5 +148,25 @@ void CPositions<N>::initPositions()
       }
     }
   }
+}
+
+template< cube_size N >
+Coord CPositions<N>::GetCoord( PosID p ) 
+{ 
+  return Coord( 
+    Singleton->m_indexToCoord [ p ][ _X ], 
+    Singleton->m_indexToCoord [ p ][ _Y ], 
+    Singleton->m_indexToCoord [ p ][ _Z ]
+    ); 
+}
+
+template< cube_size N >
+PosID CPositions<N>::Random()
+{
+ static std::random_device                 randomDevice;
+ static std::default_random_engine         randomEngine( randomDevice() );
+ static std::uniform_int_distribution<int> distribution( 0, FrameworkSize[ N ] - 1 ); 
+
+ return distribution( randomEngine );
 }
 #endif // CUBE_POSITIONS_H

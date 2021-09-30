@@ -1,27 +1,12 @@
-/*
- * Cube frameworks: store only the rotational state of all cublets of an N x N Rubics cube. (without their position in the Rubics cube)
- *
- * Copyright (C) 2020  Robert Ikanov <robert.ikanov@gmail.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 
 #ifndef CUBE_FRAMEWORK_HEADER
 #define CUBE_FRAMEWORK_HEADER
 
 #include <cube_rotations.h>
 #include <cube_positions.h>
+#include <sequence.h>
+
+static constexpr bool LogRotations = false;
 
 /// ----------------------------------- Template declarations starts here ------------------------------------- ///
 template< cube_size N >
@@ -42,7 +27,7 @@ public:
   Rubik<N> inverse    ( void ) const;
   void     rotate     ( const Axis, const Layer, const Turn turn = 1 );
   void     rotate     ( const RotID rotID, const RotStyle RS = normal );
-  void     rotate     ( const RotID * rotIDs, const RotStyle RS = normal );
+  void     rotate     ( const Sequence & seq, const RotStyle RS = normal );
   void     shuffle    ( int depth = 0 );
   
   static Rubik<N> Transform  ( const Rubik<N>& A, const Rubik<N>& C ) { return Rubik<N>( A.inverse(), C ); } // transform( A, C ) returns with B where A + B = C
@@ -62,7 +47,8 @@ public:
   
   inline PosID whatIs    ( PosID id ) const ;
   inline PosID whereIs   ( PosID id ) const ;
-  inline RotID transpose ( PosID id ) const ;
+
+  CubeID transpose ( PosID id, CubeID trans = 0 ) const ;
 
   Coord   whatIs    ( Coord C )  const { return CPositions<N>::getCoord( whatIs ( CPositions<N>::GetPosID( C ) ) ); }
   Coord   whereIs   ( Coord C )  const { return CPositions<N>::getCoord( whereIs( CPositions<N>::GetPosID( C ) ) ); }
@@ -197,6 +183,8 @@ void Rubik<N>::rotate( const RotID rotID, const RotStyle RS )
     const Layer layer = CRotations<N>::GetLayer ( rotID );
     const Turn  turn  = CRotations<N>::GetTurn  ( rotID );
     rotate( axis, layer, turn ); 
+    if ( LogRotations )
+      clog( CRotations<N>::ToString( rotID ) );
   }
   else // RS == extended
   {
@@ -211,18 +199,18 @@ void Rubik<N>::rotate( const RotID rotID, const RotStyle RS )
     {
       rotate( axis, next, turn );
     }
+    if ( LogRotations )
+      clog( CExtRotations<N>::ToString( rotID ) );
   }
 }
 
 template< cube_size N >
-void Rubik<N>::rotate(const RotID* rotIDs, const RotStyle RS)
+void Rubik<N>::rotate( const Sequence & seq, const RotStyle RS )
 {
-  clog( "\nRotations:" );
-  for ( const RotID * P = rotIDs; *P != 0; ++ P )
+  for( RotID next = seq.start(); next; next = seq.next() )
   {
-    rotate( *P, RS ); clog( RS == normal ? CRotations<N>::ToString( *P ) : CExtRotations<N>::ToString( *P ) );
+    rotate( next, RS );
   }
-  NL();
 }
 
 template< cube_size N > 
@@ -258,14 +246,15 @@ PosID Rubik<N>::whereIs( PosID id ) const
 }
 
 template< cube_size N >
-RotID Rubik<N>::transpose( PosID id ) const
+CubeID Rubik<N>::transpose( PosID id, CubeID trans ) const
 {
+  id = CPositions<N>::GetPosID( id, trans );
   CubeID rot = 0;
   while ( frameworkSpace[ CPositions<N>::GetPosID( id, rot ) ] != rot )
   {
     ++ rot;
   }
-  return rot;
+  return Simplex::Composition( trans,rot );
 }
 
 template< cube_size N >
@@ -279,7 +268,7 @@ Orient Rubik<N>::getOrient ( const Orient right, const Orient up, int x, int y )
   const CubeID trans  = Simplex::GetGroupID     ( right, up ); 
   const CubeID inv    = Simplex::Inverse        ( trans ); 
   const Orient orient = OCube::FrontSide        ( right, up ); // = Simplex::GetCube( trans ).whatIs( _F );
-  const int    index  = CPositions<N>::GetPosID ( x, y, N - 1, inv );
+  const PosID  index  = CPositions<N>::GetPosID ( x, y, N - 1, inv );
   
   return getCube ( index ).whatIs( orient );
 }
