@@ -3,38 +3,26 @@
 
 
 #include <insight.h>
-#include <bitmap_set.h>
+#include <progress.h>
 #include <rubik.h>
 #include <text_output.h>
 
 template< cube_size N >
-class Engine
+class Engine: protected Progression
 {
   static constexpr size_t StackSize = N * N * 10;
   static constexpr size_t InsightsBound = 40;
 
   BitMapID     m_progress;
   BitMapID   * m_allowed;
-  DistID       m_depth;
-  DistID       m_maxDepth;
-
-  BitMap32ID * m_targetStack;
-  BitMap32ID * m_target;
-
-  BitMap     * m_gradientStack;
-  BitMap     * m_gradient;
 
   CubeID       m_transposeSolution;
-  RotID      * m_solutionStack;
-  RotID      * m_solution;
-
   Insight<N> * m_insights;
   Insight<N> * m_endOfInsights;
 
   // initializers
   void init();
   void toSolve( const Rubik<N> & );
-  DistID approx( const BitMapID );
 
   // iteratively deepening algorithm IDA
   void startIDA();
@@ -62,16 +50,9 @@ template< cube_size N >
 Engine<N>::Engine()
  :  m_progress( 0 )
  ,  m_allowed       ( new BitMapID   [ CRotations<N>::AllRotIDs ] )
- ,  m_targetStack   ( new BitMap32ID [ StackSize ] )
- ,  m_target        ( m_targetStack   )
- ,  m_gradientStack ( new BitMap [ StackSize ] )
- ,  m_gradient      ( m_gradientStack )
- ,  m_solutionStack ( new RotID  [ StackSize ] )
- ,  m_solution      ( m_solutionStack )
  ,  m_insights      ( new Insight <N> [ InsightsBound ] )
  ,  m_endOfInsights ( nullptr )
 {
-  *m_target = ( 1 << 24 ) - 1;
   init();
 }
 
@@ -105,29 +86,9 @@ void Engine<N>::addInsight( const PosID * posID, const size_t size, const CubeID
 }
 
 template< cube_size N >
-DistID Engine<N>::approx( const BitMapID insight )
-{/// FixMe
-  DistID result = 0;
-  const BitMapID orig = m_progress;
-  m_progress |= insight;
-
-  for ( m_depth = 0; 0 == result && m_depth < 12; ++ m_depth )
-  {
-    startIDA();
-    if ( ! m_gradient -> empty() )
-    {
-      result = m_depth;
-    }
-  }
-
-  m_progress = orig;
-  m_depth = 0;
-  return result;
-}
-
-template< cube_size N >
 void Engine<N>::toSolve( const Rubik<N> & R )
 {
+  reset();
   DistID   min   = 0xFF;
   BitMapID next  = 1;
   BitMapID stage = 1;
@@ -162,11 +123,7 @@ void Engine<N>::update()
 template< cube_size N >
 void Engine<N>::back()
 {
-  ++ m_depth;
-  -- m_solution;
-
-  -- m_target;
-  -- m_gradient;
+  pop();
 
   BitMapID active = 1;
   for ( auto pInsight = m_insights; pInsight != m_endOfInsights; ++ pInsight )
@@ -194,9 +151,6 @@ template< cube_size N >
 Engine<N>::~Engine()
 {
   delete[] m_allowed;
-  delete[] m_targetStack;
-  delete[] m_gradientStack;
-  delete[] m_solutionStack;
   delete[] m_insights;
 }
 

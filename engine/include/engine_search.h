@@ -6,8 +6,7 @@
 template< cube_size N >
 void Engine<N>::progress()
 {
-  -- m_depth;
-  for ( RotID next = 0; m_gradient -> next( next ); )
+  for ( RotID next = 0; chooseBranch( next ); )
   {
     BitMap32ID target   = ( 1 << 24 ) - 1;
     BitMapID   gradient = m_allowed[ next ];
@@ -21,8 +20,8 @@ void Engine<N>::progress()
       {
         pInsight -> move( next );
 
-        target   &= pInsight -> aim     ( m_depth );
-        gradient &= pInsight -> gradient( m_depth );
+        target   &= pInsight -> aim     ( depth() - 1 );
+        gradient &= pInsight -> gradient( depth() - 1 );
       }
       ++ pInsight;
       active <<= 1;
@@ -30,9 +29,7 @@ void Engine<N>::progress()
 
     if ( gradient > 0 && target > 0 )
     {
-      *( m_solution ++ ) = next;
-      *( ++ m_target ) = target;
-      ( ++ m_gradient ) -> set( gradient );
+      push( gradient, next );
       return;
     }
 
@@ -44,33 +41,27 @@ void Engine<N>::progress()
       
       active <<= 1;
     }
-  }
-  ++ m_depth;
+  };
 }
 
 template< cube_size N >
 void Engine<N>::startIDA()
 {
-  m_target   = m_targetStack;
-  m_gradient = m_gradientStack;
-  m_solution = m_solutionStack;
-
-  *m_target = ( 1 << 24 ) - 1;
-
-  BitMapID gradient = m_allowed[ 0 ];
+  BitMap32ID target   = ( 1 << 24 ) - 1;
+  BitMapID   gradient = m_allowed[ 0 ];
 
   BitMapID active = 1;
-  for ( const Insight<N> * P = m_insights; gradient > 0 && *m_target > 0 && P != m_endOfInsights; ++ P )
+  for ( const Insight<N> * P = m_insights; gradient > 0 && target > 0 && P != m_endOfInsights; ++ P )
   {
     if ( m_progress & active )
     {
-       gradient &= P -> gradient( m_depth );
-      *m_target &= P -> aim( m_depth );
+       gradient &= P -> gradient( depth() );
+       target   &= P -> aim( depth() );
     }
     active <<= 1;
   }
   
-  m_gradient -> set( 0 == *m_target ? 0: gradient );
+  setNode( 0 == target ? 0: gradient );
 }
 
 template< cube_size N >
@@ -78,16 +69,15 @@ Sequence Engine<N>::searchPath( Rubik<N> & cube )
 {
   Sequence result;
   toSolve( cube );
-  m_solution = m_solutionStack;
-  clog_( "max depth:" );
-  for ( m_maxDepth = 0; m_maxDepth < 12; ++ m_maxDepth )
+  startSearch();
+  while ( heightLessThan( 13 ) )
   {
-    clog_( "..", (int) m_maxDepth );
     if ( iterativelyDeepening() )
     {
-      result.set( m_solutionStack, m_maxDepth );
+      solution( result );
       break;
     }
+    deepening();
   }
   NL();
   return result;
@@ -97,17 +87,15 @@ template< cube_size N >
 bool Engine<N>::iterativelyDeepening()
 {
   bool result = false;
-  m_depth = m_maxDepth;
   startIDA();
-  RotID next = 0; 
-  while ( m_depth < m_maxDepth || ! m_gradient -> empty() )
+  while ( ! onTheTop() || ! onEmptyNode() )
   {
-    if ( 0 == m_depth && m_gradient -> next() == 0 )
+    if ( inSolvedState() )
     {
         result = true;
         break; // no more state to resolve
     }
-    while ( m_depth < m_maxDepth && m_gradient -> empty() )
+    while ( ! onTheTop() && onEmptyNode() )
     {
       back();
     }
