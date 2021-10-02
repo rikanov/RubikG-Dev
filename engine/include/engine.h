@@ -4,25 +4,20 @@
 
 #include <insight.h>
 #include <progress.h>
-#include <rubik.h>
+#include <snapper.h>
 #include <text_output.h>
 
 template< cube_size N >
 class Engine: protected Progression
 {
   static constexpr size_t StackSize = N * N * 10;
-  static constexpr size_t InsightsBound = 40;
 
-  BitMapID     m_progress;
   BitMapID   * m_allowed;
-
-  CubeID       m_transposeSolution;
-  Insight<N> * m_insights;
-  Insight<N> * m_endOfInsights;
+  Snapper<N> * m_snapshots;
 
   // initializers
   void init();
-  void toSolve( const Rubik<N> & );
+  void toSolve( const Rubik<N> & R ) { m_snapshots -> toSolve( R ); }
 
   // iteratively deepening algorithm IDA
   void startIDA();
@@ -36,8 +31,7 @@ public:
 
   void addInsight ( const PosID *, const size_t, const CubeID trans = 0, AcceptFunction af = Accept<N>::Normal );
 
-  void  update   ( void );
-  bool  empty    ( void ) const { return m_insights == m_endOfInsights; }
+  bool  empty    ( void ) const { return m_snapshots -> empty(); }
  
   Sequence searchPath( Rubik<N> & );
 
@@ -48,10 +42,8 @@ public:
 
 template< cube_size N >
 Engine<N>::Engine()
- :  m_progress( 0 )
- ,  m_allowed       ( new BitMapID   [ CRotations<N>::AllRotIDs ] )
- ,  m_insights      ( new Insight <N> [ InsightsBound ] )
- ,  m_endOfInsights ( nullptr )
+ :  m_allowed  ( new BitMapID   [ CRotations<N>::AllRotIDs ] )
+ ,  m_snapshots( new Snapper<N>() )
 {
   init();
 }
@@ -59,8 +51,6 @@ Engine<N>::Engine()
 template< cube_size N >
 void Engine<N>::init()
 {
-  m_endOfInsights = m_insights;
-  m_transposeSolution = 0;
   constexpr BitMapID allRotations = ( 1ULL << CRotations<N>::AllRotIDs ) - 1; // include the solved bit
 
   RotID rotID           = 0;
@@ -80,81 +70,109 @@ void Engine<N>::init()
 }
 
 template< cube_size N >
-void Engine<N>::addInsight( const PosID * posID, const size_t size, const CubeID trans, AcceptFunction af )
+void Engine<N>::addInsight( const PosID * subspacePos, const size_t subspaceSize, const CubeID trans, AcceptFunction af )
 {
-  ( m_endOfInsights ++ ) -> init( posID, size, trans, af );
-}
-
-template< cube_size N >
-void Engine<N>::toSolve( const Rubik<N> & R )
-{
-  reset();
-  DistID   min   = 0xFF;
-  BitMapID next  = 1;
-  BitMapID stage = 1;
-  for ( auto pInsight = m_insights; pInsight != m_endOfInsights; ++ pInsight )
-  {
-    pInsight -> toSolve( R, m_transposeSolution, pInsight == m_insights );
-    const DistID dist = pInsight -> distance();
-    if ( 0 == dist && pInsight -> prior() == m_insights -> prior() )
-    {
-      m_progress |= 1ULL << ( pInsight - m_insights );
-    }
-    else if ( dist < min) // FixMe
-    {
-      min = dist;
-      stage = next;
-    }
-    next <<= 1;
-  }
-  m_progress |= stage;
-  BitMap::Print( m_progress, m_endOfInsights - m_insights );
-}
-
-template< cube_size N >
-void Engine<N>::update()
-{
-  for ( auto pInsight = m_insights; pInsight != m_endOfInsights; ++ pInsight )
-  {
-    pInsight -> update();
-  }  
+  m_snapshots -> addInsight( subspacePos, subspaceSize, trans, af );
 }
 
 template< cube_size N >
 void Engine<N>::back()
 {
   pop();
-
-  BitMapID active = 1;
-  for ( auto pInsight = m_insights; pInsight != m_endOfInsights; ++ pInsight )
-  {
-    if ( m_progress & active )
-      pInsight -> back();
-    
-    active <<= 1;
-  }
+  m_snapshots -> revert();
 }
 
 template< cube_size N >
 void Engine<N>::close()
 {
-  m_progress = ( 1ULL << ( m_endOfInsights - m_insights ) ) - 1;
+  m_snapshots -> close();
 }
 
 template< cube_size N >
 bool Engine<N>::closed() const
 {
-  return m_progress == ( 1ULL << ( m_endOfInsights - m_insights ) ) - 1;
+  return m_snapshots -> closed();
+}
+
+template< cube_size N >
+void Engine<N>::progress()
+{
+  for ( RotID next = 0; chooseBranch( next ); )
+  {
+    BitMap32ID target   = ( 1 << 24 ) - 1;
+    BitMapID   gradient = m_allowed[ next ];
+
+    const Insight<N> * end = m_snapshots -> snap( next, depth() - 1, gradient, target );
+
+    if ( gradient > 0 && target > 0 )
+    {
+      push( gradient, next );
+      return;
+    }
+    else
+    {
+      m_snapshots -> revertInterrupted( end );
+    }
+  };
+}
+
+template< cube_size N >
+void Engine<N>::startIDA()
+{
+  reset();
+  BitMap32ID target   = ( 1 << 24 ) - 1;
+  BitMapID   gradient = m_allowed[ 0 ];
+
+  m_snapshots -> snap( depth(), gradient, target );
+
+  setNode( 0 == target ? 0: gradient );
+}
+
+template< cube_size N >
+Sequence Engine<N>::searchPath( Rubik<N> & cube )
+{
+  Sequence result;
+  toSolve( cube );
+  startSearch();
+  while ( heightLessThan( 13 ) )
+  {
+    if ( iterativelyDeepening() )
+    {
+      solution( result );
+      break;
+    }
+    deepening();
+  }
+  NL();
+  return result;
+}
+
+template< cube_size N >
+bool Engine<N>::iterativelyDeepening()
+{
+  bool result = false;
+  startIDA();
+  while ( ! onTheTop() || ! onEmptyNode() )
+  {
+    if ( inSolvedState() )
+    {
+        result = true;
+        break; // no more state to resolve
+    }
+    while ( ! onTheTop() && onEmptyNode() )
+    {
+      back();
+    }
+    progress();
+  }
+  return result;
 }
 
 template< cube_size N >
 Engine<N>::~Engine()
 {
   delete[] m_allowed;
-  delete[] m_insights;
+  delete   m_snapshots;
 }
-
-// template functions including
-#include <engine_search.h>
 
 #endif  //  ! ENGINE__H_INCLUDED

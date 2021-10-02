@@ -46,8 +46,6 @@ void Resolver<N>::solve( const bool closed, const bool show )
     m_engine -> close();
   }
 
-  m_engine -> update();
-
   do
   {
     const Sequence path = m_engine -> searchPath( m_cubeToSolve );
