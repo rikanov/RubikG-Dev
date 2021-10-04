@@ -99,14 +99,14 @@ void Engine<N>::progress()
 {
   for ( RotID next = 0; chooseBranch( next ); )
   {
-    BitMap32ID target   = ( 1 << 24 ) - 1;
+    BitMap32ID target   = lastTarget();
     BitMapID   gradient = m_allowed[ next ];
 
     const Insight<N> * end = m_snapshots -> snap( next, depth() - 1, gradient, target );
 
     if ( gradient > 0 && target > 0 )
     {
-      push( gradient, next );
+      push( gradient, target, next );
       return;
     }
     else
@@ -119,13 +119,12 @@ void Engine<N>::progress()
 template< cube_size N >
 void Engine<N>::startIDA()
 {
-  reset();
   BitMap32ID target   = ( 1 << 24 ) - 1;
   BitMapID   gradient = m_allowed[ 0 ];
 
   m_snapshots -> snap( depth(), gradient, target );
 
-  setNode( 0 == target ? 0: gradient );
+  initProgression( 0 == target ? 0 : gradient, target );
 }
 
 template< cube_size N >
@@ -144,6 +143,7 @@ Sequence Engine<N>::searchPath( Rubik<N> & cube )
     deepening();
   }
   NL();
+  printResult<N>();
   return result;
 }
 
