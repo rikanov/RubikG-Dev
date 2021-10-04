@@ -92,7 +92,7 @@ const Insight<N> * Snapper<N>::snap( const RotID next, const DistID depth, BitMa
 {
   BitMapID active = 1;
   Insight<N> * pInsight = m_insights;
-  while (  gradient > 0 && target > 0 && pInsight != m_endOfInsights )
+  while ( gradient > 0 && target > 0 && pInsight != m_endOfInsights )
   {
     if ( m_progress & active )
     {

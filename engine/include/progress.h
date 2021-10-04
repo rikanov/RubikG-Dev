@@ -2,9 +2,9 @@
 #define PROGRESS__H
 
 #include <base_types.h>
-#include <bitmap_set.h>
-#include <sequence.h>
-#include <text_output.h>
+
+class BitMap;
+class Sequence;
 
 class Progression
 {
@@ -26,126 +26,31 @@ private:
   RotID      * m_solution;
 
 public:
-Progression()
- :  m_depth( 0 )
- ,  m_gradientStack ( new BitMap     [ StackSize ] {} )
- ,  m_gradientStore ( new BitMapID   [ StackSize ] {} )
- ,  m_targetStack   ( new BitMap32ID [ StackSize ] {} )
- ,  m_solutionStack ( new RotID      [ StackSize ] {} )
-{
-}
+  Progression();
+  ~Progression();
 
-DistID depth() const
-{
-  return m_depth;
-}
+  BitMap32ID lastTarget() const;
+  DistID depth() const;
 
-void depth( DistID depth )
-{
-  m_depth = depth;
-}
+  void depth( DistID depth );
+  void initProgression( const BitMapID gradient, const BitMap32ID target );
+  void startSearch();
+  void deepening();
+  void push( const BitMapID gradient, const BitMap32ID target, const RotID rotID );
+  void pop();
+  void noSolution();
+  void solution( Sequence & solution ) const;
+  bool chooseBranch( RotID & next );
 
-void initProgression( const BitMapID gradient, const BitMap32ID target )
-{
-  m_gradient     = m_gradientStack;
-  m_gradientOrig = m_gradientStore;
-  m_target       = m_targetStack;
-  m_solution     = m_solutionStack;
+  bool onTheTop() const;
+  bool onEmptyNode() const;
+  bool inSolvedState() const;
+  bool heightLessThan( const DistID distID ) const;
 
-   m_gradient    -> set( gradient );
-  *m_gradientOrig = gradient;
-  *m_target       = target;
-}
-
-void push( const BitMapID gradient, const BitMap32ID target, const RotID rotID )
-{
-  -- m_depth;
-   ( ++ m_gradient )    -> set( gradient );
-  *( ++ m_gradientOrig ) = gradient;
-  *( ++ m_target   )     = target;
-  *( m_solution ++ )     = rotID;
-}
-
-void pop()
-{
-  ++ m_depth;
-  -- m_gradient;
-  -- m_gradientOrig;
-  -- m_target;
-  -- m_solution;
-}
-
-BitMap32ID lastTarget() const
-{
-  return *m_target;
-}
-
-bool onTheTop() const
-{
-  return m_depth == m_maxDepth;
-}
-
-bool onEmptyNode() const
-{
-  return m_gradient -> empty();
-}
-
-bool inSolvedState() const
-{
-  return m_depth == 0 && m_gradient -> next() == 0;
-}
-
-bool chooseBranch( RotID & next )
-{
-  return m_gradient -> next( next );
-}
-  
-void solution( Sequence & solution ) const
-{
-  solution.set( m_solutionStack, m_solution - m_solutionStack );
-}
-
-void startSearch()
-{
-  clog_( "max depth:" );
-  m_depth = 0;
-  m_maxDepth = 0;
-}
-
-bool heightLessThan( const DistID distID ) const
-{
-  return distID > m_maxDepth;
-}
-
-void deepening()
-{
-  ++ m_depth;
-  ++ m_maxDepth;
-  clog_( "..", (int) m_maxDepth );
-}
-
-template< cube_size N >
-void printResult() const
-{
-  for ( DistID step = 0; step <= m_maxDepth; ++ step )
-  {
-    clog_( CRotations<N>::ToString( m_solutionStack[ step ] ) );
-    BitMap::Print_( m_targetStack[ step ], 24, 8 );
-    clog_( ' ' );
-    BitMap::Print_( m_gradientStore[ step ], 9 * N + 1, 3 * N );
-    clog_( ' ' );
-    m_gradientStack[ step ].print( 9 * N + 1, 3 * N );
-  }
-}
-
-~Progression()
-{
-  delete[] m_gradientStack;
-  delete[] m_gradientStore;
-  delete[] m_targetStack;
-  delete[] m_solutionStack;
-}
-
+  template< cube_size N >
+  void printResult( const bool whole = false ) const;
 };
 
+// add template
+#include "../source/progress_result_print.cpp"
 #endif  //  ! PROGRESS__H

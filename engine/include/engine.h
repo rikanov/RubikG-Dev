@@ -143,7 +143,7 @@ Sequence Engine<N>::searchPath( Rubik<N> & cube )
     deepening();
   }
   NL();
-  printResult<N>();
+  printResult<N>( true );
   return result;
 }
 
@@ -159,6 +159,7 @@ bool Engine<N>::iterativelyDeepening()
         result = true;
         break; // no more state to resolve
     }
+    noSolution();
     while ( ! onTheTop() && onEmptyNode() )
     {
       back();

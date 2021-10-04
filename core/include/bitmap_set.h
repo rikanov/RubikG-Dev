@@ -16,7 +16,6 @@ public:
   }
   void    set( const uint64_t ds );
   bool    next( uint8_t & nextID );
-  uint8_t next();
   bool    empty() const
   {
     return m_dataSet == 0;
@@ -24,6 +23,21 @@ public:
   bool operator >> ( uint8_t & nextID )
   {
     return next( nextID );
+  }
+
+  void add( const size_t bit )
+  {
+    m_dataSet |= ( 1ULL << bit );
+  }
+
+  void remove( const size_t bit )
+  {
+    m_dataSet &= UINT64_MAX - ( 1ULL << bit ) - 1;
+  }
+
+  bool contains( const size_t bit ) const
+  {
+    return m_dataSet & ( 1ULL << bit );
   }
 
   void print_( const uint8_t length = 63, const uint8_t slice = 0 ) const;
