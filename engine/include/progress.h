@@ -16,6 +16,9 @@ private:
   BitMap     * m_gradientStack;
   BitMap     * m_gradient;
 
+  BitMapID   * m_gradientStore;
+  BitMapID   * m_gradientOrig;
+
   BitMap32ID * m_targetStack;
   BitMap32ID * m_target;
 
@@ -26,16 +29,10 @@ public:
 Progression()
  :  m_depth( 0 )
  ,  m_gradientStack ( new BitMap     [ StackSize ] {} )
+ ,  m_gradientStore ( new BitMapID   [ StackSize ] {} )
  ,  m_targetStack   ( new BitMap32ID [ StackSize ] {} )
  ,  m_solutionStack ( new RotID      [ StackSize ] {} )
 {
-}
-
-virtual ~Progression()
-{
-  delete[] m_gradientStack;
-  delete[] m_targetStack;
-  delete[] m_solutionStack;
 }
 
 DistID depth() const
@@ -50,26 +47,30 @@ void depth( DistID depth )
 
 void initProgression( const BitMapID gradient, const BitMap32ID target )
 {
-  m_gradient = m_gradientStack;
-  m_target   = m_targetStack;
-  m_solution = m_solutionStack;
+  m_gradient     = m_gradientStack;
+  m_gradientOrig = m_gradientStore;
+  m_target       = m_targetStack;
+  m_solution     = m_solutionStack;
 
-   m_gradient -> set( gradient );
-  *m_target    = target;
+   m_gradient    -> set( gradient );
+  *m_gradientOrig = gradient;
+  *m_target       = target;
 }
 
 void push( const BitMapID gradient, const BitMap32ID target, const RotID rotID )
 {
   -- m_depth;
-   ( ++ m_gradient ) -> set( gradient );
-  *( ++ m_target   )  = target;
-  *( m_solution ++ )  = rotID;
+   ( ++ m_gradient )    -> set( gradient );
+  *( ++ m_gradientOrig ) = gradient;
+  *( ++ m_target   )     = target;
+  *( m_solution ++ )     = rotID;
 }
 
 void pop()
 {
   ++ m_depth;
   -- m_gradient;
+  -- m_gradientOrig;
   -- m_target;
   -- m_solution;
 }
@@ -131,8 +132,18 @@ void printResult() const
     clog_( CRotations<N>::ToString( m_solutionStack[ step ] ) );
     BitMap::Print_( m_targetStack[ step ], 24, 8 );
     clog_( ' ' );
+    BitMap::Print_( m_gradientStore[ step ], 9 * N + 1, 3 * N );
+    clog_( ' ' );
     m_gradientStack[ step ].print( 9 * N + 1, 3 * N );
   }
+}
+
+~Progression()
+{
+  delete[] m_gradientStack;
+  delete[] m_gradientStore;
+  delete[] m_targetStack;
+  delete[] m_solutionStack;
 }
 
 };
