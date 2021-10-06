@@ -39,6 +39,7 @@ public:
   static CubeID GetTilt ( const RotID rotID )  { return Simplex::Tilt( GetAxis( rotID ), GetTurn( rotID ) );  }
 
   static BitMapID ActOn ( const PosID posID );
+  static BitMapID ActOn ( const PosID posID, const CubeID );
   static void Transform ( Axis & axis, Layer & layer, Turn & turn, const CubeID cubeID );
 
   static RotID Random();
@@ -107,6 +108,13 @@ template< cube_size N >
 BitMapID CRotations<N>::ActOn( const PosID posID )
 {
   const Coord pos = CPositions<N>::GetCoord( posID );
+  return ( 14ULL << ( 3 * pos.x ) ) | ( 14ULL << ( 3 * N + 3 * pos.y ) ) | ( 14ULL << ( 6 * N + 3 * pos.z ) );
+}
+
+template< cube_size N >
+BitMapID CRotations<N>::ActOn( const PosID posID, const CubeID cid )
+{
+  const Coord pos = CPositions<N>::GetCoord( posID, cid );
   return ( 14ULL << ( 3 * pos.x ) ) | ( 14ULL << ( 3 * N + 3 * pos.y ) ) | ( 14ULL << ( 6 * N + 3 * pos.z ) );
 }
 
