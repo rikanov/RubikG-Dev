@@ -1,5 +1,6 @@
-#include<test.h>
-#include<insight.h>
+#include <test.h>
+#include <insight.h>
+#include <subgroup_cached.h>
 
 template< cube_size N >
 static bool test10Moves( Insight<N> & rsm, const RotID * moves )
@@ -100,7 +101,18 @@ bool UnitTests::unit_Subgroup() const
   tcase( " 4x4 square " );
   stamp( test10Moves( Test4_2, rotations4_2 ), success );
 
-
+  Subgroup <3> t1( pattern3_1, 5 );
+  Subgroup2<3> t2( pattern3_1, 5 );
+  clog( "created..." );
+  for ( int test = 0; test < 20; ++ test )
+  {
+    const GroupID gid = random( 1, 13823 );
+    const RotID   rid = CRotations<3>::Random();
+    clog_( numR( gid, 5 ), CRotations<3>::ToString( rid ) );
+    clog_( numR( t1.lookUp( gid, rid, true ), 6 ), '=', numR( t2.lookUp( gid, rid ), 6 ) );
+    stamp( t1.lookUp( gid, rid, true ) == t2.lookUp( gid, rid ), success );
+  }
+  
   finish( "Subgroup", success );
 
   return success;
