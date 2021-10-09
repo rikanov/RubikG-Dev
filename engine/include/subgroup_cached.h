@@ -11,8 +11,9 @@ class Subgroup2
 {
   static constexpr size_t AllRot = CRotations<N>::AllRotIDs;
   
-  const size_t     m_size;
-  const BitMapID   m_priorRotIDs;
+  size_t     m_size;
+  BitMapID   m_priorRotIDs;
+
   const PosID    * m_startPositions;
   const GroupID  * m_projectedGroupID;
   const GroupID  * m_singleCache;
@@ -28,8 +29,11 @@ class Subgroup2
   void increaseBlocks ( const size_t, GroupID * );
 
 public:
+  Subgroup2();
   Subgroup2( const PosID *, const size_t size, const CubeID orient = 0 );
   ~Subgroup2();
+
+  void init( const PosID *, const size_t, const CubeID orient = 0 );
 
   size_t size() const
   {
@@ -41,9 +45,24 @@ public:
     return m_priorRotIDs;
   }
 
+  bool priorMoving( const CubeID prior, const RotID rotID ) const
+  {
+    return m_priorRotIDs & ( 1ULL << ( CRotations<N>::GetRotID( rotID, Simplex::Inverse( prior ) ) ) );
+  }
+
   PosID positions( const size_t id ) const
   {
     return m_startPositions[id];
+  }
+
+  GroupID usePrior ( const CubeID prior, GroupID projected ) const
+  {
+    GroupID result = 0;
+    for ( size_t i = 0; i < m_size; ++ i, projected /= 24 )
+    {
+      result += Simplex::Composition( projected % 24, prior ) * pow24( i );
+    }
+    return result;
   }
 
   GroupID lookUp( const GroupID gid, const RotID rid ) const
@@ -56,35 +75,49 @@ public:
     const RotID trans = CRotations<N>::GetRotID( rid, Simplex::Inverse( cid ) );
     return lookUp( gid, trans );
   }
-  
+
   CubeID  getPrior  ( const Rubik<N> &, const CubeID trans ) const;
   GroupID getStateID( const Rubik<N> &, const CubeID trans ) const;
   
   void print( const GroupID gid, const CubeID prior, const bool details = false ) const
   {
-    const GroupID stateID = prior * pow24( m_size - 1 ) + gid;
+    const GroupID stateID = usePrior( prior, gid );
     clog_( stateID );
     PrintMap<N> ( stateID, m_startPositions, m_size, details );    
   }
 };
 
 template< cube_size N >
-Subgroup2<N>::Subgroup2( const PosID * pos, const size_t size, const CubeID orient )
- :  m_size( size )
- ,  m_priorRotIDs( CRotations<N>::ActOn( pos[ size - 1 ] ) )
+Subgroup2<N>::Subgroup2()
+ :  m_size( 0 )
+ ,  m_priorRotIDs( 0 )
  ,  m_startPositions   ( nullptr )
  ,  m_projectedGroupID ( nullptr )
  ,  m_singleCache      ( nullptr )
 {
-  PosID * startPos = new PosID[ size ] {};  
+}
+
+template< cube_size N >
+Subgroup2<N>::Subgroup2( const PosID * pos, const size_t size, const CubeID orient )
+ :  m_startPositions   ( nullptr )
+ ,  m_projectedGroupID ( nullptr )
+ ,  m_singleCache      ( nullptr )
+{
+  init( pos, size, orient );
+}
+
+template< cube_size N >
+void Subgroup2<N>::init( const PosID * pos, const size_t size, const CubeID orient )
+{
+  m_size = size;
+  PosID * startPos = new PosID[ size ] {};
   for( size_t s = 0; s < size; ++ s )
   {
     startPos[s] = CPositions<N>::GetPosID( pos[s], orient );
   }
   m_startPositions = startPos;
-  
+  m_priorRotIDs    = CRotations<N>::ActOn( startPos[ size - 1 ] );
   initCache();
-  BitMap::Print ( m_priorRotIDs, 9 * N + 1, 3 * N );
 }
 
 template< cube_size N >
@@ -194,9 +227,10 @@ template< cube_size N >
 GroupID Subgroup2<N>::getStateID( const Rubik<N> & Cube, const CubeID trans ) const
 {
   BitMapID result = 0;
+  const CubeID invPrior = Simplex::Inverse( getPrior( Cube, trans ) );
   for ( int id = 0; id < m_size - 1; ++ id )
   {
-    result += Cube.transpose( m_startPositions[id], trans ) * pow24( id );
+    result += Simplex::Composition( Cube.transpose( m_startPositions[id], trans ), invPrior ) * pow24( id );
   }
   return result;
 }

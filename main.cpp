@@ -13,7 +13,7 @@ int main()
   bool success = true;
   
   success &= tests.testCore();
-  // success &= tests.testEngine();
+  success &= tests.testEngine();
   success &= tests.testAI();
   
   CLS();

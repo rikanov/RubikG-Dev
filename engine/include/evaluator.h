@@ -3,7 +3,7 @@
 
 #include <cube_set.h>
 #include <qeueu.h>
-#include <subgroup.h>
+#include <subgroup_cached.h>
 #include <bitmap_set.h>
 #include <acceptance.h>
 
@@ -12,12 +12,12 @@ typedef uint8_t DistID;
 template< cube_size N >
 class Evaluator
 {
-  const Subgroup<N> * m_subgroup;
-  const DistID      * m_nodeValue;
-  const BitMapID    * m_grade1;
-  const BitMapID    * m_grade2;
-  const BitMap32ID  * m_aim1;
-  const BitMap32ID  * m_aim2;
+  const Subgroup2<N> * m_subgroup;
+  const DistID       * m_nodeValue;
+  const BitMapID     * m_grade1;
+  const BitMapID     * m_grade2;
+  const BitMap32ID   * m_aim1;
+  const BitMap32ID   * m_aim2;
 
   AcceptFunction      m_accept;
   Qeueu             * m_qeueu;
@@ -31,7 +31,7 @@ public:
   Evaluator ();
   ~Evaluator();
   
-  void map    ( const Subgroup<N> * );
+  void map    ( const Subgroup2<N> * );
   void root   ( const GroupID );
   void accept ( AcceptFunction );
   void build  ();
@@ -94,7 +94,7 @@ void Evaluator<N>::dealloc()
 }
 
 template< cube_size N >
-void Evaluator<N>::map( const Subgroup<N> * sg )
+void Evaluator<N>::map( const Subgroup2<N> * sg )
 {
   m_qeueu -> resize( sg -> size() );
   m_subgroup = sg;
@@ -166,7 +166,7 @@ void Evaluator<N>::build()
  
     all_rotid ( rotID, N ) 
     {
-      if ( m_qeueu -> used( m_subgroup -> lookUp( node, rotID, true ) ) )
+      if ( m_qeueu -> used( m_subgroup -> lookUp( node, rotID ) ) )
       {
         aim2  [ node ] |= ( P & ( 1ULL << rotID ) ) ? 1 << CRotations<N>::GetTilt( rotID ) : 1;
       }
@@ -178,7 +178,7 @@ void Evaluator<N>::build()
   {
     all_rotid ( rotID, N )
     {
-      const GroupID child = m_subgroup -> lookUp( parent, rotID, true );
+      const GroupID child = m_subgroup -> lookUp( parent, rotID );
       const BitMapID bitRotID = 1ULL << CRotations<N>::GetInvRotID( rotID );
       if ( *m_qeueu << child )
       {

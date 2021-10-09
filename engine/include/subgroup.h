@@ -33,16 +33,6 @@ public:
     return m_size;
   }
   
-  CubeID prior( const GroupID gid ) const
-  {
-    return gid / m_lastRadix;
-  }
-
-  PosID priorPos( const GroupID gid ) const
-  {
-    return CPositions<N>::GetPosID( m_startPos[ m_size - 1 ], prior( gid ) );
-  }
-
   BitMapID priorRotIDs() const
   {
     return CRotations<N>::ActOn( m_startPos[ m_size - 1 ] );

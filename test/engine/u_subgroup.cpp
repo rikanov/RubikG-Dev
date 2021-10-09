@@ -1,5 +1,6 @@
 #include <test.h>
 #include <insight.h>
+#include <subgroup.h>
 #include <subgroup_cached.h>
 
 template< cube_size N >

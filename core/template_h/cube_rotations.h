@@ -33,11 +33,12 @@ public:
   static RotID GetRotID    ( const Axis A, const Layer L, const Turn T )  { return A * 3 * N + L * 3 + T ;                }
   static RotID GetRotID    ( const RotID R, const CubeID C ); 
 
-  static Axis  GetAxis  ( const RotID rotID )  { return static_cast< Axis > ( ( rotID - 1 ) / ( 3 * N ) ); }
-  static Layer GetLayer ( const RotID rotID )  { return ( ( rotID - 1 ) /3 ) % N;                          }
-  static Turn  GetTurn  ( const RotID rotID )  { return ( rotID - 1 ) % 3 + 1;                             }
-  static CubeID GetTilt ( const RotID rotID )  { return Simplex::Tilt( GetAxis( rotID ), GetTurn( rotID ) );  }
+  static Axis  GetAxis  ( const RotID rotID )  { return static_cast< Axis > ( ( rotID - 1 ) / ( 3 * N ) );   }
+  static Layer GetLayer ( const RotID rotID )  { return ( ( rotID - 1 ) /3 ) % N;                            }
+  static Turn  GetTurn  ( const RotID rotID )  { return ( rotID - 1 ) % 3 + 1;                               }
+  static CubeID GetTilt ( const RotID rotID )  { return Simplex::Tilt( GetAxis( rotID ), GetTurn( rotID ) ); }
 
+  static CubeID   Tilt  ( const CubeID, const RotID );
   static BitMapID ActOn ( const PosID posID );
   static BitMapID ActOn ( const PosID posID, const CubeID );
   static void Transform ( Axis & axis, Layer & layer, Turn & turn, const CubeID cubeID );
@@ -102,6 +103,12 @@ RotID CRotations<N>::GetRotID( const RotID rotID, const CubeID cubeID )
   Axis  axis  = static_cast< Axis > ( R / N );
   Transform( axis, layer, turn, cubeID );
   return GetRotID( axis, layer, turn ); 
+}
+
+template< cube_size N >
+CubeID CRotations<N>::Tilt( const CubeID cubeID, const RotID rotID  )
+{
+  return Simplex::Tilt( cubeID, GetAxis( rotID ), GetTurn( rotID ) );
 }
 
 template< cube_size N >
