@@ -53,8 +53,8 @@ bool UnitTests::unit_Resolver() const
     };
 
     const PosID bind[] = {
+      CPositions<3>::GetPosID( 1, 0, 2 ),
       CPositions<3>::GetPosID( 1, 0, 1 ),
-      CPositions<3>::GetPosID( 1, 1, 0 ),
       CPositions<3>::GetPosID( 0, 1, 1 ),
     };
     const PosID block1[] = {
@@ -104,7 +104,7 @@ bool UnitTests::unit_Resolver() const
     Resolver<3> test( testCube );
 
     test.addInsight( cross, 5 );
-    test.addInsight( bind, 3 );
+    test.addInsight( bind, 2 );
     test.solve();
     
 

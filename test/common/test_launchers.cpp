@@ -19,6 +19,7 @@ bool UnitTests::testEngine() const
   result &= unit_Insight();
   result &= unit_Subgroup();
   result &= unit_Engine();
+  result &= unit_Snapper();
   return result;
 }
 

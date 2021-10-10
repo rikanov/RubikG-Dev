@@ -50,6 +50,11 @@ public:
     return m_priorRotIDs & ( 1ULL << ( CRotations<N>::GetRotID( rotID, Simplex::Inverse( prior ) ) ) );
   }
 
+  PosID priorPos() const
+  {
+    return m_startPositions[ m_size - 1 ];
+  }
+
   PosID positions( const size_t id ) const
   {
     return m_startPositions[id];

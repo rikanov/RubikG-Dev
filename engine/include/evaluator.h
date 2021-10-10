@@ -23,7 +23,7 @@ class Evaluator
   Qeueu             * m_qeueu;
   
   void dealloc();
-  void addSolution ( const size_t, GroupID gid );
+  void addSolution ( const CubeID, const size_t, GroupID gid );
   
   BitMap32ID mergeSet( const RotID rotID, const BitMap32ID set ) const;
 
@@ -113,18 +113,19 @@ void Evaluator<N>::accept( AcceptFunction func )
 }
 
 template< cube_size N >
-void Evaluator<N>::addSolution( const size_t id, GroupID gid )
+void Evaluator<N>::addSolution( const CubeID invPrior, const size_t id, GroupID gid )
 {
   BitMap cubeSet( m_accept( m_subgroup -> positions( id ) ) );
   for ( CubeID next; cubeSet >> next; )
   {
+    next = Simplex::Composition( next, invPrior );
     if ( 0 == id )
     {
-      *m_qeueu << Projection::LookUp( m_subgroup -> size(), gid + next );
+      root( gid + next );
     }
     else
     {
-      addSolution( id - 1, gid + next * pow24( id ) );
+      addSolution( invPrior, id - 1, gid + next * pow24( id ) );
     }
   }
 }
@@ -145,7 +146,13 @@ template< cube_size N >
 void Evaluator<N>::build()
 {
   dealloc();
-  addSolution( m_subgroup -> size() - 1, 0 );
+
+  BitMap cubeSet( m_accept( m_subgroup -> priorPos() ) );
+  for ( CubeID prior; cubeSet >> prior; )
+  {
+    addSolution( Simplex::Inverse( prior ), m_subgroup -> size() - 2, 0 );
+  }
+
   const BitMapID P = m_subgroup -> priorRotIDs();
   const size_t size = pow24( m_subgroup -> size() - 1 );
   DistID   * nodeValue = new DistID    [ size ] {};
