@@ -45,10 +45,9 @@ class Snapper2
   Subgroup2<N> * m_subgroupArray;
   Evaluator<N> * m_evaluateArray;
 
-  Subgroup2<N> * m_endOfSubgroups;
-  Evaluator<N> * m_endOfEvaluates;
-  Snapshots    * m_deepestLevel;
-  Snapshots    * m_currentLevel;
+  Snapshots * m_deepestLevel;
+  Snapshots * m_currentLevel;
+  Snapshots * m_rootLevel; // allias only
   
 public:
 
@@ -78,10 +77,9 @@ Snapper2<N>::Snapper2()
  ,  m_subgroupArray   ( new Subgroup2<N> [ MaximumSubgroups ] )
  ,  m_evaluateArray   ( new Evaluator<N> [ MaximumSubgroups ] )
 {
-  m_endOfSubgroups = m_subgroupArray;
-  m_endOfEvaluates = m_evaluateArray;
   m_deepestLevel   = m_snapshotArray;
   m_currentLevel   = m_snapshotArray;
+  m_rootLevel      = m_snapshotArray;
   initGradients();
 }
 
@@ -110,13 +108,14 @@ void Snapper2<N>::initGradients()
 template< cube_size N >
 void Snapper2<N>::newTask( const PosID* startPos, const size_t size, const CubeID orient, AcceptFunction acceptFunction )
 {
-  m_endOfSubgroups -> init   ( size, startPos, orient );
-  m_endOfEvaluates -> map    ( m_endOfSubgroups );
-  m_endOfEvaluates -> accept ( acceptFunction   );
-  m_endOfEvaluates -> build();
+  Subgroup2<N> * nextSubgroup = m_subgroupArray + m_numberOfTasks;
+  Evaluator<N> * nextEvaluate = m_evaluateArray + m_numberOfTasks;
+  
+  nextSubgroup -> init   ( size, startPos, orient );
+  nextEvaluate -> map    ( nextSubgroup   );
+  nextEvaluate -> accept ( acceptFunction );
+  nextEvaluate -> build  ();
 
-  ++ m_endOfSubgroups;
-  ++ m_endOfEvaluates;
   ++ m_numberOfTasks;
 }
 
@@ -124,6 +123,20 @@ template< cube_size N >
 void Snapper2<N>::maximumTreeHeight( const DistID depth )
 {
   m_deepestLevel = m_snapshotArray + depth;
+}
+
+template< cube_size N >
+bool Snapper2<N>::progress()
+{
+  while ( ! m_currentLevel -> gradient.contains( 1 ) && ( m_currentLevel != m_rootLevel || ! m_currentLevel -> gradient.empty() ) )
+  {
+    RotID nextRot;
+    if ( ! ( m_currentLevel -> gradient >> nextRot && rotate( nextRot ) ) )
+    {
+      -- m_currentLevel;
+    }
+  }
+  return m_currentLevel -> gradient.contains( 1 );
 }
 
 template< cube_size N >
@@ -146,6 +159,10 @@ void Snapper2<N>::setState( const size_t index, const RotID rotID, CubeID & prio
 template< cube_size N >
 bool Snapper2<N>::rotate( const RotID rotID )
 {
+  if ( m_currentLevel == m_deepestLevel )
+  {
+    return false;
+  }
   Snapshots * nextLevel = m_currentLevel + 1;
   nextLevel -> gradient.set( m_allowedGradient[ rotID ] );
   nextLevel -> target   = m_currentLevel -> target;
@@ -157,12 +174,14 @@ bool Snapper2<N>::rotate( const RotID rotID )
     
     nextLevel -> gradient.restrict( gradient( prior, state, m_evaluateArray + index ) );
     if ( nextLevel -> gradient.empty() )
-      return false;
+      return true;
     
     nextLevel -> target &= target( prior, state, m_evaluateArray + index );
     if ( 0 == nextLevel -> target )
-      return false;
+      return true;
   }
+  ++ m_currentLevel;
+  return true;
 }
 
 template< cube_size N >
