@@ -14,12 +14,24 @@ public:
   {
     set( ds );
   }
-  void    set( const uint64_t ds );
-  bool    next( uint8_t & nextID );
-  bool    empty() const
+  
+  void set( const uint64_t ds )
+  {
+    m_dataSet = ds;
+    m_nextID  = 0;
+  }
+  
+  void restrict( const uint64_t rs )
+  {
+    m_dataSet &= rs;
+  }
+
+  bool empty() const
   {
     return m_dataSet == 0;
   }
+  
+  bool next( uint8_t & nextID );
   bool operator >> ( uint8_t & nextID )
   {
     return next( nextID );

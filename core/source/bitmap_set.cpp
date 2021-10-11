@@ -2,12 +2,6 @@
 #include <text_output.h>
 
 
-void BitMap::set( const uint64_t ds )
-{
-  m_dataSet = ds;
-  m_nextID  = 0;
-}
-
 bool BitMap::next( uint8_t & nextID )
 {
   if( 0 == m_dataSet )
