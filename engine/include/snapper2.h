@@ -1,37 +1,11 @@
 #ifndef SNAPPER2__H
 #define SNAPPER2__H
 
-#include <base_types.h>
 #include <gen_rotation_set.h>
 #include <evaluator.h>
+#include <snapshots.h>
 
-static constexpr size_t MaximumSubgroups = 40;
-
-
-struct Snapshots
-{
-  BitMap       gradient;
-  BitMap32ID   target;
-  
-  GroupID    * state;
-  CubeID     * prior;
-
-public:
-
-  Snapshots()
-   :  target ( ( 1 << 24 ) - 1 )
-   ,  state  ( new GroupID [ MaximumSubgroups ] )
-   ,  prior  ( new CubeID  [ MaximumSubgroups ] )
-  {
-  }
-
-  ~Snapshots()
-  {
-    delete[] state;
-    delete[] prior;
-  }
-
-};
+static constexpr size_t MaximumSubgroups = Snapshots::MaximumSubgroups;
 
 template< cube_size N >
 class Snapper2
@@ -59,6 +33,8 @@ public:
   void newTask( const PosID * ,const size_t , const CubeID orient = 0, AcceptFunction af = Accept<N>::Normal );
   void maximumTreeHeight( const DistID );
   bool progress();
+  void iterativelyDeepening();
+  void solve( Rubik<N> & );
   
   void setState( const size_t, const RotID, CubeID &, GroupID & );
   bool rotate( const RotID );
@@ -128,10 +104,17 @@ void Snapper2<N>::maximumTreeHeight( const DistID depth )
 template< cube_size N >
 bool Snapper2<N>::progress()
 {
-  while ( ! m_currentLevel -> gradient.contains( 1 ) && ( m_currentLevel != m_rootLevel || ! m_currentLevel -> gradient.empty() ) )
+  RotID nextRot;
+  while ( m_currentLevel != m_rootLevel || ! m_currentLevel -> gradient.empty() )
   {
-    RotID nextRot;
-    if ( ! ( m_currentLevel -> gradient >> nextRot && rotate( nextRot ) ) )
+    if ( m_currentLevel -> gradient >> nextRot )
+    {
+      if ( rotate( nextRot ) )
+      {
+        break;
+      }
+    }
+    else
     {
       -- m_currentLevel;
     }
@@ -159,10 +142,6 @@ void Snapper2<N>::setState( const size_t index, const RotID rotID, CubeID & prio
 template< cube_size N >
 bool Snapper2<N>::rotate( const RotID rotID )
 {
-  if ( m_currentLevel == m_deepestLevel )
-  {
-    return false;
-  }
   Snapshots * nextLevel = m_currentLevel + 1;
   nextLevel -> gradient.set( m_allowedGradient[ rotID ] );
   nextLevel -> target   = m_currentLevel -> target;
@@ -174,14 +153,18 @@ bool Snapper2<N>::rotate( const RotID rotID )
     
     nextLevel -> gradient.restrict( gradient( prior, state, m_evaluateArray + index ) );
     if ( nextLevel -> gradient.empty() )
-      return true;
+      return false;
     
     nextLevel -> target &= target( prior, state, m_evaluateArray + index );
     if ( 0 == nextLevel -> target )
-      return true;
+      return false;
   }
-  ++ m_currentLevel;
-  return true;
+  m_currentLevel -> step = rotID;
+  if ( ++ m_currentLevel != m_deepestLevel || ! ( m_currentLevel -- ) -> gradient.contains( 1 ) )
+  {
+    return false;
+  }
+  return true; // solved
 }
 
 template< cube_size N >
@@ -227,6 +210,5 @@ Snapper2<N>::~Snapper2()
   delete[] m_subgroupArray;
   delete[] m_evaluateArray;
 }
-
 
 #endif  //  ! SNAPPER2__H
