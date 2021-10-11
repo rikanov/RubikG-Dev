@@ -23,7 +23,12 @@ public:
   
   void restrict( const uint64_t rs )
   {
-    m_dataSet &= rs;
+    m_dataSet &= rs;  // set intersection
+  }
+
+  void expand( const uint64_t rs )
+  {
+    m_dataSet |= rs;  // set union
   }
 
   bool empty() const

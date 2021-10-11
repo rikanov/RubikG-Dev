@@ -64,8 +64,8 @@ public:
   {
     m_stateID = m_stateStack;
     m_prior   = m_priorStack;
-    *m_stateID = m_subgroupMap -> getStateID( R, trans );
-    *m_prior   = m_subgroupMap -> getPrior  ( R, trans );
+    *m_stateID = m_subgroupMap -> getState( R, trans );
+    *m_prior   = m_subgroupMap -> getPrior( R, trans );
 
     if ( false == ref )
     {
@@ -80,8 +80,8 @@ public:
 
     all_cubeid ( cid )
     {
-      *m_stateID = m_subgroupMap -> getStateID( R, cid );
-      *m_prior   = m_subgroupMap -> getPrior  ( R, cid );
+      *m_stateID = m_subgroupMap -> getState( R, cid );
+      *m_prior   = m_subgroupMap -> getPrior( R, cid );
       if ( distance() < minimum )
       {
         trans   = cid;

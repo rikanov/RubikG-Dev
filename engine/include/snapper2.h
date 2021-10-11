@@ -23,26 +23,27 @@ class Snapper2
   Snapshots * m_currentLevel;
   Snapshots * m_rootLevel; // allias only
   
+  Rubik<N>  * m_rubik;
+
+  void setState( const size_t, const RotID, CubeID &, GroupID & );
+  bool rotate( const RotID );
+
+  void initGradients();
+
+  void maximumTreeHeight( const DistID );
+  bool progressResult();
+  void initRoot( const DistID depth);
+  void startIDA( const CubeID trans = 0 );
+  void iterativelyDeepening();
+  void setCube();
 public:
 
   Snapper2();
   ~Snapper2();
 
-  void initGradients();
-
+  void toSolve( Rubik<N> * );
   void newTask( const PosID * ,const size_t , const CubeID orient = 0, AcceptFunction af = Accept<N>::Normal );
-  void maximumTreeHeight( const DistID );
-  bool progress();
-  void iterativelyDeepening();
-  void solve( Rubik<N> & );
-  
-  void setState( const size_t, const RotID, CubeID &, GroupID & );
-  bool rotate( const RotID );
-
-  BitMapID gradient( const CubeID, const GroupID, const Evaluator<N> * ) const;
-  BitMap32ID target( const CubeID, const GroupID, const Evaluator<N> * ) const;
-  
-  
+  void start();
 };
 
 template< cube_size N >
@@ -82,12 +83,18 @@ void Snapper2<N>::initGradients()
 }
 
 template< cube_size N >
+void Snapper2<N>::toSolve( Rubik<N> * cube )
+{
+  m_rubik = cube;
+}
+
+template< cube_size N >
 void Snapper2<N>::newTask( const PosID* startPos, const size_t size, const CubeID orient, AcceptFunction acceptFunction )
 {
   Subgroup2<N> * nextSubgroup = m_subgroupArray + m_numberOfTasks;
   Evaluator<N> * nextEvaluate = m_evaluateArray + m_numberOfTasks;
   
-  nextSubgroup -> init   ( size, startPos, orient );
+  nextSubgroup -> init   ( startPos, size, orient );
   nextEvaluate -> map    ( nextSubgroup   );
   nextEvaluate -> accept ( acceptFunction );
   nextEvaluate -> build  ();
@@ -102,7 +109,7 @@ void Snapper2<N>::maximumTreeHeight( const DistID depth )
 }
 
 template< cube_size N >
-bool Snapper2<N>::progress()
+bool Snapper2<N>::progressResult()
 {
   RotID nextRot;
   while ( m_currentLevel != m_rootLevel || ! m_currentLevel -> gradient.empty() )
@@ -144,62 +151,108 @@ bool Snapper2<N>::rotate( const RotID rotID )
 {
   Snapshots * nextLevel = m_currentLevel + 1;
   nextLevel -> gradient.set( m_allowedGradient[ rotID ] );
-  nextLevel -> target   = m_currentLevel -> target;
+  nextLevel -> target = m_currentLevel -> target;
+
+
+  const DistID depth = m_deepestLevel - nextLevel;
   CubeID  prior;
   GroupID state;
   for ( size_t index = 0; index < m_numberOfTasks; ++ index )
   {
     setState( index, rotID, prior, state );
     
-    nextLevel -> gradient.restrict( gradient( prior, state, m_evaluateArray + index ) );
+    nextLevel -> gradient.restrict( m_evaluateArray [ index ].gradient( prior, state, depth ) );
     if ( nextLevel -> gradient.empty() )
       return false;
     
-    nextLevel -> target &= target( prior, state, m_evaluateArray + index );
+    nextLevel -> target &= m_evaluateArray [ index ].target( prior, state, depth );
     if ( 0 == nextLevel -> target )
       return false;
   }
   m_currentLevel -> step = rotID;
-  if ( ++ m_currentLevel != m_deepestLevel || ! ( m_currentLevel -- ) -> gradient.contains( 1 ) )
+  if ( ++ m_currentLevel < m_deepestLevel || ! ( m_currentLevel -- ) -> gradient.contains( 1 ) )
   {
     return false;
   }
+  ++ m_currentLevel;
   return true; // solved
 }
 
 template< cube_size N >
-BitMapID Snapper2<N>::gradient( const CubeID prior, const GroupID state, const Evaluator<N> * evaluator ) const
+void Snapper2<N>::initRoot( const DistID depth)
 {
-  const DistID dist = evaluator -> distance( state );
-  const DistID D = m_deepestLevel - m_currentLevel;
-  if ( dist < D )
+  m_rootLevel -> gradient.set( m_allowedGradient[0] );
+  m_rootLevel -> target = ( 1 << 24 ) - 1;
+
+  for ( size_t index = 0; index < m_numberOfTasks && 0 < m_rootLevel -> target && ! m_rootLevel -> gradient.empty(); ++ index )
   {
-    return 0;
+    const CubeID  prior = m_rootLevel -> prior[ index ];
+    const GroupID state = m_rootLevel -> state[ index ];
+    const BitMapID grad = m_evaluateArray[ index ].gradient ( prior, state, depth );
+
+    m_rootLevel -> gradient.restrict( grad );
+    m_rootLevel -> target &= m_evaluateArray[ index ].target ( prior, state, depth );
   }
-  if ( dist > D + 1 )
-  {
-    return ( 1ULL << ( 9 * N + 1 ) ) - 2;
-  }
-  BitMapID grad = dist == D ? evaluator -> grade1( state ) : evaluator -> grade2( state );
-  GenerateRotationSet<N>::Transform( grad, prior );
-  return grad;
 }
 
 template< cube_size N >
-BitMap32ID Snapper2<N>::target( const CubeID prior, const GroupID state, const Evaluator<N> * evaluator ) const
+void Snapper2<N>::startIDA( const CubeID trans )
 {
-  const DistID dist = evaluator -> distance( state );
-  const DistID D = m_deepestLevel - m_currentLevel;
-  if ( dist < D )
+  m_currentLevel = m_rootLevel;
+  for ( size_t index = 0; index < m_numberOfTasks; ++ index )
   {
-    return 0;
+    m_currentLevel -> prior[ index ] = m_subgroupArray[ index ].getPrior( *m_rubik, trans );
+    m_currentLevel -> state[ index ] = m_subgroupArray[ index ].getState( *m_rubik, trans );
+    clog( Simplex::GetCube(m_currentLevel -> prior[ index ]).toString(), m_currentLevel -> state[ index ] );
   }
-  if ( dist > D + 1 )
+
+  DistID depth = 0;
+  do
   {
-    return ( 1 << 24 ) - 1;
+    initRoot( depth ++ );
+  } while ( 0 == m_rootLevel -> target || m_rootLevel ->gradient.empty() );
+  m_deepestLevel = m_rootLevel + depth - 1;
+}
+
+template< cube_size N >
+void Snapper2<N>::setCube()
+{
+  NL();
+  clog( "size:", m_currentLevel - m_rootLevel );
+  for ( const Snapshots * P = m_rootLevel; P != m_currentLevel; ++ P )
+  {
+    clog( CRotations<N>::ToString( P -> step ) );
+    m_rubik -> rotate( P -> step );
   }
-  BitMap32ID aim = dist == D ? evaluator -> aim1( state ) : evaluator -> aim2( state );
-  return CubeSet::GetCubeSet( prior, aim );
+  m_rubik -> print();
+}
+
+template< cube_size N >
+void Snapper2<N>::iterativelyDeepening()
+{
+  startIDA();
+  if ( m_deepestLevel == m_rootLevel )
+  {
+    clog( "already solved..." );
+    return; // solved at start, nothing to do
+  }
+  while ( m_deepestLevel < m_rootLevel + MaximumIDAsteps )
+  {
+    initRoot( m_deepestLevel - m_rootLevel );
+    clog( m_deepestLevel - m_rootLevel );
+    m_currentLevel -> gradient.print( 9 * N + 1, 3 * N );
+    if ( progressResult() )
+    {
+      setCube();
+      break;
+    }
+    ++ m_deepestLevel;
+  }
+}
+
+template< cube_size N > void Snapper2<N>::start()
+{
+  iterativelyDeepening();
 }
 
 template< cube_size N >

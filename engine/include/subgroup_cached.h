@@ -81,8 +81,8 @@ public:
     return lookUp( gid, trans );
   }
 
-  CubeID  getPrior  ( const Rubik<N> &, const CubeID trans ) const;
-  GroupID getStateID( const Rubik<N> &, const CubeID trans ) const;
+  CubeID  getPrior( const Rubik<N> &, const CubeID trans ) const;
+  GroupID getState( const Rubik<N> &, const CubeID trans ) const;
   
   void print( const GroupID gid, const CubeID prior, const bool details = false ) const
   {
@@ -229,7 +229,7 @@ CubeID Subgroup2<N>::getPrior( const Rubik<N> & Cube, const CubeID trans ) const
 }
 
 template< cube_size N >
-GroupID Subgroup2<N>::getStateID( const Rubik<N> & Cube, const CubeID trans ) const
+GroupID Subgroup2<N>::getState( const Rubik<N> & Cube, const CubeID trans ) const
 {
   BitMapID result = 0;
   const CubeID invPrior = Simplex::Inverse( getPrior( Cube, trans ) );

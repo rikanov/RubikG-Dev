@@ -36,6 +36,9 @@ public:
   void accept ( AcceptFunction );
   void build  ();
   
+  BitMapID gradient( const CubeID prior, const GroupID state,  const DistID D ) const;
+  BitMap32ID target( const CubeID prior, const GroupID state,  const DistID D ) const;
+
   DistID distance( const GroupID gid ) const
   {
     return m_nodeValue[ gid ];
@@ -91,6 +94,39 @@ void Evaluator<N>::dealloc()
   delete[] m_grade2;
   delete[] m_aim1;
   delete[] m_aim2;
+}
+
+template< cube_size N >
+BitMapID Evaluator<N>::gradient( const CubeID prior, const GroupID state,  const DistID dist ) const
+{
+  const DistID D = distance( state );
+  if ( dist < D )
+  {
+    return 0;
+  }
+  if ( dist > D + 1 )
+  {
+    return ( 1ULL << ( 9 * N + 1 ) ) - 2;
+  }
+  BitMapID grad = dist == D ? grade1( state ) : grade2( state );
+  GenerateRotationSet<N>::Transform( grad, prior );
+  return grad;
+}
+
+template< cube_size N >
+BitMap32ID Evaluator<N>::target( const CubeID prior, const GroupID state, const DistID dist ) const
+{
+  const DistID D = distance( state );
+  if ( dist < D )
+  {
+    return 0;
+  }
+  if ( dist > D + 1 )
+  {
+    return ( 1 << 24 ) - 1;
+  }
+  BitMap32ID aim = dist == D ? aim1( state ) : aim2( state );
+  return CubeSet::GetCubeSet( prior, aim );
 }
 
 template< cube_size N >
