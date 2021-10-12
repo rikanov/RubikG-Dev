@@ -45,6 +45,11 @@ public:
     return m_priorRotIDs;
   }
 
+  bool priorMoving( const RotID rotID ) const
+  {
+    return m_priorRotIDs & ( 1ULL << rotID );
+  }
+
   bool priorMoving( const CubeID prior, const RotID rotID ) const
   {
     return m_priorRotIDs & ( 1ULL << ( CRotations<N>::GetRotID( rotID, Simplex::Inverse( prior ) ) ) );

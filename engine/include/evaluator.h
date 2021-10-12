@@ -23,6 +23,8 @@ class Evaluator
   Qeueu             * m_qeueu;
   
   void dealloc();
+  void resolveAcceptance();
+  void setRoot(BitMapID * grade1, BitMapID * grade2, BitMap32ID * aim1, BitMap32ID * aim2 );
   void addSolution ( const CubeID, const size_t, GroupID gid );
   
   BitMap32ID mergeSet( const RotID rotID, const BitMap32ID set ) const;
@@ -167,36 +169,28 @@ void Evaluator<N>::addSolution( const CubeID invPrior, const size_t id, GroupID 
 }
 
 template< cube_size N >
-BitMap32ID Evaluator<N>::mergeSet( const RotID rotID, const BitMap32ID set ) const
+BitMap32ID Evaluator<N>::mergeSet( const RotID rotInv, const BitMap32ID set ) const
 {
-  const BitMap32ID P = m_subgroup -> priorRotIDs();
-  if ( P & ( 1ULL << rotID ) )
+  if ( m_subgroup -> priorMoving( rotInv ) )
   {
-    const RotID inv = CRotations<N>::GetInvRotID( rotID );
-    return CubeSet::GetCubeSet( CRotations<N>::GetTilt( inv ), set );
+    return CubeSet::GetCubeSet( CRotations<N>::GetTilt( rotInv ), set );
   }
   return set;
 }
 
 template< cube_size N >
-void Evaluator<N>::build()
+void Evaluator<N>::resolveAcceptance()
 {
-  dealloc();
-
   BitMap cubeSet( m_accept( m_subgroup -> priorPos() ) );
   for ( CubeID prior; cubeSet >> prior; )
   {
     addSolution( Simplex::Inverse( prior ), m_subgroup -> size() - 2, 0 );
   }
+}
 
-  const BitMapID P = m_subgroup -> priorRotIDs();
-  const size_t size = pow24( m_subgroup -> size() - 1 );
-  DistID   * nodeValue = new DistID    [ size ] {};
-  BitMapID * grade1    = new BitMapID  [ size ] {};
-  BitMapID * grade2    = new BitMapID  [ size ] {};
-  BitMap32ID * aim1    = new BitMap32ID[ size ] {};
-  BitMap32ID * aim2    = new BitMap32ID[ size ] {};
-  
+template< cube_size N >
+void Evaluator<N>::setRoot( BitMapID * grade1, BitMapID * grade2, BitMap32ID * aim1, BitMap32ID * aim2 )
+{
   // first-grade gradient = 0 --> unsolvable
   // first_grade gradient = 1 --> solved state
   // initialize root nodes as solved with zero RotID --> first-grade gradient = 1
@@ -205,24 +199,53 @@ void Evaluator<N>::build()
   {
     const GroupID node = m_qeueu -> at( i );
     grade1[ node ] = 1;
-    aim1  [ node ] = 1;
- 
-    all_rotid ( rotID, N ) 
+    aim1  [ node ] = m_accept( m_subgroup -> priorPos() );
+  }
+  for ( size_t i = 0; i < m_qeueu -> count(); ++ i )
+  {
+    const GroupID parent = m_qeueu -> at( i );
+    all_rotid ( rotID, N )
     {
-      if ( m_qeueu -> used( m_subgroup -> lookUp( node, rotID ) ) )
+      grade2 [ parent ] |= ( 1ULL << rotID );
+      const GroupID child  = m_subgroup -> lookUp( parent, rotID );
+      if ( m_qeueu -> used( child ) )
       {
-        aim2  [ node ] |= ( P & ( 1ULL << rotID ) ) ? 1 << CRotations<N>::GetTilt( rotID ) : 1;
+        const BitMap32ID a = aim1[ child ];
+        if  ( m_subgroup -> priorMoving( rotID )  )
+        {
+          aim2 [ parent ] |= CubeSet::GetCubeSet( a, CRotations<N>::GetTilt( rotID ) );
+        }
+        else
+        {
+          aim2 [ parent ] |= a;
+        }
       }
     }
   }
+}
+
+template< cube_size N >
+void Evaluator<N>::build()
+{
+  dealloc();
+  resolveAcceptance();
+  const size_t size = pow24( m_subgroup -> size() - 1 );
+  DistID   * nodeValue = new DistID    [ size ] {};
+  BitMapID * grade1    = new BitMapID  [ size ] {};
+  BitMapID * grade2    = new BitMapID  [ size ] {};
+  BitMap32ID * aim1    = new BitMap32ID[ size ] {};
+  BitMap32ID * aim2    = new BitMap32ID[ size ] {};
+  
+  setRoot( grade1, grade2, aim1, aim2 );
 
   GroupID parent;
   while ( *m_qeueu >> parent )
   {
     all_rotid ( rotID, N )
     {
-      const GroupID child = m_subgroup -> lookUp( parent, rotID );
-      const BitMapID bitRotID = 1ULL << CRotations<N>::GetInvRotID( rotID );
+      const GroupID  child = m_subgroup -> lookUp( parent, rotID );
+      const RotID   rotInv = CRotations<N>::GetInvRotID( rotID );
+      const BitMapID bitRotID = 1ULL << rotInv;
       if ( *m_qeueu << child )
       {
         nodeValue[ child ] = nodeValue[ parent ] + 1;
@@ -236,8 +259,8 @@ void Evaluator<N>::build()
       {
         grade1[ child ] |= bitRotID;
         grade2[ child ] |= bitRotID;
-        aim1  [ child ] |= mergeSet( rotID, aim1[ parent ] );
-        aim2  [ child ] |= mergeSet( rotID, aim2[ parent ] );
+        aim1  [ child ] |= mergeSet( rotInv, aim1[ parent ] );
+        aim2  [ child ] |= mergeSet( rotInv, aim2[ parent ] );
       }
     }
   }
