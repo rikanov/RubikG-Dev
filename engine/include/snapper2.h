@@ -32,7 +32,8 @@ class Snapper2
 
   void maximumTreeHeight( const DistID );
   bool progressResult();
-  void initRoot( const DistID depth);
+  void initSearch( const DistID depth);
+  void initRoot( const CubeID trans );
   void startIDA( const CubeID trans = 0 );
   void iterativelyDeepening();
   void setCube();
@@ -111,6 +112,7 @@ void Snapper2<N>::maximumTreeHeight( const DistID depth )
 template< cube_size N >
 bool Snapper2<N>::progressResult()
 {
+  bool result = false;
   RotID nextRot;
   while ( m_currentLevel != m_rootLevel || ! m_currentLevel -> gradient.empty() )
   {
@@ -118,6 +120,7 @@ bool Snapper2<N>::progressResult()
     {
       if ( rotate( nextRot ) )
       {
+        result = true;clog( "result");
         break;
       }
     }
@@ -126,7 +129,7 @@ bool Snapper2<N>::progressResult()
       -- m_currentLevel;
     }
   }
-  return m_currentLevel -> gradient.contains( 1 );
+  return result;
 }
 
 template< cube_size N >
@@ -136,12 +139,13 @@ void Snapper2<N>::setState( const size_t index, const RotID rotID, CubeID & prio
   const Subgroup2<N> * subgroup = m_subgroupArray + index;
   
   prior = m_currentLevel -> prior[ index ];
+  state = subgroup -> lookUp( m_currentLevel -> state[index], rotID, prior );
+
   if ( subgroup -> priorMoving( prior, rotID ) )
   { 
     prior =  CRotations<N>::Tilt( prior, rotID );
   }
-  state = subgroup -> lookUp( m_currentLevel -> state[index], rotID, prior );
-  
+
   nextLevel -> prior[ index ] = prior;
   nextLevel -> state[ index ] = state;
 }
@@ -170,7 +174,7 @@ bool Snapper2<N>::rotate( const RotID rotID )
       return false;
   }
   m_currentLevel -> step = rotID;
-  if ( ++ m_currentLevel < m_deepestLevel || ! ( m_currentLevel -- ) -> gradient.contains( 1 ) )
+  if ( ++ m_currentLevel < m_deepestLevel || ! ( m_currentLevel -- ) -> gradient.contains( 0 ) )
   {
     return false;
   }
@@ -179,7 +183,18 @@ bool Snapper2<N>::rotate( const RotID rotID )
 }
 
 template< cube_size N >
-void Snapper2<N>::initRoot( const DistID depth)
+void Snapper2<N>::initRoot( const CubeID trans )
+{
+  m_currentLevel = m_rootLevel;
+  for ( size_t index = 0; index < m_numberOfTasks; ++ index )
+  {
+    m_currentLevel -> prior[ index ] = m_subgroupArray[ index ].getPrior( *m_rubik, trans );
+    m_currentLevel -> state[ index ] = m_subgroupArray[ index ].getState( *m_rubik, trans );
+  }
+}
+
+template< cube_size N >
+void Snapper2<N>::initSearch( const DistID depth)
 {
   m_rootLevel -> gradient.set( m_allowedGradient[0] );
   m_rootLevel -> target = ( 1 << 24 ) - 1;
@@ -198,18 +213,11 @@ void Snapper2<N>::initRoot( const DistID depth)
 template< cube_size N >
 void Snapper2<N>::startIDA( const CubeID trans )
 {
-  m_currentLevel = m_rootLevel;
-  for ( size_t index = 0; index < m_numberOfTasks; ++ index )
-  {
-    m_currentLevel -> prior[ index ] = m_subgroupArray[ index ].getPrior( *m_rubik, trans );
-    m_currentLevel -> state[ index ] = m_subgroupArray[ index ].getState( *m_rubik, trans );
-    clog( Simplex::GetCube(m_currentLevel -> prior[ index ]).toString(), m_currentLevel -> state[ index ] );
-  }
-
+  initRoot( trans );
   DistID depth = 0;
   do
   {
-    initRoot( depth ++ );
+    initSearch( depth ++ );
   } while ( 0 == m_rootLevel -> target || m_rootLevel ->gradient.empty() );
   m_deepestLevel = m_rootLevel + depth - 1;
 }
@@ -238,9 +246,7 @@ void Snapper2<N>::iterativelyDeepening()
   }
   while ( m_deepestLevel < m_rootLevel + MaximumIDAsteps )
   {
-    initRoot( m_deepestLevel - m_rootLevel );
-    clog( m_deepestLevel - m_rootLevel );
-    m_currentLevel -> gradient.print( 9 * N + 1, 3 * N );
+    initSearch( m_deepestLevel - m_rootLevel );
     if ( progressResult() )
     {
       setCube();
