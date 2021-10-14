@@ -2,6 +2,7 @@
 #define SNAPSHOTS__H
 
 #include <base_types.h>
+#include <bitmap_set.h>
 
 struct Snapshots
 {
@@ -22,6 +23,16 @@ public:
    ,  state  ( new GroupID [ MaximumSubgroups ] )
    ,  prior  ( new CubeID  [ MaximumSubgroups ] )
   {
+  }
+
+  void print( const cube_size N )
+  {
+    gradient.print( 9 * N + 1, 3 * N );
+  }
+
+  void print_( const cube_size N )
+  {
+    gradient.print_( 9 * N + 1, 3 * N );
   }
 
   ~Snapshots()

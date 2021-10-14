@@ -24,17 +24,18 @@ class Evaluator
   
   void dealloc();
   void resolveAcceptance();
-  void setRoot(BitMapID * grade1, BitMapID * grade2, BitMap32ID * aim1, BitMap32ID * aim2 );
+  void createRoot ( BitMapID * grade1, BitMapID * grade2, BitMap32ID * aim1, BitMap32ID * aim2 ) const;
+  void buildTree  ( BitMapID * grade1, BitMapID * grade2, BitMap32ID * aim1, BitMap32ID * aim2, DistID * nodeValue ) const;
   void addSolution ( const CubeID, const size_t, GroupID gid );
   
-  BitMap32ID mergeSet( const RotID rotID, const BitMap32ID set ) const;
+  BitMap32ID mergeAim( const RotID rotID, const BitMap32ID set ) const;
 
 public:
   Evaluator ();
   ~Evaluator();
   
   void map    ( const Subgroup2<N> * );
-  void root   ( const GroupID );
+  void addRoot   ( const GroupID );
   void accept ( AcceptFunction );
   void build  ();
   
@@ -44,26 +45,6 @@ public:
   DistID distance( const GroupID gid ) const
   {
     return m_nodeValue[ gid ];
-  }
-  
-  BitMapID grade1( const GroupID gid ) const
-  {
-    return m_grade1[ gid ];
-  }
-
-  BitMapID grade2( const GroupID gid ) const
-  {
-    return m_grade2[ gid ];
-  }
-
-  BitMap32ID aim1( const GroupID gid ) const
-  {
-    return m_aim1[gid];
-  }
-
-  BitMap32ID aim2( const GroupID gid ) const
-  {
-    return m_aim2[gid];
   }
 };
 
@@ -110,7 +91,7 @@ BitMapID Evaluator<N>::gradient( const CubeID prior, const GroupID state,  const
   {
     return ( 1ULL << ( 9 * N + 1 ) ) - 2;
   }
-  BitMapID grad = dist == D ? grade1( state ) : grade2( state );
+  BitMapID grad = dist == D ? m_grade1[ state ] : m_grade2[ state ];
   GenerateRotationSet<N>::Transform( grad, prior );
   return grad;
 }
@@ -127,7 +108,7 @@ BitMap32ID Evaluator<N>::target( const CubeID prior, const GroupID state, const 
   {
     return ( 1 << 24 ) - 1;
   }
-  BitMap32ID aim = dist == D ? aim1( state ) : aim2( state );
+  BitMap32ID aim = dist == D ? m_aim1[ state ] : m_aim2[ state ];
   return CubeSet::GetCubeSet( prior, aim );
 }
 
@@ -139,7 +120,7 @@ void Evaluator<N>::map( const Subgroup2<N> * sg )
 }
 
 template< cube_size N >
-void Evaluator<N>::root( const GroupID si )
+void Evaluator<N>::addRoot( const GroupID si )
 {
   *m_qeueu << si;
 }
@@ -159,7 +140,7 @@ void Evaluator<N>::addSolution( const CubeID invPrior, const size_t id, GroupID 
     next = Simplex::Composition( next, invPrior );
     if ( 0 == id )
     {
-      root( gid + next );
+            addRoot( gid + next );
     }
     else
     {
@@ -169,7 +150,7 @@ void Evaluator<N>::addSolution( const CubeID invPrior, const size_t id, GroupID 
 }
 
 template< cube_size N >
-BitMap32ID Evaluator<N>::mergeSet( const RotID rotInv, const BitMap32ID set ) const
+BitMap32ID Evaluator<N>::mergeAim( const RotID rotInv, const BitMap32ID set ) const
 {
   if ( m_subgroup -> priorMoving( rotInv ) )
   {
@@ -189,7 +170,7 @@ void Evaluator<N>::resolveAcceptance()
 }
 
 template< cube_size N >
-void Evaluator<N>::setRoot( BitMapID * grade1, BitMapID * grade2, BitMap32ID * aim1, BitMap32ID * aim2 )
+void Evaluator<N>::createRoot( BitMapID * grade1, BitMapID * grade2, BitMap32ID * aim1, BitMap32ID * aim2 ) const
 {
   // first-grade gradient = 0 --> unsolvable
   // first_grade gradient = 1 --> solved state
@@ -206,19 +187,42 @@ void Evaluator<N>::setRoot( BitMapID * grade1, BitMapID * grade2, BitMap32ID * a
     const GroupID parent = m_qeueu -> at( i );
     all_rotid ( rotID, N )
     {
-      grade2 [ parent ] |= ( 1ULL << rotID );
       const GroupID child  = m_subgroup -> lookUp( parent, rotID );
       if ( m_qeueu -> used( child ) )
       {
-        const BitMap32ID a = aim1[ child ];
-        if  ( m_subgroup -> priorMoving( rotID )  )
-        {
-          aim2 [ parent ] |= CubeSet::GetCubeSet( a, CRotations<N>::GetTilt( rotID ) );
-        }
-        else
-        {
-          aim2 [ parent ] |= a;
-        }
+        grade2 [ parent ] |= ( 1ULL << rotID );
+        aim2   [ parent ] |= mergeAim( rotID, aim1[ child ] );
+      }
+    }
+  }
+}
+
+template< cube_size N >
+void Evaluator<N>::buildTree( BitMapID * grade1, BitMapID * grade2, BitMap32ID * aim1, BitMap32ID * aim2, DistID * nodeValue ) const
+{
+  GroupID parent;
+  while ( *m_qeueu >> parent )
+  {
+    all_rotid ( rotID, N )
+    {
+      const GroupID  child = m_subgroup -> lookUp( parent, rotID );
+      const RotID   rotInv = CRotations<N>::GetInvRotID( rotID );
+      const BitMapID bitRotID = 1ULL << rotInv;
+      if ( *m_qeueu << child )
+      {
+        nodeValue[ child ] = nodeValue[ parent ] + 1;
+      }
+      if ( nodeValue[ child ] == nodeValue[ parent ] )
+      {
+        grade2[ child ] |= bitRotID;
+        aim2  [ child ] |= mergeAim( rotID, aim1[ parent ] );
+      }
+      if ( nodeValue[ child ] == nodeValue[ parent ] + 1 )
+      {
+        grade1[ child ] |= bitRotID;
+        grade2[ child ] |= bitRotID;
+        aim1  [ child ] |= mergeAim( rotInv, aim1[ parent ] );
+        aim2  [ child ] |= mergeAim( rotInv, aim2[ parent ] );
       }
     }
   }
@@ -236,34 +240,8 @@ void Evaluator<N>::build()
   BitMap32ID * aim1    = new BitMap32ID[ size ] {};
   BitMap32ID * aim2    = new BitMap32ID[ size ] {};
   
-  setRoot( grade1, grade2, aim1, aim2 );
-
-  GroupID parent;
-  while ( *m_qeueu >> parent )
-  {
-    all_rotid ( rotID, N )
-    {
-      const GroupID  child = m_subgroup -> lookUp( parent, rotID );
-      const RotID   rotInv = CRotations<N>::GetInvRotID( rotID );
-      const BitMapID bitRotID = 1ULL << rotInv;
-      if ( *m_qeueu << child )
-      {
-        nodeValue[ child ] = nodeValue[ parent ] + 1;
-      }
-      if ( nodeValue[ child ] == nodeValue[ parent ] )
-      {
-        grade2[ child ] |= bitRotID;
-        aim2  [ child ] |= mergeSet( rotID, aim1[ parent ] );
-      }
-      if ( nodeValue[ child ] == nodeValue[ parent ] + 1 )
-      {
-        grade1[ child ] |= bitRotID;
-        grade2[ child ] |= bitRotID;
-        aim1  [ child ] |= mergeSet( rotInv, aim1[ parent ] );
-        aim2  [ child ] |= mergeSet( rotInv, aim2[ parent ] );
-      }
-    }
-  }
+  createRoot ( grade1, grade2, aim1, aim2 );
+  buildTree  ( grade1, grade2, aim1, aim2, nodeValue );
 
   m_nodeValue = nodeValue;
   m_grade1    = grade1;

@@ -4,6 +4,7 @@
 #include <cube_positions.h>
 #include <cube_rotations.h>
 #include <rubik.h>
+#include <snapshots.h>
 #include <state_printer.h>
 
 template< cube_size N >
@@ -94,6 +95,13 @@ public:
     const GroupID stateID = usePrior( prior, gid );
     clog_( stateID );
     PrintMap<N> ( stateID, m_startPositions, m_size, details );    
+  }
+
+  void print( const Snapshots * snapshot, const size_t index,  const bool details = false ) const
+  {
+    const GroupID stateID = usePrior( snapshot -> prior[ index ], snapshot -> state[ index ] );
+    clog_( stateID );
+    PrintMap<N> ( stateID, m_startPositions, m_size, details );
   }
 };
 

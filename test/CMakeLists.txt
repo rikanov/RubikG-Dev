@@ -21,15 +21,10 @@ add_library(test  test.h
                   core/u_crotations.cpp
                   core/u_cextrotations.cpp
                   core/u_genrotationset.cpp
-                  core/u_projection.cpp
                   core/u_rubik.cpp
 
-                  engine/u_insight.cpp
-                  engine/u_subgroup.cpp
-                  engine/u_engine.cpp
                   engine/u_snapper.cpp
                   
-                  rubik_ai/u_resolver.cpp
                  )
 
 

@@ -8,7 +8,6 @@
 #include <cube_rotations.h>
 #include <gen_rotation_set.h>
 #include <cube_set.h>
-#include <projection.h>
 #include <rubik.h>
 
 template< cube_size N >
@@ -21,7 +20,6 @@ static void Init()
 template< cube_size N >
 static void Exit()
 {
-           CPositions<N>::OnExit();
   GenerateRotationSet<N>::OnExit();
 }
 void exit()
@@ -30,8 +28,7 @@ void exit()
   Exit <3> ();
   Exit <4> ();
   Exit <5> ();
-  
-  Projection::OnExit();
+
   CubeSet::OnExit();
   Simplex::OnExit();
 }
@@ -39,8 +36,7 @@ void exit()
 void init()
 {
   Simplex::Instance();
-  CubeSet::Instance();
-  Projection::Instance();
+  CubeSet::Instance();;
  
   Init <2> ();
   Init <3> ();

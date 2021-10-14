@@ -32,7 +32,7 @@ class Snapper2
 
   void maximumTreeHeight( const DistID );
   bool progressResult();
-  void initSearch( const DistID depth);
+  bool initSearch( const DistID depth);
   void initRoot( const CubeID trans );
   void startIDA( const CubeID trans = 0 );
   void iterativelyDeepening();
@@ -194,7 +194,7 @@ void Snapper2<N>::initRoot( const CubeID trans )
 }
 
 template< cube_size N >
-void Snapper2<N>::initSearch( const DistID depth)
+bool Snapper2<N>::initSearch( const DistID depth)
 {
   m_rootLevel -> gradient.set( m_allowedGradient[0] );
   m_rootLevel -> target = ( 1 << 24 ) - 1;
@@ -208,18 +208,19 @@ void Snapper2<N>::initSearch( const DistID depth)
     m_rootLevel -> gradient.restrict( grad );
     m_rootLevel -> target &= m_evaluateArray[ index ].target ( prior, state, depth );
   }
+  return  m_rootLevel -> gradient.empty() || 0 == m_rootLevel -> target;
 }
 
 template< cube_size N >
 void Snapper2<N>::startIDA( const CubeID trans )
 {
   initRoot( trans );
-  DistID depth = 0;
-  do
+  DistID height = 0;
+  while ( initSearch( height ) )
   {
-    initSearch( depth ++ );
-  } while ( 0 == m_rootLevel -> target || m_rootLevel ->gradient.empty() );
-  m_deepestLevel = m_rootLevel + depth - 1;
+    ++ height;
+  }
+  maximumTreeHeight( height );
 }
 
 template< cube_size N >
@@ -244,6 +245,7 @@ void Snapper2<N>::iterativelyDeepening()
     clog( "already solved..." );
     return; // solved at start, nothing to do
   }
+  clog( m_deepestLevel - m_rootLevel );
   while ( m_deepestLevel < m_rootLevel + MaximumIDAsteps )
   {
     initSearch( m_deepestLevel - m_rootLevel );
