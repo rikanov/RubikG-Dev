@@ -54,7 +54,6 @@ bool UnitTests::unit_Snapper() const
 
     const PosID bind[] = {
       CPositions<3>::GetPosID( 1, 0, 1 ),
-      CPositions<3>::GetPosID( 0, 1, 1 ),
       CPositions<3>::GetPosID( 1, 0, 2 ),
     };
     const PosID block1[] = {
@@ -101,7 +100,7 @@ bool UnitTests::unit_Snapper() const
     test.toSolve( &testCube );
 
     test.newTask( cross, 5 );
-    test.newTask( bind,  4 );
+    test.newTask( bind,  2 );
     test.start();
 
     test.newTask( block1, 2);
@@ -116,10 +115,10 @@ bool UnitTests::unit_Snapper() const
     test.newTask( block4, 2);
     test.start();
 
-    test.newTask( cross2, 5, 0, Accept<3>::OnPlace );
+    test.newTask( cross2, 5, 0, Accept<3>::RotAxis( _Z ) );
     test.start();
 
-    test.newTask( corners, 5, 0, Accept<3>::OnPlace );
+    test.newTask( corners, 5, 0, Accept<3>::RotAxis( _Z ) );
     test.start();
   }
 
