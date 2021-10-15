@@ -120,15 +120,28 @@ void Evaluator<N>::map( const Subgroup2<N> * sg )
 }
 
 template< cube_size N >
-void Evaluator<N>::addRoot( const GroupID si )
-{
-  *m_qeueu << si;
-}
-
-template< cube_size N >
 void Evaluator<N>::accept( AcceptFunction func )
 {
   m_accept = func;
+}
+
+template< cube_size N >
+BitMap32ID Evaluator<N>::mergeAim( const RotID rotInv, const BitMap32ID set ) const
+{
+  if ( m_subgroup -> priorMoving( rotInv ) )
+  {
+    return CubeSet::GetCubeSet( CRotations<N>::GetTilt( rotInv ), set );
+  }
+  return set;
+}
+
+template< cube_size N >
+void Evaluator<N>::addRoot( const GroupID rootID )
+{
+  if ( m_subgroup -> valid( rootID ) && *m_qeueu << rootID )
+  {
+    m_subgroup -> print( rootID, 0, true );
+  }
 }
 
 template< cube_size N >
@@ -140,23 +153,13 @@ void Evaluator<N>::addSolution( const CubeID invPrior, const size_t id, GroupID 
     next = Simplex::Composition( next, invPrior );
     if ( 0 == id )
     {
-            addRoot( gid + next );
+      addRoot( gid + next );
     }
     else
     {
       addSolution( invPrior, id - 1, gid + next * pow24( id ) );
     }
   }
-}
-
-template< cube_size N >
-BitMap32ID Evaluator<N>::mergeAim( const RotID rotInv, const BitMap32ID set ) const
-{
-  if ( m_subgroup -> priorMoving( rotInv ) )
-  {
-    return CubeSet::GetCubeSet( CRotations<N>::GetTilt( rotInv ), set );
-  }
-  return set;
 }
 
 template< cube_size N >

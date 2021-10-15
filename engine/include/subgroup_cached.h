@@ -76,6 +76,20 @@ public:
     return result;
   }
 
+  bool valid( GroupID gid ) const
+  {
+    BoolArray positions( CPositions<N>::GetSize() );
+    
+    for ( size_t index = 0; index < m_size; ++ index, gid /= 24 )
+    {
+      const PosID next = CPositions<N>::GetPosID( m_startPositions[ index ], gid % 24 );
+      if ( positions( next ) )
+        return false;
+      positions.set( next, true );
+    }
+    return true;
+  }
+  
   GroupID lookUp( const GroupID gid, const RotID rid ) const
   {
     return m_projectedGroupID[ AllRot * gid + rid ];
@@ -90,7 +104,7 @@ public:
   CubeID  getPrior( const Rubik<N> &, const CubeID trans ) const;
   GroupID getState( const Rubik<N> &, const CubeID trans ) const;
   
-  void print( const GroupID gid, const CubeID prior, const bool details = false ) const
+  void print( const GroupID gid, const CubeID prior = 0, const bool details = false ) const
   {
     const GroupID stateID = usePrior( prior, gid );
     clog_( stateID );
