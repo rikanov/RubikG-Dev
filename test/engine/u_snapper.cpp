@@ -95,6 +95,7 @@ bool UnitTests::unit_Snapper() const
 
     Rubik<3> testCube;
     testCube.shuffle();
+    testCube.print();
 
     Snapper2<3> test;
     test.toSolve( &testCube );

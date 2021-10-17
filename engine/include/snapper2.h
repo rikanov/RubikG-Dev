@@ -112,17 +112,13 @@ void Snapper2<N>::maximumTreeHeight( const DistID depth )
 template< cube_size N >
 bool Snapper2<N>::progressResult()
 {
-  bool result = false;
+  bool result = m_currentLevel -> gradient.contains( 0 );
   RotID nextRot;
-  while ( m_currentLevel != m_rootLevel || ! m_currentLevel -> gradient.empty() )
+  while ( ! result && ( m_currentLevel != m_rootLevel || ! m_currentLevel -> gradient.empty() ) )
   {
     if ( m_currentLevel -> gradient >> nextRot )
     {
-      if ( rotate( nextRot ) )
-      {
-        result = true;clog( "result");
-        break;
-      }
+      result = rotate( nextRot );
     }
     else
     {
@@ -199,7 +195,7 @@ bool Snapper2<N>::initSearch( const DistID depth)
   m_rootLevel -> gradient.set( m_allowedGradient[0] );
   m_rootLevel -> target = ( 1 << 24 ) - 1;
 
-  for ( size_t index = 0; index < m_numberOfTasks && 0 < m_rootLevel -> target && ! m_rootLevel -> gradient.empty(); ++ index )
+  for ( size_t index = 0; index < m_numberOfTasks && ! m_rootLevel -> gradient.empty(); ++ index )
   {
     const CubeID  prior = m_rootLevel -> prior[ index ];
     const GroupID state = m_rootLevel -> state[ index ];
@@ -208,7 +204,8 @@ bool Snapper2<N>::initSearch( const DistID depth)
     m_rootLevel -> gradient.restrict( grad );
     m_rootLevel -> target &= m_evaluateArray[ index ].target ( prior, state, depth );
   }
-  return  m_rootLevel -> gradient.empty() || 0 == m_rootLevel -> target;
+
+  return m_rootLevel -> gradient.empty() || 0 == m_rootLevel -> target;
 }
 
 template< cube_size N >
@@ -230,9 +227,24 @@ void Snapper2<N>::setCube()
   clog( "size:", m_currentLevel - m_rootLevel );
   for ( const Snapshots * P = m_rootLevel; P != m_currentLevel; ++ P )
   {
+    switch ( CRotations<N>::GetAxis( P -> step ) )
+    {
+      case _X:
+        clog_ ( Color::yellow );
+        break;
+      case _Y:
+        clog_ ( Color::blue );
+        break;
+      case _Z:
+        clog_ ( Color::red );
+        break;
+      default:
+        clog_( Color::flash ); // error
+    }
     clog( CRotations<N>::ToString( P -> step ) );
     m_rubik -> rotate( P -> step );
   }
+  clog_( Color::off );
   m_rubik -> print();
 }
 

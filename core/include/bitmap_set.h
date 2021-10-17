@@ -9,7 +9,7 @@ class BitMap
   uint8_t  m_nextID;
 
 public:
-  BitMap() = default;
+  BitMap(): m_dataSet( 0 ), m_nextID( 0 ) {};
   BitMap( const uint64_t ds )
   {
     set( ds );
@@ -29,6 +29,16 @@ public:
   void expand( const uint64_t rs )
   {
     m_dataSet |= rs;  // set union
+  }
+
+  void exclude( const uint64_t rs )
+  {
+    m_dataSet -= ( m_dataSet & rs );
+  }
+
+  void unit( const size_t size )
+  {
+    m_dataSet = ( 1ULL << size ) - 1;
   }
 
   bool empty() const
