@@ -36,7 +36,6 @@ private:
   bool unit_OCube()         const; // core/oriented_cube.h
   bool unit_CPositions()    const; // core/cube_positions.h
   bool unit_CRotations()    const; // core/cube_rotations.h
-  bool unit_CExtRotations() const; // core/cube_rotations.h
   bool unit_CGenRotations() const; // core/gen_rotation_set.h
   bool unit_Rubik()         const; // core/rubik.h
    

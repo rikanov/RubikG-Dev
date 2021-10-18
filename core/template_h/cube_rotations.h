@@ -15,12 +15,6 @@
 // ID = 3 * N * Axis + 3 * Layer + Turn 
 // ID < 3 * N * 3
 
-enum RotStyle
-{
-  normal,
-  extended
-};
-
 template< cube_size N >
 class CRotations
 {
@@ -170,120 +164,6 @@ void CRotations<N>::PrintSeq( const Sequence & S )
   clog( "size:", S.size() );
   for( RotID n = S.start(); n; n = S.next() )
    clog( ToString( n ) );
-}
-
-
-template< cube_size N >
-class CExtRotations
-{
-public:
-
-  static constexpr size_t NT = N > 3 ? 2 * N - 3 : N;
-  static constexpr size_t AllRotIDs = CRotations<NT>::AllRotIDs;
-
-  static void Transform( Axis & axis, Layer & layer, Turn & turn, const CubeID cubeID );
-  
-  static std::string ToString( const RotID rotID )
-  {
-    return CRotations<NT>::ToString( rotID );
-  }
-
-  static std::string ToString( const Axis axis, const Layer layer, const Turn turn )
-  {
-    return CRotations<NT>::ToString( axis, layer, turn );
-  }
-
-  static RotID GetRotID( const Axis axis, const Layer layer, const Turn turn )
-  {
-    return CRotations<NT>::GetRotID( axis, layer, turn );
-  }
-
-  static RotID GetInvRotID( const Axis axis, const Layer layer, const Turn turn )
-  {
-    return CRotations<NT>::GetInvRotID( axis, layer, turn );
-  }
-
-  static RotID GetInvRotID( const RotID rotID )
-  {
-    return CRotations<NT>::GetInvRotID( rotID );
-  }
-
-  static RotID GetRotID( Axis axis, Layer layer, Turn turn, const CubeID cubeID )
-  {
-    Transform( axis, layer, turn, cubeID );
-    return GetRotID( axis, layer, turn );
-  }
-
-  static RotID GetRotID( const RotID rotID, const CubeID cubeID )
-  {
-    Axis  axis  = GetAxis ( rotID );
-    Layer layer = GetLayer( rotID );
-    Turn  turn  = GetTurn ( rotID );
-    return GetRotID( axis, layer, turn, cubeID );
-  }
-
-  static Axis GetAxis( const RotID rotID )
-  {
-    return CRotations<NT>::GetAxis( rotID );
-  }
-
-  static Layer GetLayer( const RotID rotID )
-  {
-    return CRotations<NT>::GetLayer( rotID );
-  }
-
-  static Turn GetTurn( const RotID rotID )
-  {
-    return CRotations<NT>::GetTurn( rotID );
-  }
-
-};
-
-template< cube_size N >
-void CExtRotations<N>::Transform( Axis & axis, Layer & layer, Turn & turn, const CubeID cubeID )
-{
-  if ( layer < N )
-  {
-    CRotations<N>::Transform( axis, layer, turn, cubeID );
-    return;
-  }
-
-  const Orient base  = GetAxisBase( axis );
-  const Orient trans = Simplex::GetCube( cubeID ).whereIs( base );
-
-  switch( trans )
-  {
-    case _L:
-      axis = _X;
-      break;
-
-    case _D:
-      axis = _Y;
-      break;
-
-    case _B:
-      axis = _Z;
-      break;
-
-    case _R:
-      axis  = _X;
-      layer = 3 * N - 4 - layer;
-      break;
-
-    case _U:
-      axis  = _Y;
-      layer = 3 * N - 4 - layer;
-      break;
-
-    case _F:
-      axis  = _Z;
-      layer = 3 * N - 4 - layer;
-      break;
-
-    default:
-      clog( "invalid Orient to get axis" );
-      return;
-  }
 }
 
 #endif // ! CUBE_ROTATIONS__H

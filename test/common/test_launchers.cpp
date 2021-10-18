@@ -6,7 +6,6 @@ bool UnitTests::testCore() const
   result &= unit_Simplex();
   result &= unit_CubeSet();
   result &= unit_CRotations();
-  result &= unit_CExtRotations();
   result &= unit_CGenRotations();
   result &= unit_Rubik();
   return result;

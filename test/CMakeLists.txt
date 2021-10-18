@@ -19,7 +19,6 @@ add_library(test  test.h
                   core/u_simplex.cpp
                   core/u_cubeset.cpp
                   core/u_crotations.cpp
-                  core/u_cextrotations.cpp
                   core/u_genrotationset.cpp
                   core/u_rubik.cpp
 

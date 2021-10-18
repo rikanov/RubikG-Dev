@@ -6,8 +6,6 @@
 #include <cube_positions.h>
 #include <sequence.h>
 
-static constexpr bool LogRotations = false;
-
 /// ----------------------------------- Template declarations starts here ------------------------------------- ///
 template< cube_size N >
 class Rubik
@@ -26,8 +24,8 @@ public:
   // Operations
   Rubik<N> inverse    ( void ) const;
   void     rotate     ( const Axis, const Layer, const Turn turn = 1 );
-  void     rotate     ( const RotID rotID, const RotStyle RS = normal );
-  void     rotate     ( const Sequence & seq, const RotStyle RS = normal );
+  void     rotate     ( const RotID rotID );
+  void     rotate     ( const Sequence & seq );
   void     shuffle    ( int depth = 0 );
   
   static Rubik<N> Transform  ( const Rubik<N>& A, const Rubik<N>& C ) { return Rubik<N>( A.inverse(), C ); } // transform( A, C ) returns with B where A + B = C
@@ -175,41 +173,20 @@ void Rubik<N>::rotate( const Axis axis, const Layer layer, const Turn turn )
 
 // rotation by using RotID
 template< cube_size N >
-void Rubik<N>::rotate( const RotID rotID, const RotStyle RS )
+void Rubik<N>::rotate( const RotID rotID )
 {
-  if ( RS == normal )
-  {
-    const Axis  axis  = CRotations<N>::GetAxis  ( rotID );
-    const Layer layer = CRotations<N>::GetLayer ( rotID );
-    const Turn  turn  = CRotations<N>::GetTurn  ( rotID );
-    rotate( axis, layer, turn ); 
-    if ( LogRotations )
-      clog( CRotations<N>::ToString( rotID ) );
-  }
-  else // RS == extended
-  {
-    const Axis  axis  = CExtRotations<N>::GetAxis  ( rotID );
-    const Layer layer = CExtRotations<N>::GetLayer ( rotID );
-    const Turn  turn  = CExtRotations<N>::GetTurn  ( rotID );
-    if ( layer < N )
-    {
-      rotate( axis, layer, turn );
-    }
-    else for ( Layer next = 0; next <= layer - ( N - 1 ); ++ next )
-    {
-      rotate( axis, next, turn );
-    }
-    if ( LogRotations )
-      clog( CExtRotations<N>::ToString( rotID ) );
-  }
+  const Axis  axis  = CRotations<N>::GetAxis  ( rotID );
+  const Layer layer = CRotations<N>::GetLayer ( rotID );
+  const Turn  turn  = CRotations<N>::GetTurn  ( rotID );
+  rotate( axis, layer, turn );
 }
 
 template< cube_size N >
-void Rubik<N>::rotate( const Sequence & seq, const RotStyle RS )
+void Rubik<N>::rotate( const Sequence & seq )
 {
   for( RotID next = seq.start(); next; next = seq.next() )
   {
-    rotate( next, RS );
+    rotate( next );
   }
 }
 
