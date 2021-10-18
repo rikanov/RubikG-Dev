@@ -5,16 +5,20 @@
 
 class Sequence
 {
+public:
+  
+  static constexpr size_t StackSize = 2000;
+
+private:
   RotID * m_rotations;
   RotID * m_stackPointer;
   mutable const RotID * m_nextRotation;
+  mutable const RotID * m_endSubsequence;
 
 public:
   Sequence();
   Sequence( const size_t );
   Sequence( const RotID * rotations, const size_t size );
-  Sequence( const Sequence & C );
-  Sequence( Sequence && );
   ~Sequence();
   
   void set( const RotID * rotations, size_t size );
@@ -22,63 +26,17 @@ public:
   bool     operator == ( const Sequence & S ) const;
   Sequence operator +  ( const Sequence & S ) const;
 
-  Sequence & operator << ( const RotID rotID )
-  {
-    *( m_stackPointer++ ) = rotID;
-    return *this;
-  }
-
-  Sequence & back()
-  {
-    --m_stackPointer;
-    return *this;
-  }
-
-  RotID & last()
-  {
-    return *m_stackPointer;
-  }
-
-  void step()
-  {
-    ++ m_stackPointer;
-  }
-
-  const RotID * raw() const
-  {
-    return m_rotations;
-  }
-
-  size_t size() const
-  {
-    return m_stackPointer - m_rotations;
-  }
-
-  RotID start() const
-  {
-    m_nextRotation = m_rotations;
-    return next();
-  }
-
-  RotID next() const
-  {
-    return ( m_nextRotation < m_stackPointer ) ? *( m_nextRotation++ ) : 0;
-  }
-
-  void reset()
-  {
-    m_stackPointer = m_rotations;
-  }
-
-  Sequence reverse() const
-  {
-    Sequence reversed;
-    for ( const RotID * rot = m_stackPointer - 1; rot >= m_rotations; -- rot )
-    {
-      reversed << *rot;
-    }
-    return reversed;
-  }
+  void store( const RotID rotID );
+  Sequence & operator << ( const RotID rotID );
+  const RotID * raw() const;
+  size_t steps() const;
+  RotID start( const size_t size = 0 ) const;
+  RotID next() const;
+  void reset();
+  void setState( const size_t );
+  Sequence reverse() const;
+  void save( const char *, const size_t size = 0 ) const;
+  void load( const char * );
 };
 
 

@@ -224,28 +224,17 @@ template< cube_size N >
 void Snapper2<N>::setCube()
 {
   NL();
-  clog( "size:", m_currentLevel - m_rootLevel );
+  clog( "Global steps:", m_rubik -> steps() );
+  const size_t steps =  m_currentLevel - m_rootLevel;
+  Sequence seq;
   for ( const Snapshots * P = m_rootLevel; P != m_currentLevel; ++ P )
   {
-    switch ( CRotations<N>::GetAxis( P -> step ) )
-    {
-      case _X:
-        clog_ ( Color::yellow );
-        break;
-      case _Y:
-        clog_ ( Color::blue );
-        break;
-      case _Z:
-        clog_ ( Color::red );
-        break;
-      default:
-        clog_( Color::flash ); // error
-    }
-    clog( CRotations<N>::ToString( P -> step ) );
     m_rubik -> rotate( P -> step );
+    seq << P -> step;
   }
-  clog_( Color::off );
+  CRotations<N>::Print( seq );
   m_rubik -> print();
+  clog( "Current global steps:", m_rubik -> steps() );
 }
 
 template< cube_size N >

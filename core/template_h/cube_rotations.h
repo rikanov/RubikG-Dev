@@ -41,7 +41,9 @@ public:
   static std::string ToString( const Axis  );
   static std::string ToString( const RotID );
   static std::string ToString( const Axis, const Layer, const Turn );
-  static void        PrintSeq( const Sequence & S );
+  
+  static void Print( const RotID );
+  static void Print( const Sequence & S );
 };
 
 template< cube_size N >
@@ -159,11 +161,31 @@ std::string CRotations<N>::ToString( const RotID rotID )
 }
 
 template< cube_size N >
-void CRotations<N>::PrintSeq( const Sequence & S )
+void CRotations<N>::Print( const RotID rotID )
 {
-  clog( "size:", S.size() );
+  switch ( CRotations<N>::GetAxis( rotID ) )
+  {
+    case _X:
+      clog_ ( Color::yellow );
+      break;
+    case _Y:
+      clog_ ( Color::blue );
+      break;
+    case _Z:
+      clog_ ( Color::red );
+      break;
+    default:
+      clog_( Color::flash, "Error: rot id =", (int) rotID ); // error
+  }
+  clog( CRotations<N>::ToString( rotID ), Color::off );
+}
+
+template< cube_size N >
+void CRotations<N>::Print( const Sequence & S )
+{
+  clog( "steps:", S.steps() );
   for( RotID n = S.start(); n; n = S.next() )
-   clog( ToString( n ) );
+   Print( n );
 }
 
 #endif // ! CUBE_ROTATIONS__H

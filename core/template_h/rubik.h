@@ -8,11 +8,10 @@
 
 /// ----------------------------------- Template declarations starts here ------------------------------------- ///
 template< cube_size N >
-class Rubik
+class Rubik: public Sequence
 {
   static constexpr int Fsize = CPositions<N>::GetSize();
   CubeID * frameworkSpace;
-  Sequence m_stepHistory;
 
 public:
   
@@ -21,9 +20,9 @@ public:
   Rubik( const Rubik<N>& );
   Rubik( Rubik<N>&& f );
 
-
   // Operations
   void reset   ();
+  void refresh ();
   void rotate  ( const Axis, const Layer, const Turn turn = 1 );
   void rotate  ( const RotID rotID );
   void rotate  ( const Sequence & seq );
@@ -127,7 +126,7 @@ bool Rubik<N>::isSolved() const
 template< cube_size N > 
 void Rubik<N>::rotate( const Axis axis, const Layer layer, const Turn turn )
 {
-  m_stepHistory << CRotations<N>::GetRotID( axis, layer, turn );
+  store( CRotations<N>::GetRotID( axis, layer, turn ) );
   const int cubes = CPositions<N>::LayerSize( layer );
   CubeID state  [ N * N ]; // to store rotational states temporarily.
   
