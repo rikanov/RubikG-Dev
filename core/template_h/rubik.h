@@ -12,28 +12,25 @@ class Rubik
 {
   static constexpr int Fsize = CPositions<N>::GetSize();
   CubeID * frameworkSpace;
+  Sequence m_stepHistory;
 
 public:
   
   // Constructors
   Rubik( void );
-  Rubik( const Rubik<N>&, const Rubik<N>& );
   Rubik( const Rubik<N>& );
   Rubik( Rubik<N>&& f );
-  
+
+
   // Operations
-  Rubik<N> inverse    ( void ) const;
-  void     rotate     ( const Axis, const Layer, const Turn turn = 1 );
-  void     rotate     ( const RotID rotID );
-  void     rotate     ( const Sequence & seq );
-  void     shuffle    ( int depth = 0 );
-  
-  static Rubik<N> Transform  ( const Rubik<N>& A, const Rubik<N>& C ) { return Rubik<N>( A.inverse(), C ); } // transform( A, C ) returns with B where A + B = C
+  void reset   ();
+  void rotate  ( const Axis, const Layer, const Turn turn = 1 );
+  void rotate  ( const RotID rotID );
+  void rotate  ( const Sequence & seq );
+  void shuffle ( int depth = 0 );
   
   // Operators
   bool      operator== ( const Rubik<N>& X ) const;
-  Rubik<N>  operator+  ( const Rubik<N>& B ) { return Rubik<N> ( *this, B ); }
-  Rubik<N>  operator-  ( const Rubik<N>& B ) { return Transform( B, *this ); }
   const Rubik<N>& operator=  ( const Rubik<N>& B ) ;
   // Destructor
   ~Rubik( );
@@ -72,18 +69,6 @@ Rubik<N>::Rubik( )
  : frameworkSpace( new CubeID [ Fsize ] () )
 {
   
-}
-
-// Conmposition of two cubes --> construct a new one
-template< cube_size N >
-Rubik<N>::Rubik( const Rubik<N> & cf1, const Rubik<N> & cf2 )
- : frameworkSpace( new CubeID [ Fsize ] )
-{
-  for ( PosID id = 0; id < Fsize; ++id )
-  {
-    const PosID position = cf2.whatIs( id );
-    frameworkSpace[ id ] = Simplex::Composition( cf1.getCubeID( position ), cf2.getCubeID( id ) );
-  }
 }
 
 // copy
@@ -138,24 +123,11 @@ bool Rubik<N>::isSolved() const
   return true;
 }
 
-// inverse
-template< cube_size N > 
-Rubik<N> Rubik<N>::inverse() const
-{
-  Rubik<N> inv;
-  for ( PosID id = 0; id < Fsize; ++id )
-  {
-    const CubeID rotinv = Simplex::Inverse( frameworkSpace[ id ] );
-    const int position = CPositions<N>::GetPosID( id, rotinv );
-    inv.frameworkSpace[ position ] = rotinv;
-  }
-  return inv;
-}
-
 // clockwise rotation one layer (side) with 90 degree turns
 template< cube_size N > 
 void Rubik<N>::rotate( const Axis axis, const Layer layer, const Turn turn )
 {
+  m_stepHistory << CRotations<N>::GetRotID( axis, layer, turn );
   const int cubes = CPositions<N>::LayerSize( layer );
   CubeID state  [ N * N ]; // to store rotational states temporarily.
   
