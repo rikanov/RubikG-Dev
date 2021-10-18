@@ -27,12 +27,9 @@ public:
 
   void print( const cube_size N )
   {
+    BitMap::Print_( target, 24, 4 );
+    clog_( " / " );
     gradient.print( 9 * N + 1, 3 * N );
-  }
-
-  void print_( const cube_size N )
-  {
-    gradient.print_( 9 * N + 1, 3 * N );
   }
 
   ~Snapshots()

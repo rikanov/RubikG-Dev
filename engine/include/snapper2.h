@@ -45,6 +45,8 @@ public:
   void toSolve( Rubik<N> * );
   void newTask( const PosID * ,const size_t , const CubeID orient = 0, AcceptFunction af = Accept<N>::Normal );
   void start();
+
+  void printState() const;
 };
 
 template< cube_size N >
@@ -195,7 +197,7 @@ bool Snapper2<N>::initSearch( const DistID depth)
   m_rootLevel -> gradient.set( m_allowedGradient[0] );
   m_rootLevel -> target = ( 1 << 24 ) - 1;
 
-  for ( size_t index = 0; index < m_numberOfTasks && ! m_rootLevel -> gradient.empty(); ++ index )
+  for ( size_t index = 0; index < m_numberOfTasks && 0 < m_rootLevel -> target && ! m_rootLevel -> gradient.empty(); ++ index )
   {
     const CubeID  prior = m_rootLevel -> prior[ index ];
     const GroupID state = m_rootLevel -> state[ index ];
@@ -215,6 +217,8 @@ void Snapper2<N>::startIDA( const CubeID trans )
   DistID height = 0;
   while ( initSearch( height ) )
   {
+    clog( "height:", (int) height );
+    printState();
     ++ height;
   }
   maximumTreeHeight( height );
@@ -229,10 +233,10 @@ void Snapper2<N>::setCube()
   Sequence seq;
   for ( const Snapshots * P = m_rootLevel; P != m_currentLevel; ++ P )
   {
-    m_rubik -> rotate( P -> step );
     seq << P -> step;
   }
   CRotations<N>::Print( seq );
+  m_rubik -> rotate( seq );
   m_rubik -> print();
   clog( "Current global steps:", m_rubik -> steps() );
 }
@@ -259,10 +263,24 @@ void Snapper2<N>::iterativelyDeepening()
   }
 }
 
-template< cube_size N > void Snapper2<N>::start()
+template< cube_size N >
+void Snapper2<N>::start()
 {
   iterativelyDeepening();
 }
+
+template< cube_size N >
+void Snapper2<N>::printState() const
+{
+  m_currentLevel -> print( N );
+  for ( size_t index = 0; index < m_numberOfTasks; ++ index )
+  {
+    BitMap::Print_( m_evaluateArray[index].target( 0, m_currentLevel -> state[ index ], 0 ), 24, 4 );
+    clog_( Simplex::GetCube( m_currentLevel -> prior[ index ] ).toString(), "-->" );
+    BitMap::Print( m_evaluateArray[index].target( m_currentLevel -> prior[ index ], m_currentLevel -> state[ index ], 0 ), 24, 4 );
+  }
+}
+
 
 template< cube_size N >
 Snapper2<N>::~Snapper2()

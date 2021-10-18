@@ -123,13 +123,13 @@ void Sequence::operator += ( const Sequence & S )
 
 void Sequence::save( const char * fname, const size_t size ) const
 {
-  std::ofstream writeSeq( fname, std::ios::trunc );
+  std::ofstream writeSeq( fname,std::ios::trunc );
   if ( writeSeq.is_open() )
   {
     const size_t end = size == 0 ? steps() : size;
     for ( size_t step = 0; step < end; ++ step )
     {
-      writeSeq << m_rotations[ step ];
+      writeSeq << (int) m_rotations[ step ] << ' ';
     }
     writeSeq.close();
   }
@@ -143,11 +143,12 @@ void Sequence::load( const char * fname )
 {
   reset();
   std::ifstream readSeq( fname );
+  m_stackPointer = m_rotations;
   if ( readSeq.is_open() )
   {
-    while( readSeq >> *m_stackPointer )
+    for( int next = 0;  readSeq >> next; )
     {
-      ++ m_stackPointer;
+      *( m_stackPointer ++ ) = next;
     }
     readSeq.close();
   }

@@ -13,6 +13,9 @@ class Rubik: public Sequence
   static constexpr int Fsize = CPositions<N>::GetSize();
   CubeID * frameworkSpace;
 
+  void setRotate( const RotID rotID );
+  void rotate  ( const Axis, const Layer, const Turn turn = 1 );
+
 public:
   
   // Constructors
@@ -23,7 +26,7 @@ public:
   // Operations
   void reset   ();
   void refresh ();
-  void rotate  ( const Axis, const Layer, const Turn turn = 1 );
+  void history ( const size_t step );
   void rotate  ( const RotID rotID );
   void rotate  ( const Sequence & seq );
   void shuffle ( int depth = 0 );
@@ -64,7 +67,7 @@ public:
 
 // default
 template< cube_size N >
-Rubik<N>::Rubik( )
+Rubik<N>::Rubik()
  : frameworkSpace( new CubeID [ Fsize ] () )
 {
   
@@ -88,6 +91,29 @@ Rubik<N>::Rubik( Rubik<N> && f )
 
  // Operations
 //  ----------
+
+template< cube_size N >
+void Rubik<N>::reset()
+{
+  for ( PosID posID = 0; posID < Fsize; ++ posID )
+    frameworkSpace[ posID ] = 0;
+}
+
+template< cube_size N >
+void Rubik<N>::history( const size_t step )
+{
+  reset();
+  for ( RotID rotID = start( step ); rotID; rotID = next() )
+  {
+    setRotate( rotID );
+  }
+}
+
+template< cube_size N >
+void Rubik<N>::refresh()
+{
+  history( 0 );
+}
 
 // assignement
 template< cube_size N >
@@ -126,7 +152,6 @@ bool Rubik<N>::isSolved() const
 template< cube_size N > 
 void Rubik<N>::rotate( const Axis axis, const Layer layer, const Turn turn )
 {
-  store( CRotations<N>::GetRotID( axis, layer, turn ) );
   const int cubes = CPositions<N>::LayerSize( layer );
   CubeID state  [ N * N ]; // to store rotational states temporarily.
   
@@ -143,8 +168,9 @@ void Rubik<N>::rotate( const Axis axis, const Layer layer, const Turn turn )
 }
 
 // rotation by using RotID
+
 template< cube_size N >
-void Rubik<N>::rotate( const RotID rotID )
+void Rubik<N>::setRotate( const RotID rotID )
 {
   const Axis  axis  = CRotations<N>::GetAxis  ( rotID );
   const Layer layer = CRotations<N>::GetLayer ( rotID );
@@ -152,6 +178,12 @@ void Rubik<N>::rotate( const RotID rotID )
   rotate( axis, layer, turn );
 }
 
+template< cube_size N >
+void Rubik<N>::rotate( const RotID rotID )
+{
+  setRotate( rotID );
+  store( rotID );
+}
 template< cube_size N >
 void Rubik<N>::rotate( const Sequence & seq )
 {

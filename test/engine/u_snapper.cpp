@@ -115,12 +115,23 @@ bool UnitTests::unit_Snapper() const
 
     test.newTask( block4, 2);
     test.start();
+    const size_t st = testCube.steps();
 
     test.newTask( cross2, 5, 0, Accept<3>::RotAxis( _Z ) );
     test.start();
 
     test.newTask( corners, 5, 0, Accept<3>::RotAxis( _Z ) );
     test.start();
+
+    testCube.save( "testCube.txt" );
+
+    Rubik<3> testCube65;
+    testCube65.load( "testCube_65.txt" );
+    testCube65.history(65);
+    testCube65.print();
+    test.toSolve( &testCube65 );
+    test.start();
+    test.printState();
   }
 
   finish( "Snapper", success );
