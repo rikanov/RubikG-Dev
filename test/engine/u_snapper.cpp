@@ -38,6 +38,7 @@ bool UnitTests::unit_Snapper() const
     test.newTask( left, 4 );
     test.newTask( right, 4 );
     test.start();
+    testCube.save( "test_cube_2.rub" );
   }
 
 
@@ -123,15 +124,8 @@ bool UnitTests::unit_Snapper() const
     test.newTask( corners, 5, 0, Accept<3>::RotAxis( _Z ) );
     test.start();
 
-    testCube.save( "testCube.txt" );
+    testCube.save( "test_cube_3.rub" );
 
-    Rubik<3> testCube65;
-    testCube65.load( "testCube_65.txt" );
-    testCube65.history(65);
-    testCube65.print();
-    test.toSolve( &testCube65 );
-    test.start();
-    test.printState();
   }
 
   finish( "Snapper", success );
