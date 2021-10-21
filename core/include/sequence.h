@@ -35,8 +35,8 @@ public:
   void reset();
   void setState( const size_t );
   Sequence reverse() const;
-  void save( const char *, const size_t size = 0 ) const;
-  void load( const char * );
+  void save( const std::string & , const size_t size = 0 ) const;
+  void load( const std::string & );
 };
 
 

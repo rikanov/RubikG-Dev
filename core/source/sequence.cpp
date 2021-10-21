@@ -121,7 +121,7 @@ void Sequence::operator += ( const Sequence & S )
   }
 }
 
-void Sequence::save( const char * fname, const size_t size ) const
+void Sequence::save( const std::string & fname, const size_t size ) const
 {
   std::ofstream writeSeq( fname,std::ios::trunc );
   if ( writeSeq.is_open() )
@@ -139,7 +139,7 @@ void Sequence::save( const char * fname, const size_t size ) const
   }
 }
 
-void Sequence::load( const char * fname )
+void Sequence::load( const std::string & fname )
 {
   reset();
   std::ifstream readSeq( fname );

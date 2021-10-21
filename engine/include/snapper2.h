@@ -249,16 +249,14 @@ void Snapper2<N>::iterativelyDeepening()
     clog( "already solved..." );
     return; // solved at start, nothing to do
   }
-  clog( m_deepestLevel - m_rootLevel );
   while ( m_deepestLevel < m_rootLevel + MaximumIDAsteps )
   {
-    initSearch( m_deepestLevel - m_rootLevel );
     if ( progressResult() )
     {
       setCube();
       break;
     }
-    ++ m_deepestLevel;
+    initSearch( ++ m_deepestLevel - m_rootLevel );
   }
 }
 

@@ -27,6 +27,7 @@ public:
   void reset   ();
   void refresh ();
   void history ( const size_t step );
+  void revert  ( const size_t step );
   void rotate  ( const RotID rotID );
   void rotate  ( const Sequence & seq );
   void shuffle ( int depth = 0 );
@@ -107,6 +108,13 @@ void Rubik<N>::history( const size_t step )
   {
     setRotate( rotID );
   }
+}
+
+template< cube_size N >
+void Rubik<N>::revert( const size_t step )
+{
+  setState( step );
+  refresh();
 }
 
 template< cube_size N >
