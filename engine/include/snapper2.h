@@ -26,7 +26,7 @@ class Snapper2
   
   Rubik<N>  * m_rubik;
 
-  void setState( const size_t, const RotID, CubeID &, GroupID & );
+  bool setNextState( const RotID );
   bool rotate( const RotID );
 
   void initGradients();
@@ -115,9 +115,16 @@ void Snapper2<N>::maximumTreeHeight( const DistID depth )
 template< cube_size N >
 bool Snapper2<N>::progressResult()
 {
-  bool result = m_currentLevel -> gradient.contains( 0 );
-  RotID nextRot;
-  while ( ! result && ( m_currentLevel != m_rootLevel || ! m_currentLevel -> gradient.empty() ) )
+  if ( m_currentLevel -> gradient.contains( 0 ) )
+  {
+    return true;
+  }
+  auto emptyTree = [&]()
+    {
+      return  m_currentLevel == m_rootLevel && m_currentLevel -> gradient.empty();
+    };
+  bool result = false;
+  for ( RotID nextRot = 0; ! result && ! emptyTree(); )
   {
     if ( m_currentLevel -> gradient >> nextRot )
     {
@@ -132,53 +139,58 @@ bool Snapper2<N>::progressResult()
 }
 
 template< cube_size N >
-void Snapper2<N>::setState( const size_t index, const RotID rotID, CubeID & prior, GroupID & state )
+bool Snapper2<N>::setNextState( const RotID rotID )
 {
   Snapshots * nextLevel = m_currentLevel + 1;
-  const Subgroup2<N> * subgroup = m_subgroupArray + index;
-  
-  prior = m_currentLevel -> prior[ index ];
-  state = subgroup -> lookUp( m_currentLevel -> state[index], rotID, prior );
+  auto & gradient = nextLevel -> gradient;
+  auto & target   = nextLevel -> target;
+  gradient.set( m_allowedGradient[ rotID ] );
+  target = m_currentLevel -> target;
+  const DistID depth = m_deepestLevel - nextLevel;
 
-  if ( subgroup -> priorMoving( prior, rotID ) )
-  { 
-    prior =  CRotations<N>::Tilt( prior, rotID );
+  for ( size_t index = 0; index < m_activateTasks; ++ index )
+  {
+    const Subgroup2<N> & subgroup = m_subgroupArray[ index ];
+    auto & prior = nextLevel -> prior[ index ];
+    auto & state = nextLevel -> state[ index ];
+
+    prior = m_currentLevel -> prior[ index ];
+    state = subgroup.lookUp( m_currentLevel -> state[index], rotID, prior );
+
+    if ( subgroup.priorMoving( prior, rotID ) )
+    {
+      prior = CRotations<N>::Tilt( prior, rotID );
+    }
+
+    gradient.restrict( m_evaluateArray [ index ].gradient( prior, state, depth ) );
+    if ( gradient.empty() )
+      return false;
+
+    target &= m_evaluateArray [ index ].target( prior, state, depth );
+    if ( 0 == target )
+      return false;
   }
-
-  nextLevel -> prior[ index ] = prior;
-  nextLevel -> state[ index ] = state;
+  return true;
 }
 
 template< cube_size N >
 bool Snapper2<N>::rotate( const RotID rotID )
 {
-  Snapshots * nextLevel = m_currentLevel + 1;
-  nextLevel -> gradient.set( m_allowedGradient[ rotID ] );
-  nextLevel -> target = m_currentLevel -> target;
-
-
-  const DistID depth = m_deepestLevel - nextLevel;
-  CubeID  prior;
-  GroupID state;
-  for ( size_t index = 0; index < m_activateTasks; ++ index )
-  {
-    setState( index, rotID, prior, state );
-    
-    nextLevel -> gradient.restrict( m_evaluateArray [ index ].gradient( prior, state, depth ) );
-    if ( nextLevel -> gradient.empty() )
-      return false;
-    
-    nextLevel -> target &= m_evaluateArray [ index ].target( prior, state, depth );
-    if ( 0 == nextLevel -> target )
-      return false;
-  }
-  m_currentLevel -> step = rotID;
-  if ( ++ m_currentLevel < m_deepestLevel || ! ( m_currentLevel -- ) -> gradient.contains( 0 ) )
+  if ( ! setNextState( rotID ) )
   {
     return false;
   }
-  ++ m_currentLevel;
-  return true; // solved
+  m_currentLevel -> step = rotID;
+  if ( ++ m_currentLevel < m_deepestLevel )
+  {
+    return false;
+  }
+  if ( m_currentLevel -> gradient.contains( 0 ) ) // solved
+  {
+    return true;
+  }
+  -- m_currentLevel;
+  return false;
 }
 
 template< cube_size N >
