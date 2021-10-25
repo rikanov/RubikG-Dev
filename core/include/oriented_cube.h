@@ -48,6 +48,7 @@ public:
   CubeID  getCubeID (   void    ) const { return m_cubeID;      }
 
   const std::string& toString () const { return m_readable;         }
+  char toChar (const size_t i )  const { return m_readable[i];      }
   operator        const char* () const { return m_readable.c_str(); }
   
   static Orient FrontSide ( Orient r, Orient u ) { return FrontSides[r][u]; }

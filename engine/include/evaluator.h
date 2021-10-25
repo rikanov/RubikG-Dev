@@ -123,7 +123,7 @@ BitMap32ID Evaluator<N>::target( const CubeID prior, const GroupID state, const 
   {
     return ( 1 << 24 ) - 1;
   }
-  BitMap32ID aim = dist == D ? m_aim1[ state ] : m_aim2[ state ];
+  const BitMap32ID aim = dist == D ? m_aim1[ state ] : m_aim2[ state ];
   return CubeSet::GetCubeSet( prior, aim );
 }
 

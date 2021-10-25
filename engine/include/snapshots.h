@@ -25,7 +25,7 @@ public:
   {
   }
 
-  void print( const cube_size N )
+  void print( const cube_size N ) const
   {
     BitMap::Print_( target, 24, 4 );
     clog_( " / " );

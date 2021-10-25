@@ -15,10 +15,13 @@ class CubeSet
   };
 
   static CubeSet * Singleton;
-  static const BitMap32ID * m_lowMap;
-  static const BitMap32ID * m_highMap;
+  static const BitMap32ID * m_lowMapLeft;
+  static const BitMap32ID * m_highMapLeft;
 
-  static BitMap32ID MultipleRotation( const CubeID, BitMapID, const CubeSet::TransMode tr = CubeSet::trNormal );
+  static const BitMap32ID * m_lowMapRight;
+  static const BitMap32ID * m_highMapRight;
+
+  static BitMap32ID MultipleRotation( const CubeID, BitMapID, const CubeSet::TransMode tr = CubeSet::trNormal, const bool swp = false );
   CubeSet();
   ~CubeSet();
 
@@ -36,8 +39,15 @@ public:
   // technically, the cache splitted into two 12-bit wide sequences
   static BitMap32ID GetCubeSet ( const CubeID cid, const BitMap32ID sid )
   {
-    return m_lowMap[ 24 * ( sid & 4095 ) + cid ] | m_highMap[ 24 * ( sid >> 12 ) + cid ];
+    return m_lowMapLeft[ 24 * ( sid & 4095 ) + cid ] | m_highMapLeft[ 24 * ( sid >> 12 ) + cid ];
   }
+  static BitMap32ID GetCubeSet ( const BitMap32ID sid, const CubeID cid )
+  {
+    return m_lowMapRight[ 24 * ( sid & 4095 ) + cid ] | m_highMapRight[ 24 * ( sid >> 12 ) + cid ];
+  }
+  static void PrintHead();
+  static void Print ( BitMap32ID bid, const bool head = false );
+  static void Print_( BitMap32ID bid, const bool head = false );
 };
 
 #endif  //  ! FINAL_STATES_CACHE__H

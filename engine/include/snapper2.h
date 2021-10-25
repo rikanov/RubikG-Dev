@@ -40,6 +40,7 @@ class Snapper2
   void setCube();
 public:
 
+  bool logs = false;
   Snapper2();
   ~Snapper2();
 
@@ -207,19 +208,33 @@ void Snapper2<N>::initRoot( const CubeID trans )
 template< cube_size N >
 bool Snapper2<N>::initSearch( const DistID depth)
 {
-  m_rootLevel -> gradient.set( m_allowedGradient[0] );
-  m_rootLevel -> target = ( 1 << 24 ) - 1;
+  BitMap & gradient = m_rootLevel -> gradient;
+  BitMap32ID & target = m_rootLevel -> target;
+  gradient.set( m_allowedGradient[0] );
+  target = ( 1 << 24 ) - 1;
 
-  for ( size_t index = 0; index < m_activateTasks && 0 < m_rootLevel -> target && ! m_rootLevel -> gradient.empty(); ++ index )
+  for ( size_t index = 0; index < m_activateTasks && 0 < target && ! gradient.empty(); ++ index )
   {
     const CubeID  prior = m_rootLevel -> prior[ index ];
     const GroupID state = m_rootLevel -> state[ index ];
     const BitMapID grad = m_evaluateArray[ index ].gradient ( prior, state, depth );
 
-    m_rootLevel -> gradient.restrict( grad );
-    m_rootLevel -> target &= m_evaluateArray[ index ].target ( prior, state, depth );
+    gradient.restrict( grad );
+    target &= m_evaluateArray[ index ].target ( prior, state, depth );
+    if ( 0 == target && logs )
+    {
+      clog( "last targets:" );
+      for ( int i = 0 ; i <= index; ++ i )
+      {
+        CubeSet::Print_( m_evaluateArray[ i ].target( m_rootLevel -> prior[i], m_rootLevel -> state[i], depth ), 0 == i );
+        clog( Simplex::GetCube( m_rootLevel -> prior[i] ).toString() );
+      }
+    }
   }
-
+  if ( logs )
+  {
+    m_rootLevel -> print( N );
+  }
   return m_rootLevel -> gradient.empty() || 0 == m_rootLevel -> target;
 }
 
@@ -245,9 +260,15 @@ void Snapper2<N>::setCube()
   for ( const Snapshots * P = m_rootLevel; P != m_currentLevel; ++ P )
   {
     seq << P -> step;
+    m_rubik -> rotate( P -> step );
+    if ( logs )
+    {
+      clog_( "depth:", ( m_deepestLevel - P ), CRotations<N>::ToString( P -> step ) );
+      P -> print( N );
+      m_rubik -> print();
+    }
   }
   CRotations<N>::Print( seq );
-  m_rubik -> rotate( seq );
   m_rubik -> print();
   clog( "Current global steps:", m_rubik -> steps() );
 }
@@ -287,7 +308,7 @@ void Snapper2<N>::printState() const
   {
     BitMap::Print_( m_evaluateArray[index].target( 0, m_currentLevel -> state[ index ], 0 ), 24, 4 );
     clog_( Simplex::GetCube( m_currentLevel -> prior[ index ] ).toString(), "-->" );
-    BitMap::Print( m_evaluateArray[index].target( m_currentLevel -> prior[ index ], m_currentLevel -> state[ index ], 0 ), 24, 4 );
+    CubeSet::Print( m_evaluateArray[index].target( m_currentLevel -> prior[ index ], m_currentLevel -> state[ index ], 0 ), 0 == index );
   }
 }
 

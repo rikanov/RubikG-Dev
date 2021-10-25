@@ -165,6 +165,7 @@ bool UnitTests::unit_Snapper() const
     test3.newTask( cross2,  5, 0, Accept<3>::RotAxis( _Z ) );
     test3.newTask( corners, 5, 0, Accept<3>::RotAxis( _Z ) );
     
+    int print = 10;
     for ( auto file: files )
     {
       const int task = std::get<0>( file );
@@ -178,11 +179,14 @@ bool UnitTests::unit_Snapper() const
       cdraw ( '-', 30 );
       testCube3.load( fileName );
       testCube3.revert ( step );
+      test3.logs = ( std::string( "58_64" ) == postfix || std::string( "70_73" ) == postfix || std::string( "30_33" ) == postfix);
+      if ( test3.logs )
+        testCube3.print();
       test3.start( task + 1 );  
 
       testCube3.load( fileName );
       testCube3.revert ( step + 1 );
-      test3.start( task + 1 );     
+      test3.start( task + 1 );
       cdraw ( '-', 30 );
     }
 
