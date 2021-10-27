@@ -200,35 +200,21 @@ void Evaluator<N>::createRoot()
     m_grade1[ node ] = 1;
     m_aim1  [ node ] = m_accept( m_subgroup -> priorPos() );
   }
-  for ( size_t i = 0; i < m_qeueu -> count(); ++ i )
-  {
-    const GroupID parent = m_qeueu -> at( i );
-    all_rotid ( rotID, N )
-    {
-      const GroupID child  = m_subgroup -> lookUp( parent, rotID );
-      if ( m_qeueu -> used( child ) )
-      {
-        m_grade2 [ parent ] |= ( 1ULL << rotID );
-        m_aim2   [ parent ] |= mergeAim( rotID, m_aim1[ child ] );
-      }
-    }
-  }
 }
 
 template< cube_size N >
 void Evaluator<N>::bindSolutionNodes( const GroupID parent, const RotID rotID )
 {
   const GroupID  child = m_subgroup -> lookUp( parent, rotID );
-  const RotID   rotInv = CRotations<N>::GetInvRotID( rotID );
-  const BitMapID bitInvRotID = 1ULL << rotInv;
   if ( *m_qeueu << child )
   {
     m_nodeValue[ child ] = m_nodeValue[ parent ] + 1;
   }
-  if ( 1 == m_nodeValue[ child ] - m_nodeValue[ parent ] )
+  if ( m_nodeValue[ child ] == m_nodeValue[ parent ] + 1 )
   {
-    m_grade1[ child ]  |= bitInvRotID;
-    m_aim1  [ child ]  |= mergeAim( rotInv, m_aim1[ parent ] );
+    const RotID rotInv = CRotations<N>::GetInvRotID( rotID );
+    m_grade1[ child ] |= 1ULL << rotInv;
+    m_aim1  [ child ] |= mergeAim( rotInv, m_aim1[ parent ] );
   }
 }
 
@@ -251,6 +237,10 @@ void Evaluator<N>::connectEqualNodes()
   const size_t size = pow24( m_subgroup -> size() - 1 );
   for ( GroupID gid = 0; gid < size; ++ gid )
   {
+    if ( ! m_subgroup -> valid( gid ) )
+    {
+      continue;
+    }
     all_rotid( rotID, N )
     {
       const GroupID neighbor = m_subgroup -> lookUp( gid, rotID );
@@ -260,6 +250,7 @@ void Evaluator<N>::connectEqualNodes()
         m_aim2  [ gid ] |= mergeAim( rotID, m_aim1[ gid ] );
       }
     }
+    m_grade2[ gid ] |= m_grade1[ gid ];
   }
 }
 

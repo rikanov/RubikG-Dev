@@ -221,19 +221,6 @@ bool Snapper2<N>::initSearch( const DistID depth)
 
     gradient.restrict( grad );
     target &= m_evaluateArray[ index ].target ( prior, state, depth );
-    if ( 0 == target && logs )
-    {
-      clog( "last targets:" );
-      for ( int i = 0 ; i <= index; ++ i )
-      {
-        CubeSet::Print_( m_evaluateArray[ i ].target( m_rootLevel -> prior[i], m_rootLevel -> state[i], depth ), 0 == i );
-        clog( Simplex::GetCube( m_rootLevel -> prior[i] ).toString() );
-      }
-    }
-  }
-  if ( logs )
-  {
-    m_rootLevel -> print( N );
   }
   return m_rootLevel -> gradient.empty() || 0 == m_rootLevel -> target;
 }
