@@ -12,12 +12,14 @@ typedef uint8_t DistID;
 template< cube_size N >
 class Evaluator
 {
+  struct Node
+  {
+    DistID      value   =  0;
+    BitMapID    grade[2]= {};
+    BitMap32ID  aim[2]  = {};
+  };
   const Subgroup2<N> * m_subgroup;
-  DistID     * m_nodeValue;
-  BitMapID   * m_grade1;
-  BitMapID   * m_grade2;
-  BitMap32ID * m_aim1;
-  BitMap32ID * m_aim2;
+  Node               * m_node;
 
   AcceptFunction   m_accept;
   Qeueu          * m_qeueu;
@@ -48,18 +50,14 @@ public:
 
   DistID distance( const GroupID gid ) const
   {
-    return m_nodeValue[ gid ];
+    return m_node[ gid ].value;
   }
 };
 
 template< cube_size N >
 Evaluator<N>::Evaluator()
  : m_subgroup ( nullptr )
- , m_nodeValue( nullptr )
- , m_grade1   ( nullptr )
- , m_grade2   ( nullptr )
- , m_aim1     ( nullptr )
- , m_aim2     ( nullptr )
+ , m_node     ( nullptr )
  , m_accept   ( Accept<N>::Normal )
  , m_qeueu    ( new Qeueu )
 {
@@ -76,22 +74,13 @@ Evaluator<N>::~Evaluator()
 template< cube_size N >
 void Evaluator<N>::dealloc()
 {
-  delete[] m_nodeValue;
-  delete[] m_grade1;
-  delete[] m_grade2;
-  delete[] m_aim1;
-  delete[] m_aim2;
+  delete[] m_node;
 }
 
 template< cube_size N >
 void Evaluator<N>::alloc()
 {
-  const size_t size = pow24( m_subgroup -> size() - 1 );
-  m_nodeValue = new DistID    [ size ] {};
-  m_grade1    = new BitMapID  [ size ] {};
-  m_grade2    = new BitMapID  [ size ] {};
-  m_aim1      = new BitMap32ID[ size ] {};
-  m_aim2      = new BitMap32ID[ size ] {};
+  m_node = new Node [ pow24( m_subgroup -> size() - 1 ) ] {};
 }
 
 template< cube_size N >
@@ -106,7 +95,7 @@ BitMapID Evaluator<N>::gradient( const CubeID prior, const GroupID state,  const
   {
     return ( 1ULL << ( 9 * N + 1 ) ) - 2;
   }
-  BitMapID grad = dist == D ? m_grade1[ state ] : m_grade2[ state ];
+  BitMapID grad = m_node[state].grade[ ( dist > D ) ];
   GenerateRotationSet<N>::Transform( grad, prior );
   return grad;
 }
@@ -123,7 +112,7 @@ BitMap32ID Evaluator<N>::target( const CubeID prior, const GroupID state, const 
   {
     return ( 1 << 24 ) - 1;
   }
-  const BitMap32ID aim = dist == D ? m_aim1[ state ] : m_aim2[ state ];
+  const BitMap32ID aim = m_node[ state ].aim[ dist > D ];
   return CubeSet::GetCubeSet( prior, aim );
 }
 
@@ -196,9 +185,9 @@ void Evaluator<N>::createRoot()
   // initialize root nodes as solved with zero RotID --> first-grade gradient = 1
   for ( size_t i = 0; i < m_qeueu -> count(); ++ i )
   {
-    const GroupID node = m_qeueu -> at( i );
-    m_grade1[ node ] = 1;
-    m_aim1  [ node ] = m_accept( m_subgroup -> priorPos() );
+    Node & node = m_node[ m_qeueu -> at( i ) ];
+    node.grade[0] = 1;
+    node.aim  [0] = m_accept( m_subgroup -> priorPos() );
   }
 }
 
@@ -206,15 +195,17 @@ template< cube_size N >
 void Evaluator<N>::bindSolutionNodes( const GroupID parent, const RotID rotID )
 {
   const GroupID  child = m_subgroup -> lookUp( parent, rotID );
+  Node       & cNode = m_node[ child ];
+  const Node & pNode = m_node[ parent ];
   if ( *m_qeueu << child )
   {
-    m_nodeValue[ child ] = m_nodeValue[ parent ] + 1;
+    cNode.value = pNode.value + 1;
   }
-  if ( m_nodeValue[ child ] == m_nodeValue[ parent ] + 1 )
+  if ( cNode.value == pNode.value + 1 )
   {
     const RotID rotInv = CRotations<N>::GetInvRotID( rotID );
-    m_grade1[ child ] |= 1ULL << rotInv;
-    m_aim1  [ child ] |= mergeAim( rotInv, m_aim1[ parent ] );
+    cNode.grade[0] |= 1ULL << rotInv;
+    cNode.aim[0]   |= mergeAim( rotInv, pNode.aim[0] );
   }
 }
 
@@ -241,16 +232,17 @@ void Evaluator<N>::connectEqualNodes()
     {
       continue;
     }
+    Node & node = m_node[gid];
     all_rotid( rotID, N )
     {
       const GroupID neighbor = m_subgroup -> lookUp( gid, rotID );
-      if ( m_nodeValue[ gid ] == m_nodeValue[ neighbor ] )
+      if ( node.value == m_node[ neighbor ].value )
       {
-        m_grade2[ gid ] |= ( 1ULL << rotID );
-        m_aim2  [ gid ] |= mergeAim( rotID, m_aim1[ gid ] );
+        node.grade[1] |= ( 1ULL << rotID );
+        node.aim  [1] |= mergeAim( rotID, node.aim[0] );
       }
     }
-    m_grade2[ gid ] |= m_grade1[ gid ];
+    node.grade[1] |= node.grade[0];
   }
 }
 
@@ -261,13 +253,13 @@ void Evaluator<N>::finishTargets()
   {
     BitMap guide;
     guide.unit( CRotations<N>::AllRotIDs );
-    guide.exclude( 1 | m_grade1[ node ] | m_grade2[ node ] );
+    guide.exclude( 1 | m_node[node].grade[0] | m_node[node].grade[1] );
     for ( RotID rotID = 0; guide >> rotID; )
     {
-      const RotID   inv    = CRotations<N>::GetInvRotID( rotID );
-      const GroupID former = m_subgroup -> lookUp( node, rotID );
-      m_aim1[ former ] |= mergeAim( inv, m_aim1[ node ] );
-      m_aim2[ former ] |= mergeAim( inv, m_aim2[ node ] );
+      const RotID   inv     = CRotations<N>::GetInvRotID( rotID );
+      const GroupID former  = m_subgroup -> lookUp( node, rotID );
+      m_node[former].aim[0] |= mergeAim( inv, m_node[node].aim[0] );
+      m_node[former].aim[1] |= mergeAim( inv, m_node[node].aim[1] );
       *m_qeueu << former;
     }
   }
