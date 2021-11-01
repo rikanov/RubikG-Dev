@@ -2,8 +2,12 @@
 #define SNAPPER2__H
 
 #include <gen_rotation_set.h>
-#include <evaluator.h>
+#include <evaluator_api.h>
 #include <snapshots.h>
+#include <patch_factory.h>
+#include <subgroup_factory.h>
+#include <evaluator_factory.h>
+#include <root_factory.h>
 
 static constexpr size_t MaximumSubgroups = Snapshots::MaximumSubgroups;
 
@@ -14,16 +18,22 @@ class Snapper2
 
   BitMapID * m_allowedGradient;
 
-  size_t         m_numberOfTasks;
-  size_t         m_activateTasks;
-  Snapshots    * m_snapshotArray;
-  Subgroup2<N> * m_subgroupArray;
-  Evaluator<N> * m_evaluateArray;
+  size_t             m_numberOfTasks;
+  size_t             m_activateTasks;
+  Snapshots        * m_snapshotArray;
+  SubgroupAPI<N>   * m_subgroupArray;
+  EvaluatorAPI<N>  * m_evaluateArray;
 
   Snapshots * m_deepestLevel;
   Snapshots * m_currentLevel;
   Snapshots * m_rootLevel; // allias only
-  
+
+  // Factories
+  FPatch        m_patches;
+  FRoot<N>      m_rootFactory;
+  FSubgroup<N>  m_subgroups;
+  FEvaluator<N> m_evaluator;
+
   Rubik<N>  * m_rubik;
 
   bool setNextState( const RotID );
@@ -55,9 +65,9 @@ template< cube_size N >
 Snapper2<N>::Snapper2()
  :  m_allowedGradient ( new BitMapID [ CRotations<N>::AllRotIDs ] )
  ,  m_numberOfTasks   ( 0 )
- ,  m_snapshotArray   ( new Snapshots    [ MaximumIDAsteps  ] )
- ,  m_subgroupArray   ( new Subgroup2<N> [ MaximumSubgroups ] )
- ,  m_evaluateArray   ( new Evaluator<N> [ MaximumSubgroups ] )
+ ,  m_snapshotArray   ( new Snapshots      [ MaximumIDAsteps  ] )
+ ,  m_subgroupArray   ( new SubgroupAPI<N> [ MaximumSubgroups ] )
+ ,  m_evaluateArray   ( new EvaluatorAPI<N>   [ MaximumSubgroups ] )
 {
   m_deepestLevel   = m_snapshotArray;
   m_currentLevel   = m_snapshotArray;
@@ -96,14 +106,16 @@ void Snapper2<N>::toSolve( Rubik<N> * cube )
 template< cube_size N >
 void Snapper2<N>::newTask( const PosID* startPos, const size_t size, const CubeID orient, AcceptFunction acceptFunction )
 {
-  Subgroup2<N> * nextSubgroup = m_subgroupArray + m_numberOfTasks;
-  Evaluator<N> * nextEvaluate = m_evaluateArray + m_numberOfTasks;
-  
-  nextSubgroup -> init   ( startPos, size, orient );
-  nextEvaluate -> map    ( nextSubgroup   );
-  nextEvaluate -> accept ( acceptFunction );
-  nextEvaluate -> build  ();
+  SubgroupAPI<N> * nextSubgroup = m_subgroupArray + m_numberOfTasks;
+  EvaluatorAPI<N>   * nextEvaluate = m_evaluateArray + m_numberOfTasks;
 
+  auto patch = m_patches.create( startPos, size );
+  auto group = m_subgroups.create( patch );
+  nextSubgroup -> init( group );
+
+  auto roots = m_rootFactory.create( patch, acceptFunction );
+  auto chart = m_evaluator.create( group, roots );
+  nextEvaluate -> init( chart );
   ++ m_numberOfTasks;
 }
 
@@ -151,7 +163,7 @@ bool Snapper2<N>::setNextState( const RotID rotID )
 
   for ( size_t index = 0; index < m_activateTasks; ++ index )
   {
-    const Subgroup2<N> & subgroup = m_subgroupArray[ index ];
+    const SubgroupAPI<N> & subgroup = m_subgroupArray[ index ];
     auto & prior = nextLevel -> prior[ index ];
     auto & state = nextLevel -> state[ index ];
 
