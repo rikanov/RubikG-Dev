@@ -4,6 +4,7 @@ project(rubikg)
 
 include_directories( rubikAI/include )
 include_directories( engine/include )
+include_directories( engine/interface )
 include_directories( engine/factories )
 include_directories( engine/APIs )
 include_directories( engine/services )

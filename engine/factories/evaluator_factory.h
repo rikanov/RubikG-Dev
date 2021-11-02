@@ -107,7 +107,7 @@ void FEvaluator<N>::buildSolutionGraph()
 template< cube_size N >
 void FEvaluator<N>::connectEqualNodeCharts()
 {
-  const size_t size = pow24( m_subgroup.size() - 1 );
+  const size_t size = m_subgroup.size() - 1;
   for ( GroupID gid = 0; gid < size; ++ gid )
   {
     // ToDo: validate before bonding

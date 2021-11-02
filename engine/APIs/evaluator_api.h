@@ -36,7 +36,7 @@ EvaluatorAPI<N>::EvaluatorAPI()
  
 template< cube_size N >
 void EvaluatorAPI<N>::init( pArray< NodeChart > sg )
-{clog( "init", nullptr == sg -> data );
+{
   m_nodeChart = sg;
 }
 

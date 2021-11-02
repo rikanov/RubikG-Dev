@@ -6,6 +6,7 @@
 #include <snapshots.h>
 #include <factories.h>
 #include <scan.h>
+#include <interface.h>
 
 static constexpr size_t MaximumSubgroups = Snapshots::MaximumSubgroups;
 
@@ -283,7 +284,7 @@ void Snapper2<N>::iterativelyDeepening()
   {
     clog( "already solved..." );
     return; // solved at start, nothing to do
-  }clog( " IDA while" );
+  }
   while ( m_deepestLevel < m_rootLevel + MaximumIDAsteps )
   {
     if ( progressResult() )
