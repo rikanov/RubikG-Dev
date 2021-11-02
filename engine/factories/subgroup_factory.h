@@ -4,16 +4,14 @@
 #include <cube_positions.h>
 #include <cube_rotations.h>
 #include <smart_array.h>
-#include <subgroup.h>
+#include <patch_api.h>
 
 template< cube_size N >
 class FSubgroup
 {
   static constexpr size_t AllRot = CRotations<N>::AllRotIDs;
 
-  size_t        m_size;
-  BitMapID      m_priorRotIDs;
-  const PosID * m_position;
+  PatchAPI<N> m_patch;
 
   void addCube( GroupID *, const size_t );
   void copyLine( const GroupID *, GroupID * );
@@ -40,11 +38,8 @@ FSubgroup<N>::FSubgroup()
 template< cube_size N >
 pArray< GroupID > FSubgroup<N>::create( pArray< PosID > patch )
 {
-  m_size     = patch -> size;
-  m_position = patch -> data;
-
-  m_priorRotIDs = CRotations<N>::ActOn( m_position[ m_size - 1 ] );
-  return std::make_shared< Array< GroupID > > ( pow24( m_size - 1 ) + 1, getGroupCache(), m_priorRotIDs );
+  m_patch.init( patch );
+  return std::make_shared< Array< GroupID > > ( pow24( m_patch.size() - 1 ) + 1, getGroupCache(), m_patch.priorRotIDs() );
 }
 
 template< cube_size N >
@@ -57,7 +52,7 @@ void FSubgroup<N>::addCube( GroupID * simplex, const size_t pos )
     {
       ++ rid;
       CubeID res;
-      if ( layer == CPositions<N>::GetLayer( m_position[ pos ], cid, axis ) )
+      if ( layer == CPositions<N>::GetLayer( m_patch.getPosID( pos ), cid, axis ) )
       {
         res = Simplex::Tilt( cid, axis, turn );
       }
@@ -66,7 +61,7 @@ void FSubgroup<N>::addCube( GroupID * simplex, const size_t pos )
         res = cid;
       }
 
-      if ( m_priorRotIDs & ( 1ULL << rid ) )
+      if ( m_patch.priorMoving( rid ) )
       {
         res = Simplex::Tilt( res, axis, 4 - turn );
       }
@@ -123,13 +118,13 @@ void FSubgroup<N>::increaseBlocks( const size_t pow, GroupID * cache, const Grou
 template< cube_size N >
 const GroupID * FSubgroup<N>::getGroupCache()
 {
-  GroupID * simplex = new GroupID [ AllRot * 24 * m_size ] {};
-  for ( size_t pos = 0; pos < m_size; ++ pos )
+  GroupID * simplex = new GroupID [ AllRot * 24 * m_patch.size() ] {};
+  for ( size_t pos = 0; pos < m_patch.size(); ++ pos )
   {
     addCube( simplex, pos );
   }
-  GroupID * cache = new GroupID [ pow24( m_size - 1 ) * AllRot  + 1 ] {};
-  for ( size_t pos = 0; pos < m_size - 1; ++ pos )
+  GroupID * cache = new GroupID [ pow24( m_patch.size() - 1 ) * AllRot  + 1 ] {};
+  for ( size_t pos = 0; pos < m_patch.size() - 1; ++ pos )
   {
     copyBlocks     ( pos, cache );
     increaseBlocks ( pos, cache, simplex );

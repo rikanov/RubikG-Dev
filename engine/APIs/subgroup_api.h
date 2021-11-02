@@ -15,7 +15,7 @@ class SubgroupAPI
   size_t     m_size;
   BitMapID   m_priorRotIDs;
 
-  const GroupID  * m_groupIDs;
+  pArray< GroupID > m_groupIDs;
 
 public:
   SubgroupAPI();
@@ -44,19 +44,9 @@ public:
     return m_priorRotIDs & ( 1ULL << ( CRotations<N>::GetRotID( rotID, Simplex::Inverse( prior ) ) ) );
   }
 
-  GroupID usePrior ( const CubeID prior, GroupID projected ) const
-  {
-    GroupID result = 0;
-    for ( size_t i = 0; i < m_size; ++ i, projected /= 24 )
-    {
-      result += Simplex::Composition( projected % 24, prior ) * pow24( i );
-    }
-    return result;
-  }
-
   GroupID lookUp( const GroupID gid, const RotID rid ) const
   {
-    return m_groupIDs[ AllRot * gid + rid ];
+    return m_groupIDs -> data[ AllRot * gid + rid ];
   }
   
   GroupID lookUp( const GroupID gid, const RotID rid, const CubeID cid ) const
@@ -64,11 +54,6 @@ public:
     const RotID trans = CRotations<N>::GetRotID( rid, Simplex::Inverse( cid ) );
     return lookUp( gid, trans );
   }
-
-  CubeID  getPrior( const Rubik<N> &, const CubeID trans ) const;
-  GroupID getState( const Rubik<N> &, const CubeID trans ) const;
-
-
 };
 
 template< cube_size N >
@@ -87,8 +72,8 @@ SubgroupAPI<N>::SubgroupAPI( pArray< GroupID > sg )
 template< cube_size N >
 void SubgroupAPI<N>::init(  pArray< GroupID > sg )
 {
+  m_groupIDs       = sg;
   m_size           = sg -> size;
-  m_groupIDs       = sg -> data;
   m_priorRotIDs    = sg -> value;
 }
 

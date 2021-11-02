@@ -3,7 +3,6 @@
 
 #include <base_types.h>
 #include <smart_array.h>
-#include <patch.h>
 
 class FPatch
 {

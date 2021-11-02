@@ -1,5 +1,6 @@
 #include <test.h>
 #include <bitmap_set.h>
+#include <cube_positions.h>
 #include <cube_rotations.h>
 
 template< cube_size N >
@@ -12,7 +13,7 @@ static bool testRotationActing( const int testNumber )
   {
     const PosID P   = CPositions<N>::Random();
     const Coord pos = CPositions<N>::GetCoord( P );
-    BitMapID rotations = CRotations<N>::ActOn( P );
+    BitMapID rotations = CPositions<N>::ActOn( P );
     BitMap set( rotations );
     NL();
     clog( Color::white, (int) P, pos.toString() );

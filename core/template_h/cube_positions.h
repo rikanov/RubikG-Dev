@@ -68,6 +68,7 @@ public:
   static   Layer   GetLayer  ( PosID p, CubeID r, Axis a )             { return Singleton -> m_indexToCoord [ GetPosID( p, r ) ][ a ]; }
   static   Coord   GetCoord  ( PosID );
   static   PosID   Random    ();
+  static BitMapID  ActOn     ( const PosID posID );
 };
 
 /// ----------------------------------- Template definitions starts here ------------------------------------- ///
@@ -102,6 +103,13 @@ Coord CPositions<N>::rotate( Layer x, Layer y, Layer z, CubeID id)
   result.y = coord[ rot.whatIs ( _D ) ];
   result.z = coord[ rot.whatIs ( _B ) ];
   return result;
+}
+
+template< cube_size N >
+BitMapID CPositions<N>::ActOn( const PosID posID )
+{
+  const Coord pos = CPositions<N>::GetCoord( posID );
+  return ( 14ULL << ( 3 * pos.x ) ) | ( 14ULL << ( 3 * N + 3 * pos.y ) ) | ( 14ULL << ( 6 * N + 3 * pos.z ) );
 }
 
 template< cube_size N >

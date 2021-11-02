@@ -3,12 +3,14 @@
 
 #include <base_types.h>
 #include <smart_array.h>
+#include <bool_array.h>
 #include <acceptance.h>
+#include <patch_api.h>
 
 template< cube_size N >
 class FRoot
 {
-  pArray< PosID >  m_positions;
+  PatchAPI<N>      m_patch;
   AcceptFunction   m_accept;
   GroupID *        m_rootNodes;
   GroupID *        m_nextRoot;
@@ -22,14 +24,15 @@ class FRoot
   void addRoot( const GroupID rootID );
 public:
   FRoot() = default;
-  pArray< GroupID > create( pArray< PosID > pos, AcceptFunction );
+  pArray< GroupID > create( pArray< PosID > pos, AcceptFunction = Accept<N>::Normal );
 };
 
 template< cube_size N >
 pArray< GroupID > FRoot<N>::create( pArray< PosID > pos, AcceptFunction af )
 {
-  m_positions = pos;
-  m_allowedRoots = m_accept( m_positions -> data[ m_positions -> size - 1 ] );
+  m_patch.init( pos );
+  m_accept = af;
+  m_allowedRoots = m_accept( m_patch.getPriorPos() );
   m_valids = 0;
   m_count  = true; // get number of valid states
   resolveAcceptance();
@@ -43,7 +46,7 @@ pArray< GroupID > FRoot<N>::create( pArray< PosID > pos, AcceptFunction af )
 template< cube_size N >
 void FRoot<N>::addSolution( const CubeID invPrior, const size_t id, GroupID gid )
 {
-  BitMap cubeSet( m_accept( m_positions -> data[id] ) );
+  BitMap cubeSet( m_accept( m_patch.getPosID( id ) ) );
   for ( CubeID next; cubeSet >> next; )
   {
     next = Simplex::Composition( next, invPrior );
@@ -64,7 +67,7 @@ void FRoot<N>::resolveAcceptance()
   BitMap cubeSet( m_allowedRoots );
   for ( CubeID prior; cubeSet >> prior; )
   {
-    addSolution( Simplex::Inverse( prior ), m_positions -> size - 2, 0 );
+    addSolution( Simplex::Inverse( prior ), m_patch.size() - 2, 0 );
   }
 }
 
@@ -87,9 +90,9 @@ bool FRoot<N>::valid( GroupID gid ) const
 {
   BoolArray positions( CPositions<N>::GetSize() );
 
-  for ( size_t index = 0; index < m_positions -> size; ++ index, gid /= 24 )
+  for ( size_t index = 0; index < m_patch.size(); ++ index, gid /= 24 )
   {
-    const PosID next = CPositions<N>::GetPosID( m_positions -> data[ index ], gid % 24 );
+    const PosID next = CPositions<N>::GetPosID( m_patch.getPosID( index ), gid % 24 );
     if ( positions( next ) )
       return false;
     positions.set( next, true );

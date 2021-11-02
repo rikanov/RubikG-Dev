@@ -53,6 +53,11 @@ public:
     d = *( nextData ++ );
     return true;
   }
+  
+  const T & operator [] ( const size_t id ) const
+  {
+    return data[id];
+  }
 };
 
 template< typename T >

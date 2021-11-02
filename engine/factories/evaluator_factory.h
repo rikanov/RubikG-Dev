@@ -3,13 +3,11 @@
 
 #include <cube_set.h>
 #include <qeueu.h>
-#include <subgroup_api.h>
 #include <bitmap_set.h>
 #include <acceptance.h>
 #include <subgroup_api.h>
-#include <evaluator.h>
+#include <subgroup_api.h>
 #include <smart_array.h>
-#include <root_factory.h>
 
 template< cube_size N >
 class FEvaluator

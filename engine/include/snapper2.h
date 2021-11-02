@@ -4,10 +4,8 @@
 #include <gen_rotation_set.h>
 #include <evaluator_api.h>
 #include <snapshots.h>
-#include <patch_factory.h>
-#include <subgroup_factory.h>
-#include <evaluator_factory.h>
-#include <root_factory.h>
+#include <factories.h>
+#include <scan.h>
 
 static constexpr size_t MaximumSubgroups = Snapshots::MaximumSubgroups;
 
@@ -23,6 +21,7 @@ class Snapper2
   Snapshots        * m_snapshotArray;
   SubgroupAPI<N>   * m_subgroupArray;
   EvaluatorAPI<N>  * m_evaluateArray;
+  PatchAPI<N>      * m_patchArray;
 
   Snapshots * m_deepestLevel;
   Snapshots * m_currentLevel;
@@ -65,9 +64,10 @@ template< cube_size N >
 Snapper2<N>::Snapper2()
  :  m_allowedGradient ( new BitMapID [ CRotations<N>::AllRotIDs ] )
  ,  m_numberOfTasks   ( 0 )
- ,  m_snapshotArray   ( new Snapshots      [ MaximumIDAsteps  ] )
- ,  m_subgroupArray   ( new SubgroupAPI<N> [ MaximumSubgroups ] )
- ,  m_evaluateArray   ( new EvaluatorAPI<N>   [ MaximumSubgroups ] )
+ ,  m_snapshotArray   ( new Snapshots       [ MaximumIDAsteps  ] )
+ ,  m_subgroupArray   ( new SubgroupAPI<N>  [ MaximumSubgroups ] )
+ ,  m_evaluateArray   ( new EvaluatorAPI<N> [ MaximumSubgroups ] )
+ ,  m_patchArray      ( new PatchAPI<N>     [ MaximumSubgroups ] )
 {
   m_deepestLevel   = m_snapshotArray;
   m_currentLevel   = m_snapshotArray;
@@ -106,10 +106,13 @@ void Snapper2<N>::toSolve( Rubik<N> * cube )
 template< cube_size N >
 void Snapper2<N>::newTask( const PosID* startPos, const size_t size, const CubeID orient, AcceptFunction acceptFunction )
 {
-  SubgroupAPI<N> * nextSubgroup = m_subgroupArray + m_numberOfTasks;
-  EvaluatorAPI<N>   * nextEvaluate = m_evaluateArray + m_numberOfTasks;
-
+  SubgroupAPI<N>  * nextSubgroup = m_subgroupArray + m_numberOfTasks;
+  EvaluatorAPI<N> * nextEvaluate = m_evaluateArray + m_numberOfTasks;
+  PatchAPI<N>     * nextPatch    = m_patchArray    + m_numberOfTasks;
+  
   auto patch = m_patches.create( startPos, size );
+  nextPatch -> init( patch );
+
   auto group = m_subgroups.create( patch );
   nextSubgroup -> init( group );
 
@@ -136,7 +139,7 @@ bool Snapper2<N>::progressResult()
     {
       return  m_currentLevel == m_rootLevel && m_currentLevel -> gradient.empty();
     };
-  bool result = false;
+  bool result = false; 
   for ( RotID nextRot = 0; ! result && ! emptyTree(); )
   {
     if ( m_currentLevel -> gradient >> nextRot )
@@ -212,8 +215,8 @@ void Snapper2<N>::initRoot( const CubeID trans )
   m_currentLevel = m_rootLevel;
   for ( size_t index = 0; index < m_activateTasks; ++ index )
   {
-    m_currentLevel -> prior[ index ] = m_subgroupArray[ index ].getPrior( *m_rubik, trans );
-    m_currentLevel -> state[ index ] = m_subgroupArray[ index ].getState( *m_rubik, trans );
+    m_currentLevel -> prior[ index ] = Scan::GetPrior( *m_rubik, m_patchArray[index], trans );
+    m_currentLevel -> state[ index ] = Scan::GetState( *m_rubik, m_patchArray[index], trans );
   }
 }
 
@@ -280,7 +283,7 @@ void Snapper2<N>::iterativelyDeepening()
   {
     clog( "already solved..." );
     return; // solved at start, nothing to do
-  }
+  }clog( " IDA while" );
   while ( m_deepestLevel < m_rootLevel + MaximumIDAsteps )
   {
     if ( progressResult() )
@@ -319,6 +322,7 @@ Snapper2<N>::~Snapper2()
   delete[] m_snapshotArray;
   delete[] m_subgroupArray;
   delete[] m_evaluateArray;
+  delete[] m_patchArray;
 }
 
 #endif  //  ! SNAPPER2__H

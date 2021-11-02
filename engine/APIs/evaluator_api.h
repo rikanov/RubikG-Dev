@@ -4,14 +4,14 @@
 #include <cube_set.h>
 #include <bitmap_set.h>
 #include <smart_array.h>
-#include <evaluator.h>
+#include <node_chart.h>
 
 typedef uint8_t DistID;
 
 template< cube_size N >
 class EvaluatorAPI
 {
-  const NodeChart * m_nodeChart;
+  pArray<NodeChart> m_nodeChart;
   
 public:
   EvaluatorAPI ();
@@ -23,7 +23,7 @@ public:
 
   DistID distance( const GroupID gid ) const
   {
-    return m_nodeChart[ gid ].value;
+    return m_nodeChart -> data[ gid ].value;
   }
 };
 
@@ -36,8 +36,8 @@ EvaluatorAPI<N>::EvaluatorAPI()
  
 template< cube_size N >
 void EvaluatorAPI<N>::init( pArray< NodeChart > sg )
-{
-  m_nodeChart = sg -> data;
+{clog( "init", nullptr == sg -> data );
+  m_nodeChart = sg;
 }
 
 template< cube_size N >
@@ -52,7 +52,7 @@ BitMapID EvaluatorAPI<N>::gradient( const CubeID prior, const GroupID state,  co
   {
     return ( 1ULL << ( 9 * N + 1 ) ) - 2;
   }
-  BitMapID grad = m_nodeChart[state].grade[ ( dist > D ) ];
+  BitMapID grad = m_nodeChart -> data[state].grade[ ( dist > D ) ];
   GenerateRotationSet<N>::Transform( grad, prior );
   return grad;
 }
@@ -69,7 +69,7 @@ BitMap32ID EvaluatorAPI<N>::target( const CubeID prior, const GroupID state, con
   {
     return ( 1 << 24 ) - 1;
   }
-  const BitMap32ID aim = m_nodeChart[ state ].aim[ dist > D ];
+  const BitMap32ID aim = m_nodeChart -> data[ state ].aim[ dist > D ];
   return CubeSet::GetCubeSet( prior, aim );
 }
 
