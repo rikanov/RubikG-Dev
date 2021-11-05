@@ -18,7 +18,6 @@ class FRoot
   size_t           m_valids;
   bool             m_count;
 
-  bool valid( GroupID gid ) const;
   void addSolution( const CubeID invPrior, const size_t id, GroupID gid );
   void resolveAcceptance();
   void addRoot( const GroupID rootID );
@@ -74,7 +73,8 @@ void FRoot<N>::resolveAcceptance()
 template< cube_size N >
 void FRoot<N>::addRoot( const GroupID rootID )
 {
-  const bool val = valid( rootID );
+  if ( ! m_patch.valid( rootID ) )
+    return;
   if ( m_count )
   {
     ++ m_valids;
@@ -83,21 +83,6 @@ void FRoot<N>::addRoot( const GroupID rootID )
   {
     *( m_nextRoot ++ ) = rootID;
   }
-}
-
-template< cube_size N >
-bool FRoot<N>::valid( GroupID gid ) const
-{
-  BoolArray positions( CPositions<N>::GetSize() );
-
-  for ( size_t index = 0; index < m_patch.size(); ++ index, gid /= 24 )
-  {
-    const PosID next = CPositions<N>::GetPosID( m_patch.getPosID( index ), gid % 24 );
-    if ( positions( next ) )
-      return false;
-    positions.set( next, true );
-  }
-  return true;
 }
 
 

@@ -29,10 +29,11 @@ class Snapper2
   Snapshots * m_rootLevel; // allias only
 
   // Factories
-  FPatch        m_patches;
-  FRoot<N>      m_rootFactory;
-  FSubgroup<N>  m_subgroups;
-  FEvaluator<N> m_evaluator;
+  FPatch          m_patches;
+  FRoot<N>        m_rootFactory;
+  FSubgroup<N>    m_subgroups;
+  FConnections<N> m_connection;
+  FEvaluator<N>   m_evaluator;
 
   Rubik<N>  * m_rubik;
 
@@ -117,8 +118,9 @@ void Snapper2<N>::newTask( const PosID* startPos, const size_t size, const CubeI
   auto group = m_subgroups.create( patch );
   nextSubgroup -> init( group );
 
-  auto roots = m_rootFactory.create( patch, acceptFunction );
-  auto chart = m_evaluator.create( group, roots );
+  auto roots   = m_rootFactory.create( patch, acceptFunction );
+  auto connect = m_connection.create( patch );
+  auto chart   = m_evaluator.create( group, roots, connect );
   nextEvaluate -> init( chart );
   ++ m_numberOfTasks;
 }
@@ -168,13 +170,15 @@ bool Snapper2<N>::setNextState( const RotID rotID )
   for ( size_t index = 0; index < m_activateTasks; ++ index )
   {
     const SubgroupAPI<N> & subgroup = m_subgroupArray[ index ];
+    const PatchAPI<N>    & patch    = m_patchArray   [ index ];
+
     auto & prior = nextLevel -> prior[ index ];
     auto & state = nextLevel -> state[ index ];
 
     prior = m_currentLevel -> prior[ index ];
     state = subgroup.lookUp( m_currentLevel -> state[index], rotID, prior );
 
-    if ( subgroup.priorMoving( prior, rotID ) )
+    if ( patch.priorMoving( prior, rotID ) )
     {
       prior = CRotations<N>::Tilt( prior, rotID );
     }

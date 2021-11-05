@@ -12,9 +12,7 @@ class SubgroupAPI
 {
   static constexpr size_t AllRot = CRotations<N>::AllRotIDs;
   
-  size_t     m_size;
-  BitMapID   m_priorRotIDs;
-
+  size_t            m_size;
   pArray< GroupID > m_groupIDs;
 
 public:
@@ -27,21 +25,6 @@ public:
   size_t size() const
   {
     return m_size;
-  }
-
-  BitMapID priorRotIDs() const
-  {
-    return m_priorRotIDs;
-  }
-
-  bool priorMoving( const RotID rotID ) const
-  {
-    return m_priorRotIDs & ( 1ULL << rotID );
-  }
-
-  bool priorMoving( const CubeID prior, const RotID rotID ) const
-  {
-    return m_priorRotIDs & ( 1ULL << ( CRotations<N>::GetRotID( rotID, Simplex::Inverse( prior ) ) ) );
   }
 
   GroupID lookUp( const GroupID gid, const RotID rid ) const
@@ -59,7 +42,6 @@ public:
 template< cube_size N >
 SubgroupAPI<N>::SubgroupAPI()
  :  m_size( 0 )
- ,  m_priorRotIDs( 0 )
  ,  m_groupIDs       ( nullptr )
 {
 }
@@ -74,7 +56,6 @@ void SubgroupAPI<N>::init(  pArray< GroupID > sg )
 {
   m_groupIDs       = sg;
   m_size           = sg -> size;
-  m_priorRotIDs    = sg -> value;
 }
 
 template< cube_size N >

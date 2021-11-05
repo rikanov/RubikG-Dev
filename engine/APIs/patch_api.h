@@ -44,6 +44,7 @@ public:
   }
 
   bool movePrior( CubeID & prior, const RotID rotID ) const;
+  bool valid( GroupID ) const;
 };
 
 template< cube_size N >
@@ -64,4 +65,20 @@ bool PatchAPI<N>::movePrior( CubeID & prior, const RotID rotID ) const
   }
   return false;
 }
+
+template< cube_size N >
+bool PatchAPI<N>::valid( GroupID gid ) const
+{
+  BoolArray positions( CPositions<N>::GetSize() );
+
+  for ( size_t index = 0; index < m_patch -> size; ++ index, gid /= 24 )
+  {
+    const PosID next = CPositions<N>::GetPosID( getPosID( index ), gid % 24 );
+    if ( positions( next ) )
+      return false;
+    positions.set( next, true );
+  }
+  return true;
+}
+
 #endif  //  ! PATCH_API__H
