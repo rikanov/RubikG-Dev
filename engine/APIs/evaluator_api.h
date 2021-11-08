@@ -23,7 +23,7 @@ public:
 
   DistID distance( const GroupID gid ) const
   {
-    return m_nodeChart -> data[ gid ].value;
+    return m_nodeChart -> data[ gid ].level;
   }
 };
 

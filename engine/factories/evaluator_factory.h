@@ -58,7 +58,7 @@ void FEvaluator<N>::bindSolutionNodeCharts( const GroupID parent, const RotID ro
   const NodeChart & pChart = m_nodeChart[ parent ];
   if ( m_qeueu << child )
   {
-    cChart.value = pChart.value + 1;
+    cChart.level = pChart.level + 1;
   }
   m_connection.connectIfChild( cChart, pChart, rotID );
 }

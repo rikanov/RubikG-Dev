@@ -9,13 +9,12 @@ template< cube_size N >
 class FGenerator
 {
   static constexpr size_t AllRot = CRotations<N>::AllRotIDs;
-  PatchAPI   m_patch;
   
-  void baseCube( GroupID * simplex, const size_t pos )
+  void baseCube( GroupID * simplex, const size_t pos );
 public:
   FGenerator() = default;
   pArray<GroupID> create( pArray<PosID> p );
-}:
+};
 
 template< cube_size N >
 pArray<GroupID> FGenerator<N>::create( pArray<PosID> p )

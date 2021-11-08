@@ -3,7 +3,7 @@
 
 struct NodeChart
 {
-  DistID      value   =  0;
+  DistID      level   =  0;
   BitMapID    grade[2]= {};
   BitMap32ID  aim[2]  = {};
 };

@@ -2,6 +2,7 @@
 #define PATCH_API__H
 
 #include <cube_rotations.h>
+#include <smart_array.h>
 
 template< cube_size N >
 class PatchAPI
