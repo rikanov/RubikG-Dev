@@ -13,9 +13,16 @@ protected:
   Array<CubeID> m_rotatePriorCube;
 
 public:
-  Connection() = default;
+  Connection();
   Connection( const size_t size, const PosID * pos );
 };
+
+
+template< cube_size N >
+Factory<N>::Connection::Connection()
+  : SubgroupAPI()
+{
+}
 
 template< cube_size N >
 Factory<N>::Connection::Connection( const size_t size, const PosID* pos )

@@ -9,9 +9,15 @@ class Factory<N>::Patch
 protected:
   Array<PosID> m_patch;
 
+  Patch();
   Patch( const size_t size, const PosID * );
 };
 
+
+template< cube_size N >
+Factory<N>::Patch::Patch()
+{
+}
 
 template< cube_size N >
 Factory<N>::Patch::Patch( const size_t size, const PosID * ref )

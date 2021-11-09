@@ -12,7 +12,7 @@ class Factory<N>::ConnectionAPI: public Factory<N>::Connection
   inline BitMap32ID mergeAim( const RotID rotID, const BitMap32ID set ) const;
 
 public:
-  ConnectionAPI() = default;
+  ConnectionAPI();
   ConnectionAPI( const Connection & cr );
   ConnectionAPI( const size_t size, const PosID * pos );
 
@@ -20,6 +20,13 @@ public:
   void connectOnSameLevel( NodeChart & , NodeChart &, const RotID ) const ;
   void connectAimsToParent( NodeChart & , const NodeChart & , const RotID ) const;
 };
+
+
+template< cube_size N >
+Factory<N>::ConnectionAPI::ConnectionAPI()
+  : Connection()
+{
+}
 
 template< cube_size N >
 Factory<N>::ConnectionAPI::ConnectionAPI( const Connection& cr )

@@ -10,7 +10,7 @@ class Factory<N>::SubgroupAPI: public Factory<N>::Subgroup
   static constexpr size_t AllRot = CRotations<N>::AllRotIDs;
   
 public:
-  SubgroupAPI() = default;
+  SubgroupAPI();
   SubgroupAPI( const Subgroup & sg );
   SubgroupAPI( const size_t size, const PosID * pos );
 
@@ -27,6 +27,13 @@ public:
 
   bool valid( GroupID ) const;
 };
+
+
+template< cube_size N >
+Factory<N>::SubgroupAPI::SubgroupAPI()
+  : Subgroup()
+{
+}
 
 template< cube_size N >
 Factory<N>::SubgroupAPI::SubgroupAPI( const Subgroup & sg )

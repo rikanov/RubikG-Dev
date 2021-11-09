@@ -22,11 +22,18 @@ protected:
 
   Array<NodeChart> m_nodeChart;
 
-  Evaluator() = default;
-  Evaluator( const size_t size, const PosID * pos  );
+  Evaluator();
   Evaluator( const size_t size, const PosID * pos, AcceptFunction af = Accept<N>::Normal );
 
 };
+
+template< cube_size N >
+Factory<N>::Evaluator::Evaluator()
+  : RootSetAPI()
+  , m_nodeChart( 0 )
+{
+
+}
 
 template< cube_size N >
 Factory<N>::Evaluator::Evaluator( const size_t size, const PosID * pos, AcceptFunction af  )

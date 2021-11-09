@@ -15,17 +15,23 @@ protected:
   Array<GroupID> m_subgroupMap;
 
 public:
-  Subgroup() = default;
+  Subgroup();
   Subgroup( const GroupGeneratorAPI & groupGeneratorAPI );
   Subgroup( const size_t size, const PosID * pos );
 
 };
 
 template< cube_size N >
+Factory<N>::Subgroup::Subgroup()
+  : GroupGeneratorAPI()
+{
+}
+
+template< cube_size N >
 Factory<N>::Subgroup::Subgroup( const GroupGeneratorAPI & groupGeneratorAPI )
   : GroupGeneratorAPI( groupGeneratorAPI )
-{clog( " subgroup" );
-  createGroupCache();clog( " subgroup" );
+{
+  createGroupCache();
 }
 
 template< cube_size N >

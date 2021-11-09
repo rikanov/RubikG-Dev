@@ -15,9 +15,16 @@ protected:
   const size_t   m_groupSize;
   Array<GroupID> m_groupGenerators;
 
-  GroupGenerator() = default;;
+  GroupGenerator();
   GroupGenerator( const size_t size, const PosID * pos );
 };
+
+template< cube_size N >
+Factory<N>::GroupGenerator::GroupGenerator()
+  : PatchAPI()
+  , m_groupSize( 0 )
+{
+}
 
 template< cube_size N >
 Factory<N>::GroupGenerator::GroupGenerator( const size_t size, const PosID* pos )

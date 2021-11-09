@@ -9,7 +9,7 @@ class Factory<N>::RootSetAPI: public Factory<N>::RootSet
 {
 
 public:
-  RootSetAPI() = default;
+  RootSetAPI();
   RootSetAPI( const RootSet & rs );
   RootSetAPI( const size_t size, const PosID * pos, AcceptFunction af = Accept<N>::Normal );
 
@@ -20,6 +20,13 @@ public:
     return RootSet::m_allowedPriors;
   }
 };
+
+
+template< cube_size N >
+Factory<N>::RootSetAPI::RootSetAPI()
+  : RootSet()
+{
+}
 
 template< cube_size N >
 Factory<N>::RootSetAPI::RootSetAPI( const RootSet & rs )

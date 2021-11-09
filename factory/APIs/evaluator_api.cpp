@@ -8,9 +8,10 @@ typedef uint8_t DistID;
 
 template< cube_size N >
 class Factory<N>::EvaluatorAPI: public Factory<N>::Evaluator
-{;
+{
+
 public:
-  EvaluatorAPI() = default;
+  EvaluatorAPI();
   EvaluatorAPI( const size_t size, const PosID * pos, AcceptFunction af = Accept<N>::Normal );
 
   BitMapID gradient( const CubeID prior, const GroupID state,  const DistID D ) const;
@@ -21,6 +22,12 @@ public:
     return this -> m_nodeChart.get()[ gid ].level;
   }
 };
+
+template< cube_size N >
+Factory<N>::EvaluatorAPI::EvaluatorAPI()
+  : Evaluator()
+{
+}
 
 template< cube_size N >
 Factory<N>::EvaluatorAPI::EvaluatorAPI( const size_t size, const PosID * pos, AcceptFunction af )

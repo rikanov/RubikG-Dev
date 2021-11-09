@@ -12,7 +12,12 @@ class Factory<N>::PatchAPI: public Factory<N>::Patch
   const BitMapID  m_priorRotIDs;
 
 public:
-  PatchAPI() = default;;
+  PatchAPI()
+    : Patch()
+    , m_priorRotIDs( 0 )
+  {
+  }
+
   PatchAPI( const Patch & patchFactory )
     : Patch( patchFactory )
     , m_priorRotIDs( CPositions<N>::ActOn( getPriorPos() ) )

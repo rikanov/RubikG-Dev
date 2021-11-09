@@ -23,10 +23,16 @@ protected:
   BitMap32ID     m_allowedPriors;
   Array<GroupID> m_setOfRoots;
 
-  RootSet() = default;
+  RootSet();;
   RootSet( const PatchAPI & pa, AcceptFunction af = Accept<N>::Normal );
   RootSet( const size_t size, const PosID * pos, AcceptFunction af = Accept<N>::Normal );
 };
+
+template< cube_size N >
+Factory<N>::RootSet::RootSet()
+  : ConnectionAPI()
+{
+}
 
 template< cube_size N >
 Factory<N>::RootSet::RootSet( const PatchAPI & pa, AcceptFunction af )
