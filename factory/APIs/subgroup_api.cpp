@@ -16,7 +16,7 @@ public:
 
   GroupID lookUp( const GroupID gid, const RotID rid ) const
   {
-    return Subgroup::m_subgroupMap.get()[ AllRot * gid + rid ];
+    return Subgroup::m_subgroupMap[ AllRot * gid + rid ];
   }
   
   GroupID lookUp( const GroupID gid, const RotID rid, const CubeID cid ) const

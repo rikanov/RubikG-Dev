@@ -19,7 +19,7 @@ public:
 
   DistID distance( const GroupID gid ) const
   {
-    return this -> m_nodeChart.get()[ gid ].level;
+    return this -> m_nodeChart[ gid ].level;
   }
 };
 
@@ -47,7 +47,7 @@ BitMapID Factory<N>::EvaluatorAPI::gradient( const CubeID prior, const GroupID s
   {
     return ( 1ULL << ( 9 * N + 1 ) ) - 2;
   }
-  BitMapID grad = this -> m_nodeChart.get()[state].grade[ ( dist > D ) ];
+  BitMapID grad = this -> m_nodeChart[state].grade[ ( dist > D ) ];
   GenerateRotationSet<N>::Transform( grad, prior );
   return grad;
 }
@@ -64,7 +64,7 @@ BitMap32ID Factory<N>::EvaluatorAPI::target( const CubeID prior, const GroupID s
   {
     return ( 1 << 24 ) - 1;
   }
-  const BitMap32ID aim = this -> m_nodeChart.get()[ state ].aim[ dist > D ];
+  const BitMap32ID aim = this -> m_nodeChart[ state ].aim[ dist > D ];
   return CubeSet::GetCubeSet( prior, aim );
 }
 

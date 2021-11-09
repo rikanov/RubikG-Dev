@@ -45,7 +45,7 @@ void Factory<N>::RootSetAPI::toQeueu( Qeueu & qeu ) const
 {
   for ( size_t i = 0; i < this -> m_numberOfRoots; ++ i )
   {
-    qeu << RootSet::m_setOfRoots.get()[i];
+    qeu << RootSet::m_setOfRoots[i];
   }
 }
 
@@ -54,7 +54,7 @@ void Factory<N>::RootSetAPI::setRoots( std::function<void (const GroupID)> set )
 {
   for ( size_t i = 0; i < this -> m_numberOfRoots; ++ i )
   {
-    set( RootSet::m_setOfRoots.get()[i] );
+    set( RootSet::m_setOfRoots[i] );
   }
 }
 

@@ -44,12 +44,12 @@ public:
 
   PosID getPriorPos() const
   {
-    return this -> m_patch.get()[ patchSize() - 1 ];
+    return this -> m_patch[ patchSize() - 1 ];
   }
 
   PosID getPosID( const size_t id ) const
   {
-    return this -> m_patch.get()[id];
+    return this -> m_patch[id];
   }
   
   BitMapID priorRotIDs() const
