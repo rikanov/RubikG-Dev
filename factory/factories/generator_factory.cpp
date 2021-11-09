@@ -8,12 +8,14 @@ class Factory<N>::GroupGenerator: public Factory<N>::PatchAPI
 {
   static constexpr size_t AllRot = CRotations<N>::AllRotIDs;
   
-  void baseCube( GroupID * simplex, const size_t pos );
+  void baseCube( const size_t pos );
   void init();
 
 protected:
-  const size_t    m_groupSize;
-  cArray<GroupID> m_groupGenerators;
+  const size_t   m_groupSize;
+  Array<GroupID> m_groupGenerators;
+
+  GroupGenerator() = default;;
   GroupGenerator( const size_t size, const PosID * pos );
 };
 
@@ -28,18 +30,16 @@ Factory<N>::GroupGenerator::GroupGenerator( const size_t size, const PosID* pos 
 template< cube_size N >
 void Factory<N>::GroupGenerator::init()
 {
-  const size_t size = AllRot * 24 * this -> m_patchSize;
-  Array<GroupID> sharedGenerators = MakeArray( new GroupID [ size ] {} );
-  GroupID * generator = sharedGenerators.get();
-  for ( size_t pos = 0; pos < this -> m_patchSize; ++ pos )
+  const size_t size = AllRot * 24 * PatchAPI::patchSize();
+  m_groupGenerators = Array<GroupID> ( size );
+  for ( size_t pos = 0; pos < PatchAPI::patchSize(); ++ pos )
   {
-    baseCube( generator, pos );
+    baseCube( pos );
   }
-  m_groupGenerators = sharedGenerators;
 }
 
 template< cube_size N >
-void Factory<N>::GroupGenerator::baseCube( GroupID * generator, const size_t pos )
+void Factory<N>::GroupGenerator::baseCube( const size_t pos )
 {
   all_cubeid ( cid )
   {
@@ -61,7 +61,7 @@ void Factory<N>::GroupGenerator::baseCube( GroupID * generator, const size_t pos
       {
         res = Simplex::Tilt( res, axis, 4 - turn );
       }
-      generator[ ( 24 * pos + cid ) * AllRot + rid ] = res * pow24( pos );
+      m_groupGenerators[ ( 24 * pos + cid ) * AllRot + rid ] = res * pow24( pos );
     }
   }
 }

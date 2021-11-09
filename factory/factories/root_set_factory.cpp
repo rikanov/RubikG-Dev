@@ -19,10 +19,11 @@ class Factory<N>::RootSet: public Factory<N>::ConnectionAPI
   void addRoot( const GroupID rootID );
 
 protected:
-  size_t           m_numberOfRoots;
-  BitMap32ID       m_allowedPriors;
-  cArray<GroupID>  m_setOfRoots;
+  size_t         m_numberOfRoots;
+  BitMap32ID     m_allowedPriors;
+  Array<GroupID> m_setOfRoots;
 
+  RootSet() = default;
   RootSet( const PatchAPI & pa, AcceptFunction af = Accept<N>::Normal );
   RootSet( const size_t size, const PosID * pos, AcceptFunction af = Accept<N>::Normal );
 };
@@ -46,14 +47,18 @@ void Factory<N>::RootSet::init( AcceptFunction af )
 {
   m_accept = af;
   m_allowedPriors = m_accept( this -> getPriorPos() );
+
+  // count root nodes to allocate
   m_numberOfRoots = 0;
   m_count  = true; // get number of valid states
   resolveAcceptance();
+  m_setOfRoots = Array<GroupID>( m_numberOfRoots );
+
+  // get all the root modes
   m_count  = false; // not just count but collect them
-  m_rootNodes = new GroupID [ m_numberOfRoots ];
+  m_rootNodes = m_setOfRoots.get();
   m_nextRoot  = m_rootNodes;
   resolveAcceptance();
-  m_setOfRoots = MakeArray( m_rootNodes );
 }
 
 template< cube_size N >

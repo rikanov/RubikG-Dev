@@ -12,6 +12,7 @@ class Factory<N>::PatchAPI: public Factory<N>::Patch
   const BitMapID  m_priorRotIDs;
 
 public:
+  PatchAPI() = default;;
   PatchAPI( const Patch & patchFactory )
     : Patch( patchFactory )
     , m_priorRotIDs( CPositions<N>::ActOn( getPriorPos() ) )
@@ -33,12 +34,12 @@ public:
 
   size_t patchSize() const
   {
-    return this -> m_patchSize;
+    return Patch::m_patch.size();
   }
 
   PosID getPriorPos() const
   {
-    return this -> m_patch.get()[ this -> m_patchSize - 1 ];
+    return this -> m_patch.get()[ patchSize() - 1 ];
   }
 
   PosID getPosID( const size_t id ) const
@@ -67,7 +68,6 @@ public:
 template< cube_size N >
 bool Factory<N>::PatchAPI::movePrior( CubeID & prior, const RotID rotID ) const
 {
-  const Coord position = CPositions<N>::GetCoord( getPriorPos(), prior );
   if ( priorMoving( prior, rotID ) )
   {
     prior = CRotations<N>::Tilt( prior, rotID );

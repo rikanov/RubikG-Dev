@@ -10,11 +10,11 @@ class Factory<N>::ConnectionAPI: public Factory<N>::Connection
 {
 
   inline BitMap32ID mergeAim( const RotID rotID, const BitMap32ID set ) const;
-  void init();
 
 public:
+  ConnectionAPI() = default;
   ConnectionAPI( const Connection & cr );
-  ConnectionAPI(  const size_t size, const PosID * pos );
+  ConnectionAPI( const size_t size, const PosID * pos );
 
   void connectIfChild( NodeChart & , const NodeChart &, const RotID ) const;
   void connectOnSameLevel( NodeChart & , NodeChart &, const RotID ) const ;

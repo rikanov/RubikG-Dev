@@ -9,12 +9,13 @@ class Factory<N>::Subgroup: public Factory<N>::GroupGeneratorAPI
   static constexpr size_t AllRot = CRotations<N>::AllRotIDs;
 
   void copyLine( const GroupID *, GroupID * );
-  void copyBlocks( const size_t, GroupID * );
+  void copyBlocks( const size_t );
   void createGroupCache();
 protected:
-  cArray<GroupID> m_subgroupMap;
+  Array<GroupID> m_subgroupMap;
 
 public:
+  Subgroup() = default;
   Subgroup( const GroupGeneratorAPI & groupGeneratorAPI );
   Subgroup( const size_t size, const PosID * pos );
 
@@ -23,8 +24,8 @@ public:
 template< cube_size N >
 Factory<N>::Subgroup::Subgroup( const GroupGeneratorAPI & groupGeneratorAPI )
   : GroupGeneratorAPI( groupGeneratorAPI )
-{
-  createGroupCache();
+{clog( " subgroup" );
+  createGroupCache();clog( " subgroup" );
 }
 
 template< cube_size N >
@@ -44,15 +45,15 @@ void Factory<N>::Subgroup::copyLine( const GroupID * from, GroupID * to )
 }
 
 template< cube_size N >
-void Factory<N>::Subgroup::copyBlocks( const size_t pow, GroupID * cache )
+void Factory<N>::Subgroup::copyBlocks( const size_t pow )
 {
   GroupID next = 0;
   all_cubeid( block )
   {
     for ( size_t line = 0; line < pow24( pow ); ++ line, ++ next )
     {
-      cache[ next * AllRot ] = next;
-      copyLine( cache + line * AllRot, cache + next * AllRot );
+      m_subgroupMap[ next * AllRot ] = next;
+      copyLine( m_subgroupMap.get() + line * AllRot, m_subgroupMap.get() + next * AllRot );
     }
   }
 }
@@ -60,14 +61,13 @@ void Factory<N>::Subgroup::copyBlocks( const size_t pow, GroupID * cache )
 template< cube_size N >
 void Factory<N>::Subgroup::createGroupCache()
 {
-  Array<GroupID> subgroup = MakeArray<GroupID>( new GroupID [ this -> groupSize() * AllRot + 1 ] {} );
-  auto cache = subgroup.get();
+  const size_t size = this -> groupSize() * AllRot + 1;
+  m_subgroupMap = Array<GroupID> ( size );
   for ( size_t pos = 0; pos < this -> patchSize() - 1; ++ pos )
   {
-    copyBlocks ( pos, cache );
-    this -> generateBlock( pos, cache );
+    copyBlocks ( pos );
+    GroupGeneratorAPI::generateBlock( pos, m_subgroupMap.get() );
   }
-  m_subgroupMap = subgroup;
 }
 
 #endif  //  ! FACTORY_SUBGROUP__H

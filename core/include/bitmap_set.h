@@ -21,14 +21,14 @@ public:
     m_nextID  = 0;
   }
   
-  void restrict( const uint64_t rs )
+  uint64_t restrict( const uint64_t rs )
   {
-    m_dataSet &= rs;  // set intersection
+    return m_dataSet &= rs;  // set intersection
   }
 
-  void expand( const uint64_t rs )
+  uint64_t expand( const uint64_t rs )
   {
-    m_dataSet |= rs;  // set union
+    return m_dataSet |= rs;  // set union
   }
 
   void exclude( const uint64_t rs )

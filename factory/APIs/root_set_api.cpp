@@ -9,6 +9,7 @@ class Factory<N>::RootSetAPI: public Factory<N>::RootSet
 {
 
 public:
+  RootSetAPI() = default;
   RootSetAPI( const RootSet & rs );
   RootSetAPI( const size_t size, const PosID * pos, AcceptFunction af = Accept<N>::Normal );
 

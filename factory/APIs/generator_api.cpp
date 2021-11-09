@@ -12,6 +12,7 @@ protected:
   void generateBlock( const size_t pow, GroupID * cache );
 
 public:
+  GroupGeneratorAPI() = default;
   GroupGeneratorAPI( const GroupGenerator & groupGenerator );
   GroupGeneratorAPI( const size_t size, const PosID * pos );
   size_t groupSize() const;
@@ -33,7 +34,7 @@ Factory<N>::GroupGeneratorAPI::GroupGeneratorAPI( const size_t size, const PosID
 template< cube_size N >
 size_t Factory<N>::GroupGeneratorAPI::groupSize() const
 {
-  return this -> m_groupSize;
+  return GroupGenerator::m_groupSize;
 }
 
 template< cube_size N >

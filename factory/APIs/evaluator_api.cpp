@@ -10,10 +10,9 @@ template< cube_size N >
 class Factory<N>::EvaluatorAPI: public Factory<N>::Evaluator
 {;
 public:
+  EvaluatorAPI() = default;
   EvaluatorAPI( const size_t size, const PosID * pos, AcceptFunction af = Accept<N>::Normal );
 
-  void init(  );
-  
   BitMapID gradient( const CubeID prior, const GroupID state,  const DistID D ) const;
   BitMap32ID target( const CubeID prior, const GroupID state,  const DistID D ) const;
 
