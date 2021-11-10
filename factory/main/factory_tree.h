@@ -4,21 +4,24 @@
 #include <base_types.h>
 #include <acceptance.h>
 
-
 template< cube_size N >
 class Factory
 {
-protected:
+  
+public:
 
-  // Array
- // ------------------------
-  template<typename Type>
-  class Array;
+  Rubik<N>      * cube;
+  size_t          patternSize;
+  CubeID          patternTrans;
+  const PosID   * pattern;
+  AcceptFunction  accept;
+
+protected:
 
   // Patch factory
  // ------------------------
-  class Patch;
-  class PatchAPI;
+  class Pattern;
+  class PatternAPI;
 
   // Group generator factory
  // -------------------------
@@ -39,21 +42,22 @@ protected:
  // --------------------------
   class RootSet;
   class RootSetAPI;
-
+public:
   // Evaluator factory
  // ------------------------
   class Evaluator;
   class EvaluatorAPI;
 
 public:
-  class Progress;
-  void create( const size_t, const PosID *, AcceptFunction af = Accept<N>::Normal );
+
+  class Task;
+
+  Factory();
+  Task * get();
 };
 
-#include <factory_array.cpp>
-
-#include <factories/patch_factory.cpp>
-#include <APIs/patch_api.cpp>
+#include <factories/pattern_factory.cpp>
+#include <APIs/pattern_api.cpp>
 
 #include <factories/generator_factory.cpp>
 #include <APIs/generator_api.cpp>
@@ -70,7 +74,7 @@ public:
 #include <factories/evaluator_factory.cpp>
 #include <APIs/evaluator_api.cpp>
 
+#include <factory_task.cpp>
 #include <factory_tree_create.cpp>
-#include <factory_progress.cpp>
 
 #endif  //  ! FACTORY_TREE__H

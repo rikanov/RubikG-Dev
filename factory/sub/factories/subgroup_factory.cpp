@@ -67,9 +67,9 @@ void Factory<N>::Subgroup::copyBlocks( const size_t pow )
 template< cube_size N >
 void Factory<N>::Subgroup::createGroupCache()
 {
-  const size_t size = this -> groupSize() * AllRot + 1;
+  const size_t size = GroupGeneratorAPI::groupSize() * AllRot + 1;
   m_subgroupMap = Array<GroupID> ( size );
-  for ( size_t pos = 0; pos < this -> patchSize() - 1; ++ pos )
+  for ( size_t pos = 0; pos < PatternAPI::patchSize() - 1; ++ pos )
   {
     copyBlocks ( pos );
     GroupGeneratorAPI::generateBlock( pos, m_subgroupMap.get() );

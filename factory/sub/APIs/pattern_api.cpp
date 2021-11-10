@@ -7,49 +7,44 @@
 #include <factory_tree.h>
 
 template< cube_size N >
-class Factory<N>::PatchAPI: public Factory<N>::Patch
+class Factory<N>::PatternAPI: public Factory<N>::Pattern
 {
   const BitMapID  m_priorRotIDs;
 
 public:
-  PatchAPI()
-    : Patch()
+  PatternAPI()
+    : Pattern()
     , m_priorRotIDs( 0 )
   {
   }
 
-  PatchAPI( const Patch & patchFactory )
-    : Patch( patchFactory )
+  PatternAPI( const Pattern & patchFactory )
+    : Pattern( patchFactory )
     , m_priorRotIDs( CPositions<N>::ActOn( getPriorPos() ) )
   {
 
   }
 
-  PatchAPI( const size_t size, const PosID * pos )
-    : Patch( size, pos )
+  PatternAPI( const size_t size, const PosID * pos )
+    : Pattern( size, pos )
     , m_priorRotIDs( CPositions<N>::ActOn( getPriorPos() ) )
   {
 
-  }
-
-  const PatchAPI & get() const
-  {
-    return *this;
   }
 
   size_t patchSize() const
   {
-    return Patch::m_patch.size();
+    return Pattern::m_pattern.size();
   }
 
   PosID getPriorPos() const
   {
-    return this -> m_patch[ patchSize() - 1 ];
+    return Pattern::m_pattern[ patchSize() - 1 ];
   }
 
   PosID getPosID( const size_t id ) const
   {
-    return this -> m_patch[id];
+    return Pattern::m_pattern[id];
   }
   
   BitMapID priorRotIDs() const
@@ -71,7 +66,7 @@ public:
 };
 
 template< cube_size N >
-bool Factory<N>::PatchAPI::movePrior( CubeID & prior, const RotID rotID ) const
+bool Factory<N>::PatternAPI::movePrior( CubeID & prior, const RotID rotID ) const
 {
   if ( priorMoving( prior, rotID ) )
   {

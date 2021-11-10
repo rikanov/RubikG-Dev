@@ -24,11 +24,6 @@ Factory<N>::GroupGeneratorAPI::GroupGeneratorAPI()
   : GroupGenerator()
 {
 }
-template< cube_size N >
-Factory<N>::GroupGeneratorAPI::GroupGeneratorAPI(const Factory::GroupGenerator& groupGenerator)
-  : GroupGenerator( groupGenerator )
-{
-}
 
 template< cube_size N >
 Factory<N>::GroupGeneratorAPI::GroupGeneratorAPI( const size_t size, const PosID * pos )

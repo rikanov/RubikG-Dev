@@ -24,7 +24,7 @@ protected:
   Array<GroupID> m_setOfRoots;
 
   RootSet();;
-  RootSet( const PatchAPI & pa, AcceptFunction af = Accept<N>::Normal );
+  RootSet( const PatternAPI & pa, AcceptFunction af = Accept<N>::Normal );
   RootSet( const size_t size, const PosID * pos, AcceptFunction af = Accept<N>::Normal );
 };
 
@@ -32,13 +32,6 @@ template< cube_size N >
 Factory<N>::RootSet::RootSet()
   : ConnectionAPI()
 {
-}
-
-template< cube_size N >
-Factory<N>::RootSet::RootSet( const PatchAPI & pa, AcceptFunction af )
-  : PatchAPI( pa )
-{
-  init( af );
 }
 
 template< cube_size N >
@@ -52,7 +45,7 @@ template< cube_size N >
 void Factory<N>::RootSet::init( AcceptFunction af )
 {
   m_accept = af;
-  m_allowedPriors = m_accept( this -> getPriorPos() );
+  m_allowedPriors = m_accept( PatternAPI::getPriorPos() );
 
   // count root nodes to allocate
   m_numberOfRoots = 0;
@@ -91,7 +84,7 @@ void Factory<N>::RootSet::resolveAcceptance()
   BitMap cubeSet( m_allowedPriors );
   for ( CubeID prior; cubeSet >> prior; )
   {
-    addSolution( Simplex::Inverse( prior ), PatchAPI::patchSize() - 2, 0 );
+    addSolution( Simplex::Inverse( prior ), PatternAPI::patchSize() - 2, 0 );
   }
 }
 

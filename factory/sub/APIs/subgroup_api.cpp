@@ -54,7 +54,7 @@ bool Factory<N>::SubgroupAPI::valid( GroupID gid ) const
 
   for ( size_t index = 0; index < this -> patchSize(); ++ index, gid /= 24 )
   {
-    const PosID next = CPositions<N>::GetPosID( PatchAPI::getPosID( index ), gid % 24 );
+    const PosID next = CPositions<N>::GetPosID( PatternAPI::getPosID( index ), gid % 24 );
     if ( positions( next ) )
       return false;
     positions.set( next, true );

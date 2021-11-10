@@ -47,7 +47,7 @@ Factory<N>::Evaluator::Evaluator( const size_t size, const PosID * pos, AcceptFu
 template< cube_size N >
 void Factory<N>::Evaluator::init()
 {
-  m_qeueu.resize( this -> groupSize() );
+  m_qeueu.resize( GroupGeneratorAPI::groupSize() );
   build();
 }
 
