@@ -154,6 +154,14 @@ inline char Token( Orient F )
 
  // Auxiliary macros
 // -----------------
+#define DEV_TEST( FUNC )      \
+   clog( "test: " #FUNC );     \
+   clog_( "in file:" );         \
+   clog( std::string(__FILE__) );\
+   clog( "at line:",__LINE__);    \
+   FUNC;                           \
+   clog( "done." );
+
 #define all_orient(i) for( Orient i = _F; i <= _B; ++i )
 #define all_cubeid(i) for( CubeID i = 0 ; i < 24 ; ++i )
 
