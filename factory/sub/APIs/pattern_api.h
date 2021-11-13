@@ -1,10 +1,10 @@
-#ifndef API_PATCH__H
-#define API_PATCH__H
+#ifndef ___PATTERN_API_H
+#define ___PATTERN_API_H
 
 #include <cube_positions.h>
 #include <cube_rotations.h>
 #include <bool_array.h>
-#include <factory_tree.h>
+#include <factories/pattern_factory.h>
 
 template< cube_size N >
 class Factory<N>::PatternAPI: public Factory<N>::Pattern
@@ -62,18 +62,13 @@ public:
     return m_priorRotIDs & ( 1ULL << ( CRotations<N>::GetRotID( rotID, Simplex::Inverse( prior ) ) ) );
   }
 
-  bool movePrior( CubeID & prior, const RotID rotID ) const;
+  CubeID movePrior( const CubeID prior, const RotID rotID ) const;
 };
 
 template< cube_size N >
-bool Factory<N>::PatternAPI::movePrior( CubeID & prior, const RotID rotID ) const
+CubeID Factory<N>::PatternAPI::movePrior( const CubeID prior, const RotID rotID ) const
 {
-  if ( priorMoving( prior, rotID ) )
-  {
-    prior = CRotations<N>::Tilt( prior, rotID );
-    return true;
-  }
-  return false;
+  return priorMoving( prior, rotID ) ? CRotations<N>::Tilt( prior, rotID ) : prior;
 }
 
-#endif  //  ! API_PATCH__H
+#endif  //  ! ___PATTERN_API_H

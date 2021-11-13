@@ -1,8 +1,8 @@
-#ifndef API_ROOT_SET__TPP
-#define API_ROOT_SET__TPP
+#ifndef ___ROOT_SET_API_H
+#define ___ROOT_SET_API_H
 
 #include <qeueu.h>
-#include <factory_tree.h>
+#include <factories/root_set_factory.h>
 
 template< cube_size N >
 class Factory<N>::RootSetAPI: public Factory<N>::RootSet
@@ -58,4 +58,4 @@ void Factory<N>::RootSetAPI::setRoots( std::function<void (const GroupID)> set )
   }
 }
 
-#endif  //  ! API_ROOT_SET__TPP
+#endif  //  ! ___ROOT_SET_API_H

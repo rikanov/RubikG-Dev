@@ -1,10 +1,10 @@
-#ifndef FACTORY_GROUP_GENERATOR__H
-#define FACTORY_GROUP_GENERATOR__H
+#ifndef ___GROUP_GEERATOR_FACTORY__H
+#define ___GROUP_GEERATOR_FACTORY__H
 
 #include <factory_tree.h>
 
 template< cube_size N >
-class Factory<N>::GroupGenerator: public Factory<N>::PatternAPI
+class Factory<N>::GroupGenerator: public virtual Factory<N>::PatternAPI
 {
   static constexpr size_t AllRot = CRotations<N>::AllRotIDs;
   
@@ -72,4 +72,4 @@ void Factory<N>::GroupGenerator::baseCube( const size_t pos )
     }
   }
 }
-#endif  //  ! FACTORY_GROUP_GENERATOR__H
+#endif  //  ! ___GROUP_GEERATOR_FACTORY__H

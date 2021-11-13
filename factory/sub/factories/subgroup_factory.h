@@ -1,7 +1,7 @@
-#ifndef FACTORY_SUBGROUP__H
-#define FACTORY_SUBGROUP__H
+#ifndef ___SUBGROUP_FACTORY__H
+#define ___SUBGROUP_FACTORY__H
 
-#include <factory_tree.h>
+#include <APIs/generator_api.h>
 
 template< cube_size N >
 class Factory<N>::Subgroup: public Factory<N>::GroupGeneratorAPI
@@ -76,4 +76,4 @@ void Factory<N>::Subgroup::createGroupCache()
   }
 }
 
-#endif  //  ! FACTORY_SUBGROUP__H
+#endif  //  ! ___SUBGROUP_FACTORY__H

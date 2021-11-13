@@ -1,5 +1,5 @@
-#ifndef FACTORY_PATCH__H
-#define FACTORY_PATCH__H
+#ifndef __PATTERN_FACTORY_H
+#define __PATTERN_FACTORY_H
 
 #include <dynamic_array.h>
 #include <factory_tree.h>
@@ -30,4 +30,4 @@ Factory<N>::Pattern::Pattern( const size_t size, const PosID * ref )
   }
 }
 
-#endif  //  ! FACTORY_PATCH__H
+#endif  //  ! __PATTERN_FACTORY_H

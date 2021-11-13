@@ -1,8 +1,8 @@
-#ifndef API_EVALUATOR__H
-#define API_EVALUATOR__H
+#ifndef ___EVALUATOR_API__H
+#define ___EVALUATOR_API__H
 
 #include <gen_rotation_set.h>
-#include <factory_tree.h>
+#include <factories/evaluator_factory.h>
 
 typedef uint8_t DistID;
 
@@ -68,4 +68,4 @@ BitMap32ID Factory<N>::EvaluatorAPI::target( const CubeID prior, const GroupID s
   return CubeSet::GetCubeSet( prior, aim );
 }
 
-#endif  //  ! API_EVALUATOR__H
+#endif  //  ! ___EVALUATOR_API__H

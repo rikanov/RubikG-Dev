@@ -1,5 +1,6 @@
 #include "rubik_head.h"
-#include <factory_tree.h>
+#include <state_control.h>
+#include <shift_control.h>
 
 int main()
 {
@@ -9,27 +10,28 @@ int main()
 
   Factory<3> test;
 
-    const PosID * left= new PosID[4] {
+    const PosID left[] = {
       CPositions<2>::GetPosID( 0, 0, 0 ),
       CPositions<2>::GetPosID( 0, 0, 1 ),
       CPositions<2>::GetPosID( 0, 1, 1 ),
       CPositions<2>::GetPosID( 0, 1, 0 ),
     };
 
-  Rubik<3> * rub = new Rubik<3>;;
-  
-  clog( ( long ) left );
-  test.cube = rub;
+  size_t level = 0;
+  size_t depth = 0;
+  Factory<3>::StateAPI state[200] = {};
+  RotID step = 0;
+
+  Factory<3>::ControlPanel( &level, &depth, state, &step );
+  ShiftControl<3> shiftTest;
+
   test.patternSize = 4;
   test.pattern = left;
-  test.get();
   std::cin.get();
   
   UnitTests tests;
   bool success = true;
-  {
-   std::shared_ptr<uint8_t> m_pattern;
-  }
+
   //success &= tests.testCore();
   success &= tests.testEngine();
  // success &= tests.testAI();

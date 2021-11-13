@@ -1,12 +1,12 @@
-#ifndef FACTORY__ROOT__H
-#define FACTORY__ROOT__H
+#ifndef ___ROOT_SET_FACTORY__H
+#define ___ROOT_SET_FACTORY__H
 
-#include <bool_array.h>
+#include <dynamic_array.h>
 #include <bitmap_set.h>
-#include <factory_tree.h>
+#include <APIs/pattern_api.h>
 
 template< cube_size N >
-class Factory<N>::RootSet: public Factory<N>::ConnectionAPI
+class Factory<N>::RootSet: virtual public Factory<N>::PatternAPI
 {
   AcceptFunction   m_accept;
   GroupID *        m_rootNodes;
@@ -30,13 +30,13 @@ protected:
 
 template< cube_size N >
 Factory<N>::RootSet::RootSet()
-  : ConnectionAPI()
+  : PatternAPI()
 {
 }
 
 template< cube_size N >
 Factory<N>::RootSet::RootSet( const size_t size, const PosID * pos, AcceptFunction af )
-  : ConnectionAPI( size, pos )
+  : PatternAPI( size, pos )
 {
   init( af );
 }
@@ -104,4 +104,4 @@ void Factory<N>::RootSet::addRoot( const GroupID rootID )
   }
 }
 
-#endif  //  ! FACTORY__ROOT__H
+#endif  //  ! ___ROOT_SET_FACTORY__H

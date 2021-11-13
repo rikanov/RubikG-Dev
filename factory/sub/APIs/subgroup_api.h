@@ -2,7 +2,7 @@
 #define API_SUBGROUP__H
 
 #include <cube_positions.h>
-#include <factory_tree.h>
+#include <factories/subgroup_factory.h>
 
 template< cube_size N >
 class Factory<N>::SubgroupAPI: public Factory<N>::Subgroup

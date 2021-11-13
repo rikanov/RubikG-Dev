@@ -1,11 +1,12 @@
-#ifndef CONNECTION_RULES_FACTORY__H
-#define CONNECTION_RULES_FACTORY__H
+#ifndef ___CONNECTION_RULES_FACTORY__H
+#define ___CONNECTION_RULES_FACTORY__H
 
 #include <cube_rotations.h>
+#include <node_chart.h>
 #include <factory_tree.h>
 
 template< cube_size N >
-class Factory<N>::Connection: public Factory<N>::SubgroupAPI
+class Factory<N>::Connection: public virtual Factory<N>::PatternAPI
 {
   void init();
 
@@ -20,13 +21,13 @@ public:
 
 template< cube_size N >
 Factory<N>::Connection::Connection()
-  : SubgroupAPI()
+  : PatternAPI()
 {
 }
 
 template< cube_size N >
 Factory<N>::Connection::Connection( const size_t size, const PosID* pos )
-  : SubgroupAPI( size, pos )
+  : PatternAPI( size, pos )
   , m_rotatePriorCube( CRotations<N>::AllRotIDs )
 {
   init();
@@ -40,4 +41,4 @@ void Factory<N>::Connection::init()
     m_rotatePriorCube[rotID] = this -> priorMoving( rotID ) ? CRotations<N>::GetTilt( rotID ) : 0;
   }
 }
-#endif  //  ! CONNECTION_RULES_FACTORY__H
+#endif  //  ! ___CONNECTION_RULES_FACTORY__H

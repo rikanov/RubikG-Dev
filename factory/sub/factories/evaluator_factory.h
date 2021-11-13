@@ -1,12 +1,17 @@
-#ifndef FACTORY_EVALUATOR__H
-#define FACTORY_EVALUATOR__H
+#ifndef ___EVALUATOR_FACTORY__H
+#define ___EVALUATOR_FACTORY__H
 
 #include <node_chart.h>
 #include <qeueu.h>
-#include <factory_tree.h>
+#include <bitmap_set.h>
+#include <APIs/root_set_api.h>
+#include <APIs/connection_api.h>
+#include <APIs/subgroup_api.h>
 
 template< cube_size N >
 class Factory<N>::Evaluator: public Factory<N>::RootSetAPI
+                           , public Factory<N>::ConnectionAPI
+                           , public Factory<N>::SubgroupAPI
 {
   Qeueu       m_qeueu;
 
@@ -146,4 +151,4 @@ void Factory<N>::Evaluator::build()
   m_qeueu.resize( 0 ); //  de-alloc qeueu memory
 }
 
-#endif  //  ! FACTORY_EVALUATOR__H
+#endif  //  ! ___EVALUATOR_FACTORY__H

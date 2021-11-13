@@ -1,7 +1,7 @@
-#ifndef API_GENERATOR__H
-#define API_GENERATOR__H
+#ifndef ___GROUP_GENERATOR_API__H
+#define ___GROUP_GENERATOR_API__H
 
-#include <factory_tree.h>
+#include <factories/generator_factory.h>
 
 template< cube_size N >
 class Factory<N>::GroupGeneratorAPI: public Factory<N>::GroupGenerator
@@ -59,4 +59,4 @@ void Factory<N>::GroupGeneratorAPI::addGenerator( GroupID * base, const GroupID 
     *( base + rotID ) += *( add + rotID );
   }
 }
-#endif  //  ! API_GENERATOR__H
+#endif  //  ! ___GROUP_GENERATOR_API__H

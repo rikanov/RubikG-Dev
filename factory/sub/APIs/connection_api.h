@@ -1,9 +1,8 @@
-#ifndef CONNECTION_RULES__H
-#define CONNECTION_RULES__H
+#ifndef ___CONNECTION_RULES_API__H
+#define ___CONNECTION_RULES_API__H
 
 #include <cube_set.h>
-#include <node_chart.h>
-#include <factory_tree.h>
+#include <factories/connection_factory.h>
 
 template< cube_size N >
 class Factory<N>::ConnectionAPI: public Factory<N>::Connection
@@ -74,4 +73,4 @@ void Factory<N>::ConnectionAPI::connectAimsToParent( NodeChart & child, const No
   child.aim[1] |= mergeAim( inv, parent.aim[1] );
 }
 
-#endif  //  ! CONNECTION_RULES__H
+#endif  //  ! ___CONNECTION_RULES_API__H
