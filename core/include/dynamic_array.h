@@ -1,5 +1,5 @@
-#ifndef FACTORY_ARRAY__H
-#define FACTORY_ARRAY__H
+#ifndef ___DYNAMIC_ARRAY__H
+#define ___DYNAMIC_ARRAY__H
 
 #include <memory>
 
@@ -16,8 +16,8 @@ public:
     {}
 
   Array( const size_t size )
-    : m_size( size )
-    , m_array( new Type[size] {} )
+    : m_size ( size )
+    , m_array( new Type [size] )
     {}
 
   Type & operator[]( const size_t & id )
@@ -51,6 +51,26 @@ public:
     m_array = array.m_array;
     return *this;
   };
+
+  Type * begin()
+  {
+    return m_array.raw();
+  }
+
+  Type * end()
+  {
+    return m_array.raw() + m_size;
+  }
+
+  const Type * begin() const
+  {
+    return m_array.raw();
+  }
+
+  const Type * end() const
+  {
+    return m_array.raw() + m_size;
+  }
 };
 
-#endif  //  ! FACTORY_ARRAY__H
+#endif  //  ! ___DYNAMIC_ARRAY__H

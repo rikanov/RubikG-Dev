@@ -5,7 +5,7 @@
 #include <factories/connection_factory.h>
 
 template< cube_size N >
-class Factory<N>::ConnectionAPI: public Factory<N>::Connection
+class GuideFactory<N>::ConnectionAPI: public GuideFactory<N>::Connection
 {
 
   inline BitMap32ID mergeAim( const RotID rotID, const BitMap32ID set ) const;
@@ -22,30 +22,24 @@ public:
 
 
 template< cube_size N >
-Factory<N>::ConnectionAPI::ConnectionAPI()
+GuideFactory<N>::ConnectionAPI::ConnectionAPI()
   : Connection()
 {
 }
 
 template< cube_size N >
-Factory<N>::ConnectionAPI::ConnectionAPI( const Connection& cr )
-  : Connection( cr )
-{
-}
-
-template< cube_size N >
-Factory<N>::ConnectionAPI::ConnectionAPI( const size_t size, const PosID * pos )
+GuideFactory<N>::ConnectionAPI::ConnectionAPI( const size_t size, const PosID * pos )
   : Connection( size, pos )
 {
 }
 template< cube_size N >
-BitMap32ID Factory<N>::ConnectionAPI::mergeAim( const RotID rotID, const BitMap32ID set ) const
+BitMap32ID GuideFactory<N>::ConnectionAPI::mergeAim( const RotID rotID, const BitMap32ID set ) const
 {
-  return this -> priorMoving( rotID ) ? CubeSet::GetCubeSet( CRotations<N>::GetTilt( rotID ), set ) : set;
+  return CubeSet::GetCubeSet( GuideFactory<N>::Connection::m_rotatePriorCube[ rotID ], set );
 }
 
 template< cube_size N >
-void Factory<N>::ConnectionAPI::connectIfChild( NodeChart & child, const NodeChart & parent, const RotID rotID ) const
+void GuideFactory<N>::ConnectionAPI::connectIfChild( NodeChart & child, const NodeChart & parent, const RotID rotID ) const
 {
   if ( child.level == parent.level + 1 )
   {
@@ -56,7 +50,7 @@ void Factory<N>::ConnectionAPI::connectIfChild( NodeChart & child, const NodeCha
 }
 
 template< cube_size N >
-void Factory<N>::ConnectionAPI::connectOnSameLevel( NodeChart & node, NodeChart & neighbor, const RotID rotID ) const
+void GuideFactory<N>::ConnectionAPI::connectOnSameLevel( NodeChart & node, NodeChart & neighbor, const RotID rotID ) const
 {
   if ( node.level == neighbor.level )
   {
@@ -66,7 +60,7 @@ void Factory<N>::ConnectionAPI::connectOnSameLevel( NodeChart & node, NodeChart 
 }
 
 template< cube_size N >
-void Factory<N>::ConnectionAPI::connectAimsToParent( NodeChart & child, const NodeChart & parent, const RotID rotID ) const
+void GuideFactory<N>::ConnectionAPI::connectAimsToParent( NodeChart & child, const NodeChart & parent, const RotID rotID ) const
 {
   const RotID inv = CRotations<N>::GetInvRotID( rotID );
   child.aim[0] |= mergeAim( inv, parent.aim[0] );

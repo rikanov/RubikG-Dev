@@ -5,7 +5,7 @@
 #include <factories/subgroup_factory.h>
 
 template< cube_size N >
-class Factory<N>::SubgroupAPI: public Factory<N>::Subgroup
+class GuideFactory<N>::SubgroupAPI: public GuideFactory<N>::Subgroup
 {
   static constexpr size_t AllRot = CRotations<N>::AllRotIDs;
   
@@ -24,41 +24,25 @@ public:
     const RotID trans = CRotations<N>::GetRotID( rid, Simplex::Inverse( cid ) );
     return lookUp( gid, trans );
   }
-
-  bool valid( GroupID ) const;
 };
 
 
 template< cube_size N >
-Factory<N>::SubgroupAPI::SubgroupAPI()
+GuideFactory<N>::SubgroupAPI::SubgroupAPI()
   : Subgroup()
 {
 }
 
 template< cube_size N >
-Factory<N>::SubgroupAPI::SubgroupAPI( const Subgroup & sg )
+GuideFactory<N>::SubgroupAPI::SubgroupAPI( const Subgroup & sg )
   : Subgroup( sg )
 {
 }
 
 template< cube_size N >
-Factory<N>::SubgroupAPI::SubgroupAPI( const size_t size, const PosID * pos )
+GuideFactory<N>::SubgroupAPI::SubgroupAPI( const size_t size, const PosID * pos )
   : Subgroup( size, pos )
 {
 }
 
-template< cube_size N >
-bool Factory<N>::SubgroupAPI::valid( GroupID gid ) const
-{
-  BoolArray positions( CPositions<N>::GetSize() );
-
-  for ( size_t index = 0; index < this -> patchSize(); ++ index, gid /= 24 )
-  {
-    const PosID next = CPositions<N>::GetPosID( PatternAPI::getPosID( index ), gid % 24 );
-    if ( positions( next ) )
-      return false;
-    positions.set( next, true );
-  }
-  return true;
-}
 #endif  //  ! API_SUBGROUP__H

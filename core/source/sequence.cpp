@@ -27,6 +27,11 @@ void Sequence::store( const RotID rotID )
   *( m_stackPointer ++ ) = rotID;
 }
 
+void Sequence::back()
+{
+  -- m_stackPointer;
+}
+
 Sequence & Sequence::operator << ( const RotID rotID )
 {
   store( rotID );

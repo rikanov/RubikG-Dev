@@ -9,9 +9,9 @@
 #include <APIs/subgroup_api.h>
 
 template< cube_size N >
-class Factory<N>::Evaluator: public Factory<N>::RootSetAPI
-                           , public Factory<N>::ConnectionAPI
-                           , public Factory<N>::SubgroupAPI
+class GuideFactory<N>::Evaluator: public GuideFactory<N>::RootSetAPI
+                                , public GuideFactory<N>::ConnectionAPI
+                                , public GuideFactory<N>::SubgroupAPI
 {
   Qeueu       m_qeueu;
 
@@ -33,7 +33,7 @@ protected:
 };
 
 template< cube_size N >
-Factory<N>::Evaluator::Evaluator()
+GuideFactory<N>::Evaluator::Evaluator()
   : RootSetAPI()
   , m_nodeChart( 0 )
 {
@@ -41,8 +41,10 @@ Factory<N>::Evaluator::Evaluator()
 }
 
 template< cube_size N >
-Factory<N>::Evaluator::Evaluator( const size_t size, const PosID * pos, AcceptFunction af  )
-  : RootSetAPI( size, pos )
+GuideFactory<N>::Evaluator::Evaluator( const size_t size, const PosID * pos, AcceptFunction af  )
+  : RootSetAPI    ( size, pos, af )
+  , ConnectionAPI ( size, pos )
+  , SubgroupAPI   ( size, pos )
   , m_nodeChart( SubgroupAPI::groupSize() )
 {
   init();
@@ -50,14 +52,14 @@ Factory<N>::Evaluator::Evaluator( const size_t size, const PosID * pos, AcceptFu
 
 
 template< cube_size N >
-void Factory<N>::Evaluator::init()
+void GuideFactory<N>::Evaluator::init()
 {
   m_qeueu.resize( GroupGeneratorAPI::groupSize() );
   build();
 }
 
 template< cube_size N >
-void Factory<N>::Evaluator::createRoot()
+void GuideFactory<N>::Evaluator::createRoot()
 {
   // first-grade gradient = 0 --> unsolvable
   // first_grade gradient = 1 --> solved state
@@ -71,12 +73,12 @@ void Factory<N>::Evaluator::createRoot()
     node.aim  [0] = this -> acceptedPriorStates();
   };
 
-  RootSetAPI::toQeueu( m_qeueu );
   RootSetAPI::setRoots( rootNodeSettings );
+  RootSetAPI::toQeueu( m_qeueu );
 }
 
 template< cube_size N >
-void Factory<N>::Evaluator::bindSolutionNodeCharts( const GroupID parent, const RotID rotID )
+void GuideFactory<N>::Evaluator::bindSolutionNodeCharts( const GroupID parent, const RotID rotID )
 {
   const GroupID      child = SubgroupAPI::lookUp( parent, rotID );
   NodeChart       & cChart = m_nodeChart[ child ];
@@ -89,7 +91,7 @@ void Factory<N>::Evaluator::bindSolutionNodeCharts( const GroupID parent, const 
 }
 
 template< cube_size N >
-void Factory<N>::Evaluator::buildSolutionGraph()
+void GuideFactory<N>::Evaluator::buildSolutionGraph()
 {
   GroupID parent;
   while ( m_qeueu >> parent )
@@ -102,12 +104,12 @@ void Factory<N>::Evaluator::buildSolutionGraph()
 }
 
 template< cube_size N >
-void Factory<N>::Evaluator::connectEqualNodeCharts()
+void GuideFactory<N>::Evaluator::connectEqualNodeCharts()
 {
   const size_t size = SubgroupAPI::groupSize() - 1;
   for ( GroupID gid = 0; gid < size; ++ gid )
   {
-    if ( ! SubgroupAPI::valid( gid ) )
+    if ( ! PatternAPI::valid( gid ) )
       continue;
     NodeChart & node = m_nodeChart[gid];
     all_rotid( rotID, N )
@@ -121,7 +123,7 @@ void Factory<N>::Evaluator::connectEqualNodeCharts()
 }
 
 template< cube_size N >
-void Factory<N>::Evaluator::finishTargets()
+void GuideFactory<N>::Evaluator::finishTargets()
 {
   for ( GroupID next; m_qeueu >> next; )
   {
@@ -141,7 +143,7 @@ void Factory<N>::Evaluator::finishTargets()
 }
 
 template< cube_size N >
-void Factory<N>::Evaluator::build()
+void GuideFactory<N>::Evaluator::build()
 {
   createRoot();
   buildSolutionGraph();

@@ -4,7 +4,7 @@
 #include <factories/generator_factory.h>
 
 template< cube_size N >
-class Factory<N>::GroupGeneratorAPI: public Factory<N>::GroupGenerator
+class GuideFactory<N>::GroupGeneratorAPI: public GuideFactory<N>::GroupGenerator
 {
   void addGenerator( GroupID * base, const GroupID * add );
 
@@ -20,25 +20,25 @@ public:
 
 
 template< cube_size N >
-Factory<N>::GroupGeneratorAPI::GroupGeneratorAPI()
+GuideFactory<N>::GroupGeneratorAPI::GroupGeneratorAPI()
   : GroupGenerator()
 {
 }
 
 template< cube_size N >
-Factory<N>::GroupGeneratorAPI::GroupGeneratorAPI( const size_t size, const PosID * pos )
+GuideFactory<N>::GroupGeneratorAPI::GroupGeneratorAPI( const size_t size, const PosID * pos )
   : GroupGenerator( size, pos )
 {
 }
 
 template< cube_size N >
-size_t Factory<N>::GroupGeneratorAPI::groupSize() const
+size_t GuideFactory<N>::GroupGeneratorAPI::groupSize() const
 {
   return GroupGenerator::m_groupSize;
 }
 
 template< cube_size N >
-void Factory<N>::GroupGeneratorAPI::generateBlock( const size_t pow, GroupID * cache )
+void GuideFactory<N>::GroupGeneratorAPI::generateBlock( const size_t pow, GroupID * cache )
 {
   GroupID next = 0;
   all_cubeid( block )
@@ -52,7 +52,7 @@ void Factory<N>::GroupGeneratorAPI::generateBlock( const size_t pow, GroupID * c
 }
 
 template< cube_size N >
-void Factory<N>::GroupGeneratorAPI::addGenerator( GroupID * base, const GroupID * add )
+void GuideFactory<N>::GroupGeneratorAPI::addGenerator( GroupID * base, const GroupID * add )
 {
   all_rotid( rotID, N )
   {

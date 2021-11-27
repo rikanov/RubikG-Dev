@@ -6,8 +6,9 @@
 #include <APIs/pattern_api.h>
 
 template< cube_size N >
-class Factory<N>::RootSet: virtual public Factory<N>::PatternAPI
+class GuideFactory<N>::RootSet
 {
+  PatternAPI       m_pattern;
   AcceptFunction   m_accept;
   GroupID *        m_rootNodes;
   GroupID *        m_nextRoot;
@@ -23,29 +24,24 @@ protected:
   BitMap32ID     m_allowedPriors;
   Array<GroupID> m_setOfRoots;
 
-  RootSet();;
-  RootSet( const PatternAPI & pa, AcceptFunction af = Accept<N>::Normal );
+  RootSet() = default;
   RootSet( const size_t size, const PosID * pos, AcceptFunction af = Accept<N>::Normal );
+  RootSet( RootSet && ) = delete;
 };
 
-template< cube_size N >
-Factory<N>::RootSet::RootSet()
-  : PatternAPI()
-{
-}
 
 template< cube_size N >
-Factory<N>::RootSet::RootSet( const size_t size, const PosID * pos, AcceptFunction af )
-  : PatternAPI( size, pos )
+GuideFactory<N>::RootSet::RootSet( const size_t size, const PosID * pos, AcceptFunction af )
+  : m_pattern( size, pos )
 {
   init( af );
 }
 
 template< cube_size N >
-void Factory<N>::RootSet::init( AcceptFunction af )
+void GuideFactory<N>::RootSet::init( AcceptFunction af )
 {
   m_accept = af;
-  m_allowedPriors = m_accept( PatternAPI::getPriorPos() );
+  m_allowedPriors = m_accept( m_pattern.getPriorPos() );
 
   // count root nodes to allocate
   m_numberOfRoots = 0;
@@ -61,9 +57,9 @@ void Factory<N>::RootSet::init( AcceptFunction af )
 }
 
 template< cube_size N >
-void Factory<N>::RootSet::addSolution( const CubeID invPrior, const size_t id, GroupID gid )
+void GuideFactory<N>::RootSet::addSolution( const CubeID invPrior, const size_t id, GroupID gid )
 {
-  BitMap cubeSet( m_accept( this -> getPosID( id ) ) );
+  BitMap cubeSet( m_accept( m_pattern.getPosID( id ) ) );
   for ( CubeID next; cubeSet >> next; )
   {
     next = Simplex::Composition( next, invPrior );
@@ -79,19 +75,19 @@ void Factory<N>::RootSet::addSolution( const CubeID invPrior, const size_t id, G
 }
 
 template< cube_size N >
-void Factory<N>::RootSet::resolveAcceptance()
+void GuideFactory<N>::RootSet::resolveAcceptance()
 {
   BitMap cubeSet( m_allowedPriors );
   for ( CubeID prior; cubeSet >> prior; )
   {
-    addSolution( Simplex::Inverse( prior ), PatternAPI::patchSize() - 2, 0 );
+    addSolution( Simplex::Inverse( prior ), m_pattern.patternSize() - 2, 0 );
   }
 }
 
 template< cube_size N >
-void Factory<N>::RootSet::addRoot( const GroupID rootID )
+void GuideFactory<N>::RootSet::addRoot( const GroupID rootID )
 {
-  if ( ! SubgroupAPI::valid( rootID ) )
+  if ( ! m_pattern.valid( rootID ) )
     return;
 
   if ( m_count )

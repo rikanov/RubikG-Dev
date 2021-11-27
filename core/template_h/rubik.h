@@ -53,7 +53,7 @@ public:
   bool    integrity ( void  )  const ;
   bool    isSolved  ( void  )  const;
   Orient  getOrient ( const Orient front, const Orient up, int x, int y) const; // left-bottom corner: x = 0, y = 0
-  
+
   // Printer
   void show ( Orient, Orient, Layer, Layer ) const;
   void show ( Orient ) const;

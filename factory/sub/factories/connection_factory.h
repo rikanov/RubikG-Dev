@@ -6,8 +6,9 @@
 #include <factory_tree.h>
 
 template< cube_size N >
-class Factory<N>::Connection: public virtual Factory<N>::PatternAPI
+class GuideFactory<N>::Connection
 {
+  PatternAPI   m_pattern;
   void init();
 
 protected:
@@ -16,29 +17,30 @@ protected:
 public:
   Connection();
   Connection( const size_t size, const PosID * pos );
+  Connection( Connection && ) = delete;
 };
 
 
 template< cube_size N >
-Factory<N>::Connection::Connection()
-  : PatternAPI()
+GuideFactory<N>::Connection::Connection()
+  : m_pattern()
 {
 }
 
 template< cube_size N >
-Factory<N>::Connection::Connection( const size_t size, const PosID* pos )
-  : PatternAPI( size, pos )
+GuideFactory<N>::Connection::Connection( const size_t size, const PosID* pos )
+  : m_pattern( size, pos )
   , m_rotatePriorCube( CRotations<N>::AllRotIDs )
 {
   init();
 }
 
 template< cube_size N >
-void Factory<N>::Connection::init()
+void GuideFactory<N>::Connection::init()
 {
   all_rotid( rotID, N )
   {
-    m_rotatePriorCube[rotID] = this -> priorMoving( rotID ) ? CRotations<N>::GetTilt( rotID ) : 0;
+    m_rotatePriorCube[rotID] = m_pattern.priorMoving( rotID ) ? CRotations<N>::GetTilt( rotID ) : 0;
   }
 }
 #endif  //  ! ___CONNECTION_RULES_FACTORY__H

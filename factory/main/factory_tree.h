@@ -1,21 +1,22 @@
 #ifndef FACTORY_TREE__H
 #define FACTORY_TREE__H
 
-#include <base_types.h>
-#include <acceptance.h>
+#include<task.h>
 
 template< cube_size N >
-class Factory
+class GuideFactory
 {
   
-public:
-
-  size_t          patternSize;
-  CubeID          patternTrans;
-  const PosID   * pattern;
-  AcceptFunction  accept;
-
 protected:
+
+  size_t          m_patternSize;
+  CubeID          m_patternTrans;
+  const PosID   * m_pattern;
+  AcceptFunction  m_accept;
+
+  Signpost * m_stack;
+  DistID     m_level;
+  DistID     m_depth;
 
   // Patch factory
  // ------------------------
@@ -47,19 +48,13 @@ protected:
   class Evaluator;
   class EvaluatorAPI;
 
-  // State factory
-  // ------------------------
-  class StateFactory;
-
 public:
 
-  class StateAPI;
+  class Guide;
+  GuideFactory();
+  Guide getGuide( Task<N> & ) const;
 
-  class ControlPanel;
-  class Worker;
-
-  Factory();
-  Worker get( ControlPanel & );
+  Signpost * actual();
 };
 
 #include <factory.cpp>

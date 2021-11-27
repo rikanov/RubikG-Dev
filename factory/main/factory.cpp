@@ -2,24 +2,24 @@
 #define FACTORY_CREATE__H
 
 #include <bitmap_set.h>
-#include <worker.h>
-#include <factory_tree.h>
+#include <signpost.h>
+#include <guide.h>
 
 
 template< cube_size N >
-Factory<N>::Factory()
-  : patternSize     ( 0 )
-  , patternTrans    ( 0 )
-  , pattern      ( nullptr )
-  , accept  ( Accept<N>::Normal )
+GuideFactory<N>::GuideFactory()
 {
-  
 }
 
 template< cube_size N >
-typename Factory<N>::Worker Factory<N>::get( ControlPanel & cPanel )
+typename GuideFactory<N>::Guide GuideFactory<N>::getGuide( Task<N> & task ) const
 {
-  return Worker( cPanel, EvaluatorAPI( patternSize, pattern, accept ) );
+  return Guide( task );
 }
 
+template< cube_size N >
+Signpost * GuideFactory<N>::actual()
+{
+  return m_stack + m_level;
+}
 #endif  //  ! FACTORY_CREATE__H

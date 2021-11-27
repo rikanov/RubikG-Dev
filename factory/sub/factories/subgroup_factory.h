@@ -4,7 +4,7 @@
 #include <APIs/generator_api.h>
 
 template< cube_size N >
-class Factory<N>::Subgroup: public Factory<N>::GroupGeneratorAPI
+class GuideFactory<N>::Subgroup: public GuideFactory<N>::GroupGeneratorAPI
 {
   static constexpr size_t AllRot = CRotations<N>::AllRotIDs;
 
@@ -22,27 +22,27 @@ public:
 };
 
 template< cube_size N >
-Factory<N>::Subgroup::Subgroup()
+GuideFactory<N>::Subgroup::Subgroup()
   : GroupGeneratorAPI()
 {
 }
 
 template< cube_size N >
-Factory<N>::Subgroup::Subgroup( const GroupGeneratorAPI & groupGeneratorAPI )
+GuideFactory<N>::Subgroup::Subgroup( const GroupGeneratorAPI & groupGeneratorAPI )
   : GroupGeneratorAPI( groupGeneratorAPI )
 {
   createGroupCache();
 }
 
 template< cube_size N >
-Factory<N>::Subgroup::Subgroup( const size_t size, const PosID * pos )
+GuideFactory<N>::Subgroup::Subgroup( const size_t size, const PosID * pos )
   : GroupGeneratorAPI( size, pos )
 {
   createGroupCache();
 }
 
 template< cube_size N >
-void Factory<N>::Subgroup::copyLine( const GroupID * from, GroupID * to )
+void GuideFactory<N>::Subgroup::copyLine( const GroupID * from, GroupID * to )
 {
   all_rotid( rotID, N )
   {
@@ -51,7 +51,7 @@ void Factory<N>::Subgroup::copyLine( const GroupID * from, GroupID * to )
 }
 
 template< cube_size N >
-void Factory<N>::Subgroup::copyBlocks( const size_t pow )
+void GuideFactory<N>::Subgroup::copyBlocks( const size_t pow )
 {
   GroupID next = 0;
   all_cubeid( block )
@@ -65,11 +65,11 @@ void Factory<N>::Subgroup::copyBlocks( const size_t pow )
 }
 
 template< cube_size N >
-void Factory<N>::Subgroup::createGroupCache()
+void GuideFactory<N>::Subgroup::createGroupCache()
 {
   const size_t size = GroupGeneratorAPI::groupSize() * AllRot + 1;
   m_subgroupMap = Array<GroupID> ( size );
-  for ( size_t pos = 0; pos < PatternAPI::patchSize() - 1; ++ pos )
+  for ( size_t pos = 0; pos < PatternAPI::patternSize() - 1; ++ pos )
   {
     copyBlocks ( pos );
     GroupGeneratorAPI::generateBlock( pos, m_subgroupMap.get() );

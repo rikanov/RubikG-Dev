@@ -7,7 +7,7 @@
 typedef uint8_t DistID;
 
 template< cube_size N >
-class Factory<N>::EvaluatorAPI: public Factory<N>::Evaluator
+class GuideFactory<N>::EvaluatorAPI: public GuideFactory<N>::Evaluator
 {
 
 public:
@@ -24,19 +24,19 @@ public:
 };
 
 template< cube_size N >
-Factory<N>::EvaluatorAPI::EvaluatorAPI()
+GuideFactory<N>::EvaluatorAPI::EvaluatorAPI()
   : Evaluator()
 {
 }
 
 template< cube_size N >
-Factory<N>::EvaluatorAPI::EvaluatorAPI( const size_t size, const PosID * pos, AcceptFunction af )
+GuideFactory<N>::EvaluatorAPI::EvaluatorAPI( const size_t size, const PosID * pos, AcceptFunction af )
   : Evaluator( size, pos, af )
 {
 }
 
 template< cube_size N >
-BitMapID Factory<N>::EvaluatorAPI::gradient( const CubeID prior, const GroupID state,  const DistID dist ) const
+BitMapID GuideFactory<N>::EvaluatorAPI::gradient( const CubeID prior, const GroupID state, const DistID dist ) const
 {
   const DistID D = distance( state );
   if ( dist < D )
@@ -53,7 +53,7 @@ BitMapID Factory<N>::EvaluatorAPI::gradient( const CubeID prior, const GroupID s
 }
 
 template< cube_size N >
-BitMap32ID Factory<N>::EvaluatorAPI::target( const CubeID prior, const GroupID state, const DistID dist ) const
+BitMap32ID GuideFactory<N>::EvaluatorAPI::target( const CubeID prior, const GroupID state, const DistID dist ) const
 {
   const DistID D = distance( state );
   if ( dist < D )

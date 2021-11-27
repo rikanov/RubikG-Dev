@@ -21,14 +21,24 @@ public:
     m_nextID  = 0;
   }
   
-  uint64_t restrict( const uint64_t rs )
+  void restrict( const BitMap & bm )
   {
-    return m_dataSet &= rs;  // set intersection
+    m_dataSet &= bm.m_dataSet;  // set intersection
   }
 
-  uint64_t expand( const uint64_t rs )
+  void restrict( const uint64_t rs )
   {
-    return m_dataSet |= rs;  // set union
+    m_dataSet &= rs;  // set intersection
+  }
+
+  void expand( const BitMap & bm )
+  {
+    m_dataSet |= bm.m_dataSet;  // set union
+  }
+
+  void expand( const uint64_t rs )
+  {
+    m_dataSet |= rs;  // set union
   }
 
   void exclude( const uint64_t rs )
@@ -65,6 +75,11 @@ public:
   bool contains( const size_t bit ) const
   {
     return m_dataSet & ( 1ULL << bit );
+  }
+
+  BitMapID data() const
+  {
+    return m_dataSet;
   }
 
   void print_( const uint8_t length = 63, const uint8_t slice = 0 ) const;

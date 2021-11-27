@@ -1,6 +1,5 @@
 #include "rubik_head.h"
-#include <state_control.h>
-#include <shift_control.h>
+#include <progress.h>
 
 int main()
 {
@@ -8,30 +7,20 @@ int main()
   init();
   clog( Color::off, "Press", Color::white, Color::bold, "ENTER", Color::off,"to start." );
 
-  Factory<3> test;
+  const PosID cross[] = {
+    CPositions<3>::GetPosID( 1, 2, 2 ),
+    CPositions<3>::GetPosID( 0, 1, 2 ),
+    CPositions<3>::GetPosID( 1, 1, 2 ),
+    CPositions<3>::GetPosID( 2, 1, 2 ),
+    CPositions<3>::GetPosID( 1, 0, 2 )
+  };
 
-    const PosID left[] = {
-      CPositions<2>::GetPosID( 0, 0, 0 ),
-      CPositions<2>::GetPosID( 0, 0, 1 ),
-      CPositions<2>::GetPosID( 0, 1, 1 ),
-      CPositions<2>::GetPosID( 0, 1, 0 ),
-    };
-
-  size_t level = 0;
-  size_t depth = 0;
-  Factory<3>::StateAPI state[200] = {};
-  RotID step = 0;
-
-  Factory<3>::ControlPanel( &level, &depth, state, &step );
-  ShiftControl<3> shiftTest;
-
-  test.patternSize = 4;
-  test.pattern = left;
+  Progress<3> testProgress;
+  testProgress.addScheduled( 5, cross, Accept<3>::Normal );
   std::cin.get();
   
   UnitTests tests;
   bool success = true;
-
   //success &= tests.testCore();
   success &= tests.testEngine();
  // success &= tests.testAI();

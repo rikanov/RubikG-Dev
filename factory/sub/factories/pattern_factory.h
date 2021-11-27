@@ -5,7 +5,7 @@
 #include <factory_tree.h>
 
 template< cube_size N >
-class Factory<N>::Pattern
+class GuideFactory<N>::Pattern
 {
 protected:
   Array<PosID> m_pattern;
@@ -16,12 +16,12 @@ protected:
 
 
 template< cube_size N >
-Factory<N>::Pattern::Pattern()
+GuideFactory<N>::Pattern::Pattern()
 {
 }
 
 template< cube_size N >
-Factory<N>::Pattern::Pattern( const size_t size, const PosID * ref )
+GuideFactory<N>::Pattern::Pattern( const size_t size, const PosID * ref )
   : m_pattern( size )
 {
   for ( size_t i = 0; i < size; ++ i )

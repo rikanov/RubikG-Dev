@@ -5,7 +5,7 @@
 #include <factories/root_set_factory.h>
 
 template< cube_size N >
-class Factory<N>::RootSetAPI: public Factory<N>::RootSet
+class GuideFactory<N>::RootSetAPI: public GuideFactory<N>::RootSet
 {
 
 public:
@@ -23,25 +23,19 @@ public:
 
 
 template< cube_size N >
-Factory<N>::RootSetAPI::RootSetAPI()
+GuideFactory<N>::RootSetAPI::RootSetAPI()
   : RootSet()
 {
 }
 
 template< cube_size N >
-Factory<N>::RootSetAPI::RootSetAPI( const RootSet & rs )
-  : RootSet( rs )
-{
-}
-
-template< cube_size N >
-Factory<N>::RootSetAPI::RootSetAPI( const size_t size, const PosID * pos, AcceptFunction af )
+GuideFactory<N>::RootSetAPI::RootSetAPI( const size_t size, const PosID * pos, AcceptFunction af )
   : RootSet( size, pos, af )
 {
 }
 
 template< cube_size N >
-void Factory<N>::RootSetAPI::toQeueu( Qeueu & qeu ) const
+void GuideFactory<N>::RootSetAPI::toQeueu( Qeueu & qeu ) const
 {
   for ( size_t i = 0; i < this -> m_numberOfRoots; ++ i )
   {
@@ -50,7 +44,7 @@ void Factory<N>::RootSetAPI::toQeueu( Qeueu & qeu ) const
 }
 
 template< cube_size N >
-void Factory<N>::RootSetAPI::setRoots( std::function<void (const GroupID)> set ) const
+void GuideFactory<N>::RootSetAPI::setRoots( std::function<void (const GroupID)> set ) const
 {
   for ( size_t i = 0; i < this -> m_numberOfRoots; ++ i )
   {

@@ -27,6 +27,7 @@ public:
   Sequence operator +  ( const Sequence & S ) const;
 
   void store( const RotID rotID );
+  void back();
   Sequence & operator << ( const RotID rotID );
   const RotID * raw() const;
   size_t steps() const;

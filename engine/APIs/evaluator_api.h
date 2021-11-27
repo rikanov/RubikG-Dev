@@ -5,6 +5,7 @@
 #include <bitmap_set.h>
 #include <smart_array.h>
 #include <node_chart.h>
+#include <acceptance.h>
 
 typedef uint8_t DistID;
 
@@ -15,6 +16,7 @@ class EvaluatorAPI
   
 public:
   EvaluatorAPI ();
+  EvaluatorAPI ( const size_t, const PosID *, AcceptFunction );
 
   void init( pArray< NodeChart > );
   

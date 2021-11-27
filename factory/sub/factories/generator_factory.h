@@ -4,7 +4,7 @@
 #include <factory_tree.h>
 
 template< cube_size N >
-class Factory<N>::GroupGenerator: public virtual Factory<N>::PatternAPI
+class GuideFactory<N>::GroupGenerator: public GuideFactory<N>::PatternAPI
 {
   static constexpr size_t AllRot = CRotations<N>::AllRotIDs;
   
@@ -12,7 +12,7 @@ class Factory<N>::GroupGenerator: public virtual Factory<N>::PatternAPI
   void init();
 
 protected:
-  const size_t   m_groupSize;
+  size_t         m_groupSize;
   Array<GroupID> m_groupGenerators;
 
   GroupGenerator();
@@ -20,33 +20,33 @@ protected:
 };
 
 template< cube_size N >
-Factory<N>::GroupGenerator::GroupGenerator()
+GuideFactory<N>::GroupGenerator::GroupGenerator()
   : PatternAPI()
   , m_groupSize( 0 )
 {
 }
 
 template< cube_size N >
-Factory<N>::GroupGenerator::GroupGenerator( const size_t size, const PosID* pos )
+GuideFactory<N>::GroupGenerator::GroupGenerator( const size_t size, const PosID* pos )
   : PatternAPI( size, pos )
-  , m_groupSize( pow24( PatternAPI::patchSize() - 1 ) )
+  , m_groupSize( pow24( PatternAPI::patternSize() - 1 ) )
 {
   init();
 }
 
 template< cube_size N >
-void Factory<N>::GroupGenerator::init()
+void GuideFactory<N>::GroupGenerator::init()
 {
-  const size_t size = AllRot * 24 * PatternAPI::patchSize();
+  const size_t size = AllRot * 24 * PatternAPI::patternSize();
   m_groupGenerators = Array<GroupID> ( size );
-  for ( size_t pos = 0; pos < PatternAPI::patchSize(); ++ pos )
+  for ( size_t pos = 0; pos < PatternAPI::patternSize(); ++ pos )
   {
     baseCube( pos );
   }
 }
 
 template< cube_size N >
-void Factory<N>::GroupGenerator::baseCube( const size_t pos )
+void GuideFactory<N>::GroupGenerator::baseCube( const size_t pos )
 {
   all_cubeid ( cid )
   {
