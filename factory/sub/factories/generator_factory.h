@@ -30,6 +30,7 @@ template< cube_size N >
 GuideFactory<N>::GroupGenerator::GroupGenerator( const size_t size, const PosID* pos )
   : PatternAPI( size, pos )
   , m_groupSize( pow24( PatternAPI::patternSize() - 1 ) )
+  , m_groupGenerators( AllRot * 24 * PatternAPI::patternSize() )
 {
   init();
 }
@@ -37,8 +38,6 @@ GuideFactory<N>::GroupGenerator::GroupGenerator( const size_t size, const PosID*
 template< cube_size N >
 void GuideFactory<N>::GroupGenerator::init()
 {
-  const size_t size = AllRot * 24 * PatternAPI::patternSize();
-  m_groupGenerators = Array<GroupID> ( size );
   for ( size_t pos = 0; pos < PatternAPI::patternSize(); ++ pos )
   {
     baseCube( pos );

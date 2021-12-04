@@ -17,11 +17,11 @@ public:
   , m_boolArray( size == 0 ? nullptr : new uint32_t [ m_arraySize ] {} )
   {}
   
-  ~BoolArray()
+  virtual ~BoolArray()
   {
     delete[] m_boolArray;
   }
-  
+
   void resize( const size_t size )
   {
     m_arraySize = 1 + size / 32;

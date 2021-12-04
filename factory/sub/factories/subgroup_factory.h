@@ -37,6 +37,7 @@ GuideFactory<N>::Subgroup::Subgroup( const GroupGeneratorAPI & groupGeneratorAPI
 template< cube_size N >
 GuideFactory<N>::Subgroup::Subgroup( const size_t size, const PosID * pos )
   : GroupGeneratorAPI( size, pos )
+  , m_subgroupMap( GroupGeneratorAPI::groupSize() * AllRot + 1 )
 {
   createGroupCache();
 }
@@ -59,7 +60,7 @@ void GuideFactory<N>::Subgroup::copyBlocks( const size_t pow )
     for ( size_t line = 0; line < pow24( pow ); ++ line, ++ next )
     {
       m_subgroupMap[ next * AllRot ] = next;
-      copyLine( m_subgroupMap.get() + line * AllRot, m_subgroupMap.get() + next * AllRot );
+      copyLine( m_subgroupMap.begin() + line * AllRot, m_subgroupMap.begin() + next * AllRot );
     }
   }
 }
@@ -67,12 +68,10 @@ void GuideFactory<N>::Subgroup::copyBlocks( const size_t pow )
 template< cube_size N >
 void GuideFactory<N>::Subgroup::createGroupCache()
 {
-  const size_t size = GroupGeneratorAPI::groupSize() * AllRot + 1;
-  m_subgroupMap = Array<GroupID> ( size );
   for ( size_t pos = 0; pos < PatternAPI::patternSize() - 1; ++ pos )
   {
     copyBlocks ( pos );
-    GroupGeneratorAPI::generateBlock( pos, m_subgroupMap.get() );
+    GroupGeneratorAPI::generateBlock( pos, m_subgroupMap.begin() );
   }
 }
 

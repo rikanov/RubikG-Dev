@@ -10,9 +10,7 @@ class GuideFactory<N>::RootSet
 {
   PatternAPI       m_pattern;
   AcceptFunction   m_accept;
-  GroupID *        m_rootNodes;
   GroupID *        m_nextRoot;
-  bool             m_count;
 
   void init( AcceptFunction af );
   void addSolution( const CubeID invPrior, const size_t id, GroupID gid );
@@ -20,19 +18,22 @@ class GuideFactory<N>::RootSet
   void addRoot( const GroupID rootID );
 
 protected:
+
   size_t         m_numberOfRoots;
   BitMap32ID     m_allowedPriors;
   Array<GroupID> m_setOfRoots;
 
   RootSet() = default;
   RootSet( const size_t size, const PosID * pos, AcceptFunction af = Accept<N>::Normal );
-  RootSet( RootSet && ) = delete;
 };
 
 
 template< cube_size N >
 GuideFactory<N>::RootSet::RootSet( const size_t size, const PosID * pos, AcceptFunction af )
   : m_pattern( size, pos )
+  , m_numberOfRoots( 0 )
+  , m_allowedPriors( 0 )
+  , m_setOfRoots( 1 << ( 2 * size ) )
 {
   init( af );
 }
@@ -43,16 +44,8 @@ void GuideFactory<N>::RootSet::init( AcceptFunction af )
   m_accept = af;
   m_allowedPriors = m_accept( m_pattern.getPriorPos() );
 
-  // count root nodes to allocate
-  m_numberOfRoots = 0;
-  m_count  = true; // get number of valid states
-  resolveAcceptance();
-  m_setOfRoots = Array<GroupID>( m_numberOfRoots );
-
   // get all the root modes
-  m_count  = false; // not just count but collect them
-  m_rootNodes = m_setOfRoots.get();
-  m_nextRoot  = m_rootNodes;
+  m_nextRoot  = m_setOfRoots.begin();
   resolveAcceptance();
 }
 
@@ -87,15 +80,9 @@ void GuideFactory<N>::RootSet::resolveAcceptance()
 template< cube_size N >
 void GuideFactory<N>::RootSet::addRoot( const GroupID rootID )
 {
-  if ( ! m_pattern.valid( rootID ) )
-    return;
-
-  if ( m_count )
+  if (  m_pattern.valid( rootID ) )
   {
     ++ m_numberOfRoots;
-  }
-  else
-  {
     *( m_nextRoot ++ ) = rootID;
   }
 }

@@ -14,8 +14,8 @@ public:
   EvaluatorAPI();
   EvaluatorAPI( const size_t size, const PosID * pos, AcceptFunction af = Accept<N>::Normal );
 
-  BitMapID gradient( const CubeID prior, const GroupID state,  const DistID D ) const;
-  BitMap32ID target( const CubeID prior, const GroupID state,  const DistID D ) const;
+  BitMapID gradient( const CubeID prior, const GroupID state, const DistID D ) const;
+  BitMap32ID target( const CubeID prior, const GroupID state, const DistID D ) const;
 
   DistID distance( const GroupID gid ) const
   {

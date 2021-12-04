@@ -2,9 +2,11 @@
 #define FACTORY_CREATE__H
 
 #include <bitmap_set.h>
-#include <signpost.h>
 #include <guide.h>
 
+
+template< cube_size N >
+size_t GuideFactory<N>::m_index = 0;
 
 template< cube_size N >
 GuideFactory<N>::GuideFactory()
@@ -12,14 +14,9 @@ GuideFactory<N>::GuideFactory()
 }
 
 template< cube_size N >
-typename GuideFactory<N>::Guide GuideFactory<N>::getGuide( Task<N> & task ) const
+typename GuideFactory<N>::Guide GuideFactory<N>::getGuide( const size_t size, const PosID * pattern, AcceptFunction af )
 {
-  return Guide( task );
+  return Guide( size, pattern, af, m_index ++ );
 }
 
-template< cube_size N >
-Signpost * GuideFactory<N>::actual()
-{
-  return m_stack + m_level;
-}
 #endif  //  ! FACTORY_CREATE__H

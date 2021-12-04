@@ -13,7 +13,7 @@ class GuideFactory<N>::Evaluator: public GuideFactory<N>::RootSetAPI
                                 , public GuideFactory<N>::ConnectionAPI
                                 , public GuideFactory<N>::SubgroupAPI
 {
-  Qeueu       m_qeueu;
+  Qeueu m_qeueu;
 
   void init();
   void build();

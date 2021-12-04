@@ -65,7 +65,7 @@ public:
   static   PosID   GetLayer  ( Axis a, Layer l, byte id )              { return Singleton -> m_frameworkLayer [ a ][ l ][ id ];  }
   static   Layer   LayerSize ( Layer l )                               { return l == 0 || l == N - 1 ? N * N : 4 * ( N - 1 );    }
   static   Layer   GetLayer  ( PosID p, Axis a )                       { return Singleton -> m_indexToCoord [ p ][ a ];          }
-  static   Layer   GetLayer  ( PosID p, CubeID r, Axis a )             { return Singleton -> m_indexToCoord [ GetPosID( p, r ) ][ a ]; }
+  static   Layer   GetLayer  ( PosID p, CubeID r, Axis a )             { return Singleton -> m_indexToCoord [ Singleton -> m_routerPositions[ p ][ r ] ][ a ]; }
   static   Coord   GetCoord  ( PosID );
   static   PosID   Random    ();
   static BitMapID  ActOn     ( const PosID posID );

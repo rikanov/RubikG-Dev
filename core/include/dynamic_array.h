@@ -17,7 +17,7 @@ public:
 
   Array( const size_t size )
     : m_size ( size )
-    , m_array( new Type [size] )
+    , m_array( new Type [size] {} )
     {}
 
   Type & operator[]( const size_t & id )
@@ -28,11 +28,6 @@ public:
   const Type & operator[]( const size_t & id ) const
   {
     return m_array[id];
-  }
-
-  Type * get()
-  {
-    return m_array.get();
   }
 
   const Type * get() const
@@ -54,22 +49,22 @@ public:
 
   Type * begin()
   {
-    return m_array.raw();
+    return m_array.get();
   }
 
   Type * end()
   {
-    return m_array.raw() + m_size;
+    return m_array.get() + m_size;
   }
 
   const Type * begin() const
   {
-    return m_array.raw();
+    return m_array.get();
   }
 
   const Type * end() const
   {
-    return m_array.raw() + m_size;
+    return m_array.get() + m_size;
   }
 };
 

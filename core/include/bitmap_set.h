@@ -26,9 +26,10 @@ public:
     m_dataSet &= bm.m_dataSet;  // set intersection
   }
 
-  void restrict( const uint64_t rs )
+  bool restrict( const uint64_t rs )
   {
-    m_dataSet &= rs;  // set intersection
+    m_dataSet &= rs; // set intersection
+    return 0 != rs;
   }
 
   void expand( const BitMap & bm )

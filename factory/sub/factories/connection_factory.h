@@ -17,7 +17,6 @@ protected:
 public:
   Connection();
   Connection( const size_t size, const PosID * pos );
-  Connection( Connection && ) = delete;
 };
 
 
