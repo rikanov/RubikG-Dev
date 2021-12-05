@@ -29,21 +29,23 @@ void Progress<N>::addGuide( const ProgressTask task, const size_t size, const Po
 template< cube_size N >
 Sequence Progress<N>::startIDA( const int maxHeight )
 {
-  Sequence result;
-
-  int treeHeight = 0;
-  while ( treeHeight <= maxHeight && ! ProgressTree<N>::treeHeight( treeHeight ) )
+  for ( int height = 0; height <= maxHeight; ++ height )
   {
-    ++ treeHeight;
+    ProgressTree<N>::setRoot();
+    while ( ProgressTree<N>::progress() )
+    {
+
+    }
+    if ( ProgressTree<N>::found() )
+    {
+      break;
+    }
+    ProgressTree<N>::increase(); clog( height, ProgressTree<N>::solved() );
   }
 
-  clog( Color::green, "tree height:", treeHeight,ProgressTree<N>::solved()  );
-  if ( ProgressTree<N>::solved() )
-  {
-    return result;
-  }
+  CRotations<N>::Print( ProgressTree<N>::resolve() );
 
-  return result;
+  return ProgressTree<N>::resolve();
 }
 
 #endif  //  ! ___PROGRESS__H

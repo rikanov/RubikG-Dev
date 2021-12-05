@@ -43,6 +43,10 @@ private:
   //---------------------------------------
   bool unit_Snapper()       const; // engine/snapper.h
 
+   // Unit tests of progress (progress folder)
+  //------------------------------------------
+  bool unit_Progress()      const; // progress.h
+
    // Unit tests of engines (rubikAI folder)
   //----------------------------------------
 

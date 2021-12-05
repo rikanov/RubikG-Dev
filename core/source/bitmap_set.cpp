@@ -2,6 +2,20 @@
 #include <text_output.h>
 
 
+uint8_t BitMap::next()
+{
+  BitMapID step = 1ULL << m_nextID;
+  // skip zero valued bits
+  for( ; ( m_dataSet & step ) == 0; step <<= 1 )
+  {
+     ++ m_nextID;
+  }
+
+  m_dataSet -= step;
+
+  return m_nextID ++ ;
+}
+
 bool BitMap::next( uint8_t & nextID )
 {
   if( 0 == m_dataSet )

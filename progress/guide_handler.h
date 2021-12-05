@@ -29,8 +29,8 @@ protected:
 
   void add( Guide guide, const ProgressTask );
 
-  bool setRoot( Node * node ) const;
-  bool nextNode( Node * node, const RotID rotID ) const;
+  bool setRoot ( Node * node ) const;
+  bool nextNode( Node * node ) const;
 };
 
 template< cube_size N >
@@ -76,8 +76,9 @@ bool GuideHandler<N>::setRoot( Node * node ) const
 }
 
 template< cube_size N >
-bool GuideHandler<N>::nextNode( Node * node, const RotID rotID ) const
+bool GuideHandler<N>::nextNode( Node * node ) const
 {
+  const RotID rotID = node -> gradient.next();
   NodeInit<N>::nextNode( node, rotID );
 
   for ( auto P = m_scheduled.begin(); P != m_nextScheduled; ++ P )
@@ -86,11 +87,6 @@ bool GuideHandler<N>::nextNode( Node * node, const RotID rotID ) const
     {
       return false;
     }
-  }
-
-  for ( auto P = m_optional.begin(); P != m_nextOptional; ++ P )
-  {
-    P -> expandNext( node, rotID );
   }
 
   node -> rotate = rotID;

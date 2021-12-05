@@ -26,6 +26,16 @@ struct Node
     , depth ( 0 )
   {
   }
+
+  Node * end()
+  {
+    return this + depth;
+  }
+
+  bool leaf() const
+  {
+    return 0 == depth;
+  }
 };
 
 #endif  //  ! ___TREE_NODE_H

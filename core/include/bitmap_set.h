@@ -57,7 +57,10 @@ public:
     return m_dataSet == 0;
   }
   
+  uint8_t next();
+
   bool next( uint8_t & nextID );
+
   bool operator >> ( uint8_t & nextID )
   {
     return next( nextID );

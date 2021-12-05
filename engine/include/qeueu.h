@@ -5,20 +5,18 @@
 #include <bool_array.h>
 
 // an excluding FIFO object: any GroupID value can be pushed in only once a life time
-class Qeueu
+class Qeueu: protected BoolArray
 {
   size_t m_size;
 
   GroupID   * m_qeueudCubes ;
   GroupID   * m_qeuIn ;
   GroupID   * m_qeuOut;
-  BoolArray * m_used;
 public:
 
   Qeueu()
   : m_size( 0 )
   , m_qeueudCubes( nullptr )
-  , m_used ( new BoolArray() )
   {
   }
 
@@ -27,19 +25,19 @@ public:
     m_size = size;
     delete[] m_qeueudCubes;
     m_qeueudCubes = ( size == 0 ) ? nullptr : new GroupID [ size + 1 ];
-    m_used -> resize( size + 1 );
+    BoolArray::resize( size );
     m_qeuIn = m_qeuOut = m_qeueudCubes;    
   }
   
   void clean()
   {
-    m_used -> clean();
+    BoolArray::clean();
     m_qeuIn = m_qeuOut = m_qeueudCubes;    
   }
   
   void push_back( const GroupID& id )
   {
-    m_used -> set( id, true );
+    BoolArray::set( id, true );
     *( m_qeuIn ++ ) = id;
   }
 
@@ -50,14 +48,14 @@ public:
 
   bool used( GroupID id ) const
   {
-    return m_used -> at( id );
+    return BoolArray::at( id );
   }
   
   bool operator << ( const GroupID& id )
   {
     if ( used( id ) == false )
     {
-      m_used -> set( id, true );
+      BoolArray::set( id, true );
       *( m_qeuIn ++ ) = id;
       return true;
     }
@@ -78,7 +76,6 @@ public:
   ~Qeueu()
   {
     delete[] m_qeueudCubes;
-    delete   m_used;
   }
 };
 

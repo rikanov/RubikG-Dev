@@ -19,10 +19,9 @@ public:
     return Subgroup::m_subgroupMap[ AllRot * gid + rid ];
   }
   
-  GroupID lookUp( const GroupID gid, const RotID rid, const CubeID cid ) const
+  GroupID lookUp( const CubeID prior, const GroupID state, const RotID rotID ) const
   {
-    const RotID trans = CRotations<N>::GetRotID( rid, Simplex::Inverse( cid ) );
-    return lookUp( gid, trans );
+    return lookUp( state, Subgroup::m_transRotation[ 24 * rotID + prior ] );
   }
 };
 

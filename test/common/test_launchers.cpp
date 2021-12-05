@@ -14,7 +14,8 @@ bool UnitTests::testCore() const
 bool UnitTests::testEngine() const
 {
   bool result = true;
-  result &= unit_Snapper();
+  // result &= unit_Snapper();
+  result &= unit_Progress();
   return result;
 }
 

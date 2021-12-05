@@ -87,7 +87,7 @@ bool GuideFactory<N>::Guide::restrictNext( Node * node, const RotID rotID ) cons
   const GroupID state = node -> state[ m_index ];
 
   const CubeID  nextPrior = PatternAPI::movePrior( prior, rotID );
-  const GroupID nextState = SubgroupAPI::lookUp( state, rotID );
+  const GroupID nextState = SubgroupAPI::lookUp( prior, state, rotID );
 
   const BitMapID gradient = EvaluatorAPI::gradient( nextPrior, nextState, next -> depth );
   if ( ! next -> gradient.restrict( gradient ) )

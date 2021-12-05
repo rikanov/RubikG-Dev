@@ -11,8 +11,11 @@ class GuideFactory<N>::Subgroup: public GuideFactory<N>::GroupGeneratorAPI
   void copyLine( const GroupID *, GroupID * );
   void copyBlocks( const size_t );
   void createGroupCache();
+  void createTransRotations();
+
 protected:
   Array<GroupID> m_subgroupMap;
+  Array<RotID>   m_transRotation;
 
 public:
   Subgroup();
@@ -32,14 +35,17 @@ GuideFactory<N>::Subgroup::Subgroup( const GroupGeneratorAPI & groupGeneratorAPI
   : GroupGeneratorAPI( groupGeneratorAPI )
 {
   createGroupCache();
+  createTransRotations();
 }
 
 template< cube_size N >
 GuideFactory<N>::Subgroup::Subgroup( const size_t size, const PosID * pos )
   : GroupGeneratorAPI( size, pos )
   , m_subgroupMap( GroupGeneratorAPI::groupSize() * AllRot + 1 )
+  , m_transRotation ( 24 * CRotations<N>::AllRotIDs )
 {
   createGroupCache();
+  createTransRotations();
 }
 
 template< cube_size N >
@@ -72,6 +78,20 @@ void GuideFactory<N>::Subgroup::createGroupCache()
   {
     copyBlocks ( pos );
     GroupGeneratorAPI::generateBlock( pos, m_subgroupMap.begin() );
+  }
+}
+
+template< cube_size N >
+void GuideFactory<N>::Subgroup::createTransRotations()
+{
+  auto P = m_transRotation.begin();
+  all_rotid ( rotID, N )
+  {
+    all_cubeid ( prior )
+    {
+      // P[ 24 * rotID + prior ]
+      P[ 24 * rotID + prior ] = CRotations<N>::GetRotID( rotID, Simplex::Inverse( prior ) );
+    }
   }
 }
 
