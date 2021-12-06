@@ -29,7 +29,7 @@ protected:
 
   void add( Guide guide, const ProgressTask );
 
-  bool setRoot ( Node * node ) const;
+  bool setRoot ( Node * node, const Rubik<N> * ) const;
   bool nextNode( Node * node ) const;
 };
 
@@ -56,11 +56,13 @@ void GuideHandler<N>::add( GuideHandler::Guide guide, const ProgressTask task )
 }
 
 template<cube_size N>
-bool GuideHandler<N>::setRoot( Node * node ) const
+bool GuideHandler<N>::setRoot( Node * node, const Rubik<N> * cube ) const
 {
   NodeInit<N>::setRoot( node );
   for ( auto P = m_scheduled.begin(); P != m_nextScheduled; ++ P )
   {
+    node -> prior[ P -> index() ] = P -> currentPrior( cube );
+    node -> state[ P -> index() ] = P -> currentState( cube );
     if ( ! P -> restrict( node) )
     {
       return false;
@@ -69,7 +71,8 @@ bool GuideHandler<N>::setRoot( Node * node ) const
 
   for ( auto P = m_optional.begin(); P != m_nextOptional; ++ P )
   {
-    P -> expand( node );
+    node -> prior[ P -> index() ] = P -> currentPrior( cube );
+    node -> state[ P -> index() ] = P -> currentState( cube );
   }
 
   return true;

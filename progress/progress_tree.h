@@ -24,8 +24,8 @@ protected:
   bool increase();
   bool levelUp();
   bool progress();
-  bool solved() const;
   bool found() const;
+  bool solved( const Node * ) const;
 
   void add( Guide, const ProgressTask );
 
@@ -45,7 +45,7 @@ bool ProgressTree<N>::setRoot()
 {
   m_current   = m_path.begin();
   m_searchEnd = m_path.begin();
-  return GuideHandler<N>::setRoot( m_path.begin() );
+  return GuideHandler<N>::setRoot( m_path.begin(), m_cube );
 }
 
 template< cube_size N >
@@ -75,15 +75,18 @@ bool ProgressTree<N>::levelUp()
 template< cube_size N >
 bool ProgressTree<N>::progress()
 {
+  if ( solved( m_current ) )
+  {
+    return true;
+  }
   while ( ! m_current -> gradient.empty() && 0 < m_current -> depth )
   {
     // step down if possible
     m_current += GuideHandler<N>::nextNode( m_current );
   }
-  if ( solved() )
+  if ( solved( m_current ) )
   {
     // end searching
-    clog( Color::green, "end searching" );
     m_searchEnd = m_current;
     m_current   = m_path.begin();
   }
@@ -92,23 +95,20 @@ bool ProgressTree<N>::progress()
 }
 
 template< cube_size N >
-bool ProgressTree<N>::solved() const
+bool ProgressTree<N>::solved( const Node * node ) const
 {
-  return m_current -> gradient.contains( 0 );
+  return node -> gradient.contains( 0 ) && ! node -> target.empty();
 }
 
 template< cube_size N >
 bool ProgressTree<N>::found() const
 {
-  return m_searchEnd != m_current || solved();
+  return solved( m_searchEnd );
 }
 
 template< cube_size N>
 void ProgressTree<N>::add( ProgressTree::Guide guide, const ProgressTask task )
 {
-  m_current -> prior[ guide.index() ] = guide.currentPrior( m_cube );
-  m_current -> state[ guide.index() ] = guide.currentState( m_cube );
-
   GuideHandler<N>::add( guide, task );
 }
 

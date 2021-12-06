@@ -6,29 +6,128 @@ bool UnitTests::unit_Progress() const
   bool success = true;
   head( "Progress" );
 
-  const PosID cross[] = {
-    CPositions<3>::GetPosID( 1, 2, 2 ),
-    CPositions<3>::GetPosID( 0, 1, 2 ),
-    CPositions<3>::GetPosID( 1, 1, 2 ),
-    CPositions<3>::GetPosID( 2, 1, 2 ),
-    CPositions<3>::GetPosID( 1, 0, 2 )
-  };
+  tcase( "Cube size 2" );
+  bool ok2 = true;
+  {
+    const PosID left[] = {
+      CPositions<2>::GetPosID( 0, 0, 0 ),
+      CPositions<2>::GetPosID( 0, 0, 1 ),
+      CPositions<2>::GetPosID( 0, 1, 1 ),
+      CPositions<2>::GetPosID( 0, 1, 0 ),
+    };
 
-  const PosID bind[] = {
-    CPositions<3>::GetPosID( 1, 0, 1 ),
-    CPositions<3>::GetPosID( 1, 0, 2 ),
-  };
 
-  Rubik<3> r;
-  r.rotate( CRotations<3>::GetRotID(_Y, 1, 2 ) );
-  r.rotate( CRotations<3>::GetRotID(_X, 1, 2 ) );
-  r.rotate( CRotations<3>::GetRotID(_Y, 2, 1 ) );
-  r.rotate( CRotations<3>::GetRotID(_Z, 1, 3 ) );
-  Progress<3> test;
-  test.toSolve( &r );
-  test.addGuide( _Scheduled, 5, cross, Accept<3>::Normal );
-  test.addGuide( _Scheduled, 2, bind,  Accept<3>::Normal );
-  test.startIDA( 5 );
+    const PosID right[] = {
+      CPositions<2>::GetPosID( 1, 0, 0 ),
+      CPositions<2>::GetPosID( 1, 0, 1 ),
+      CPositions<2>::GetPosID( 1, 1, 1 ),
+      CPositions<2>::GetPosID( 1, 1, 0 ),
+    };
+
+    Rubik<2> testCube2;
+    Progress<2> test2;
+
+    test2.toSolve( &testCube2 );
+    test2.addGuide( _Scheduled, 4, left );
+    test2.addGuide( _Scheduled, 4, right );
+
+    testCube2.shuffle();
+    testCube2.print();
+    testCube2.rotate( test2.startIDA( 10 ) );
+    testCube2.print();
+  }
+
+
+  tcase( "Cube size 3" );
+  bool ok3 = true;
+  {
+    const PosID cross[] = {
+      CPositions<3>::GetPosID( 1, 2, 2 ),
+      CPositions<3>::GetPosID( 0, 1, 2 ),
+      CPositions<3>::GetPosID( 1, 1, 2 ),
+      CPositions<3>::GetPosID( 2, 1, 2 ),
+      CPositions<3>::GetPosID( 1, 0, 2 )
+    };
+
+    const PosID bind[] = {
+      CPositions<3>::GetPosID( 1, 0, 1 ),
+      CPositions<3>::GetPosID( 1, 0, 2 ),
+    };
+    const PosID block1[] = {
+      CPositions<3>::GetPosID( 2, 0, 2 ),
+      CPositions<3>::GetPosID( 2, 0, 1 ),
+      CPositions<3>::GetPosID( 1, 0, 2 )
+    };
+    const PosID block2[] = {
+      CPositions<3>::GetPosID( 2, 2, 2 ),
+      CPositions<3>::GetPosID( 2, 2, 1 ),
+      CPositions<3>::GetPosID( 1, 2, 2 )
+    };
+    const PosID block3[] = {
+      CPositions<3>::GetPosID( 0, 2, 2 ),
+      CPositions<3>::GetPosID( 0, 2, 1 ),
+      CPositions<3>::GetPosID( 0, 1, 2 ),
+    };
+    const PosID block4[] = {
+      CPositions<3>::GetPosID( 0, 0, 2 ),
+      CPositions<3>::GetPosID( 0, 0, 1 ),
+      CPositions<3>::GetPosID( 1, 0, 2 ),
+    };
+
+    const PosID cross2[] = {
+      CPositions<3>::GetPosID( 1, 2, 0 ),
+      CPositions<3>::GetPosID( 0, 1, 0 ),
+      CPositions<3>::GetPosID( 1, 1, 0 ),
+      CPositions<3>::GetPosID( 2, 1, 0 ),
+      CPositions<3>::GetPosID( 1, 0, 0 ),
+    };
+
+    const PosID corners[] = {
+      CPositions<3>::GetPosID( 0, 0, 0 ),
+      CPositions<3>::GetPosID( 0, 2, 0 ),
+      CPositions<3>::GetPosID( 1, 1, 0 ),
+      CPositions<3>::GetPosID( 2, 0, 0 ),
+      CPositions<3>::GetPosID( 2, 2, 0 ),
+    };
+
+    Rubik<3> testCube;
+    testCube.shuffle();
+    testCube.print();
+
+    Progress<3> test;
+    test.toSolve( &testCube );
+
+    test.addGuide( _Scheduled, 5, cross );
+    test.addGuide( _Scheduled, 2, bind );
+    testCube.rotate( test.startIDA( 10 ) );
+    testCube.print();
+clog( "first" );
+    test.addGuide( _Scheduled, 2, block1 );
+    testCube.rotate( test.startIDA( 10 ) );
+    testCube.print();
+
+    test.addGuide( _Scheduled, 2, block2 );
+    testCube.rotate( test.startIDA( 10 ) );
+    testCube.print();
+
+    test.addGuide( _Scheduled, 2, block3 );
+    testCube.rotate( test.startIDA( 10 ) );
+    testCube.print();
+
+    test.addGuide( _Scheduled, 2, block4 );
+    testCube.rotate( test.startIDA( 10 ) );
+    testCube.print();
+
+    test.addGuide( _Scheduled, 5, cross2, Accept<3>::RotAxis( _Z ) );
+    testCube.rotate( test.startIDA( 10 ) );
+    testCube.print();
+
+    test.addGuide( _Scheduled, 5, corners, Accept<3>::RotAxis( _Z ) );
+    testCube.rotate( test.startIDA( 10 ) );
+    testCube.print();
+
+    testCube.save( "progress3.rub" );
+  }
 
   finish( "Progress", success );
 

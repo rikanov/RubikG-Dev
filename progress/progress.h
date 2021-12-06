@@ -10,6 +10,8 @@ class Progress: protected ProgressTree<N>
 
 public:
 
+  bool logs = true;
+
   void toSolve( const Rubik<N> * cube )
   {
     ProgressTree<N>::m_cube = cube;
@@ -29,9 +31,12 @@ void Progress<N>::addGuide( const ProgressTask task, const size_t size, const Po
 template< cube_size N >
 Sequence Progress<N>::startIDA( const int maxHeight )
 {
-  for ( int height = 0; height <= maxHeight; ++ height )
+  for ( int height = 0; height <= maxHeight; ++ height, ProgressTree<N>::increase() )
   {
-    ProgressTree<N>::setRoot();
+    if ( ! ProgressTree<N>::setRoot() )
+    {
+      continue;
+    }
     while ( ProgressTree<N>::progress() )
     {
 
@@ -39,13 +44,17 @@ Sequence Progress<N>::startIDA( const int maxHeight )
     if ( ProgressTree<N>::found() )
     {
       break;
-    }
-    ProgressTree<N>::increase(); clog( height, ProgressTree<N>::solved() );
+    };
   }
 
-  CRotations<N>::Print( ProgressTree<N>::resolve() );
+ const Sequence result = ProgressTree<N>::resolve();
 
-  return ProgressTree<N>::resolve();
+ if ( logs )
+ {
+   CRotations<N>::Print( result );
+ }
+
+ return result;
 }
 
 #endif  //  ! ___PROGRESS__H
