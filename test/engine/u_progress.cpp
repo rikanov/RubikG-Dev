@@ -101,7 +101,7 @@ bool UnitTests::unit_Progress() const
     test.addGuide( _Scheduled, 2, bind );
     testCube.rotate( test.startIDA( 10 ) );
     testCube.print();
-clog( "first" );
+
     test.addGuide( _Scheduled, 2, block1 );
     testCube.rotate( test.startIDA( 10 ) );
     testCube.print();

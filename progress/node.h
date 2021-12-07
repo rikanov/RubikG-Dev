@@ -32,9 +32,10 @@ struct Node
     return this + depth;
   }
 
-  bool leaf() const
+  bool hasChild() const
   {
-    return 0 == depth;
+    // empty ( gradient == 0 ) and solved nodes ( gradient == 1 ) has no child --> stop searching
+    return 0 < depth && 1 < gradient.data() && ! target.empty();
   }
 };
 

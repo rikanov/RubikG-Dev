@@ -18,6 +18,8 @@ public:
   }
 
   void addGuide( const ProgressTask, const size_t, const PosID *, AcceptFunction af = Accept<N>::Normal );
+
+  // iteratively deepening algorithm
   Sequence startIDA( const int );
 };
 
@@ -31,20 +33,10 @@ void Progress<N>::addGuide( const ProgressTask task, const size_t size, const Po
 template< cube_size N >
 Sequence Progress<N>::startIDA( const int maxHeight )
 {
-  for ( int height = 0; height <= maxHeight; ++ height, ProgressTree<N>::increase() )
-  {
-    if ( ! ProgressTree<N>::setRoot() )
-    {
-      continue;
-    }
-    while ( ProgressTree<N>::progress() )
-    {
 
-    }
-    if ( ProgressTree<N>::found() )
-    {
-      break;
-    };
+  for ( int height = 0; height <= maxHeight && ! ProgressTree<N>::findSolution(); ++ height )
+  {
+    ProgressTree<N>::increase();
   }
 
  const Sequence result = ProgressTree<N>::resolve();
