@@ -1,10 +1,6 @@
 #test
 
 include_directories($(CMAKE_PROJECT_INCLUDE))
-include_directories(../core/include)
-include_directories(../core/template_h)
-include_directories(../CLi/include)
-include_directories(../engine/include)
 
 #find_library( cli  REQUIRED )
 #find_library( core REQUIRED )
@@ -22,9 +18,8 @@ add_library(test  test.h
                   core/u_genrotationset.cpp
                   core/u_rubik.cpp
 
-                  engine/u_snapper.cpp
-                  engine/u_progress.cpp
+                  progress/u_progress.cpp
                  )
 
 
-target_link_libraries( test cli core engine )
+target_link_libraries( test cli core containers factory )

@@ -1,4 +1,0 @@
-# rubik_ai
-
-link_directories ( ../build/engine )
-target_link_libraries( test cli core engine )

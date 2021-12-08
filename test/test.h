@@ -38,10 +38,6 @@ private:
   bool unit_CRotations()    const; // core/cube_rotations.h
   bool unit_CGenRotations() const; // core/gen_rotation_set.h
   bool unit_Rubik()         const; // core/rubik.h
-   
-   // Unit tests of engines (engine folder)
-  //---------------------------------------
-  bool unit_Snapper()       const; // engine/snapper.h
 
    // Unit tests of progress (progress folder)
   //------------------------------------------
@@ -53,8 +49,6 @@ private:
 public:
   bool testCore()   const;
   bool testEngine() const;
-  bool testAI()     const;
-  
 };
 
 #endif // ! UNIT_TEST__H

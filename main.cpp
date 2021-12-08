@@ -11,9 +11,8 @@ int main()
   
   UnitTests tests;
   bool success = true;
-  //success &= tests.testCore();
+  success &= tests.testCore();
   success &= tests.testEngine();
- // success &= tests.testAI();
 
   CLS();
   clog( "Quit." );

@@ -11,7 +11,7 @@ bool UnitTests::unit_CubeSet() const
   
   // create std::set for random CubeIDs
   std::set<int> stdSet;
-  
+
   // create bitmap for random CubeIDs
   BitMapID cubeSetID = 0;
   
@@ -42,18 +42,20 @@ bool UnitTests::unit_CubeSet() const
   {
     const CubeID state = Simplex::Random();
     tcase( "Multiplication", Simplex::GetCube( state ).toString() );
-    BitMap32ID generated( CubeSet::GetCubeSet( state, cubeSetID ) );
+    BitMap generated( CubeSet::GetCubeSet( state, cubeSetID ) );
     BitMap original( cubeSetID );
+    original.print( 24, 4 );
+    generated.print( 24, 4 );
     CubeID next;
     while( original >> next )
     {
-      clog_( (int) state, 'X', (int) next, '=', (int) Simplex::Composition( state, next ), '\t' );
-      stamp( generated & ( 1 << ( Simplex::Composition( state, next ) ) ), success );
+      clog_( (int) next, 'X', (int) state, '=', (int) Simplex::Composition( next, state ), '\t' );
+      stamp( generated.contains( Simplex::Composition( next, state ) ), success );
       // remove from generated
-      generated &= ~( 1 << ( Simplex::Composition( state, next ) ) );
+      generated.remove( Simplex::Composition( next, state ) );
     }
     clog_( "Test equal sizes: ");
-    stamp( generated == 0, success );
+   // stamp( generated.empty(), success );
     tail( "Multiplication", success );
   }
   
