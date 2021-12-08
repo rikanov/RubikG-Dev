@@ -4,18 +4,13 @@
 #include <guide_handler.h>
 
 template< cube_size N >
-class ProgressTree: private GuideHandler<N>
+class ProgressTree: protected GuideHandler<N>
 {
   using Guide = typename GuideFactory<N>::Guide;
 
   Array<Node> m_path;
 
   Node * m_current;
-
-  bool setRoot();
-  bool progress();
-  bool solved();
-  void checkLeaf();
 
 protected:
 
@@ -25,10 +20,14 @@ protected:
 
   ProgressTree();
 
+  bool set( const size_t height );
+
+  Node * root();
+  const Node * root() const;
+
   void add( Guide, const ProgressTask );
-  void increase();
-  bool findSolution();
-  Sequence resolve();
+
+  Sequence resolve( const Node * );
 };
 
 template< cube_size N >
@@ -39,58 +38,25 @@ ProgressTree<N>::ProgressTree()
 }
 
 template< cube_size N >
-bool ProgressTree<N>::setRoot()
+bool ProgressTree<N>::set( const size_t height )
 {
-  m_current   = m_path.begin();
-  m_current = m_path.begin();
+  for ( int d = 0; d <= height; ++ d )
+  {
+    m_path[d].depth = height - d;
+  }
   return GuideHandler<N>::setRoot( m_path.begin(), m_cube );
 }
 
 template< cube_size N >
-void ProgressTree<N>::increase()
+Node * ProgressTree<N>::root()
 {
-  for ( Node * P = m_path.begin(), * end = P -> end(); P <= end; ++ P )
-  {
-    ++ ( P -> depth );
-  }
+  return m_path.begin();
 }
 
 template< cube_size N >
-bool ProgressTree<N>::progress()
+const Node * ProgressTree<N>::root() const
 {
-  while ( m_current -> hasChild() )
-  {
-    // descending to leaves
-    while ( m_current -> hasChild() )
-    {
-      m_current += GuideHandler<N>::nextNode( m_current );
-    }
-
-    if ( solved() )
-    {
-      break;
-    }
-
-    // ascending while it's needed
-    while ( ! m_current -> hasChild() && m_current != m_path.begin() )
-    {
-      -- m_current;
-    }
-  }
-  return solved();
-}
-
-template< cube_size N >
-bool ProgressTree<N>::findSolution()
-{
-  return setRoot() && progress();
-}
-
-
-template< cube_size N >
-bool ProgressTree<N>::solved()
-{
-  return m_current -> gradient.contains( 0 ) && ! m_current -> target.empty();
+  return m_path.begin();
 }
 
 template< cube_size N>
@@ -98,21 +64,5 @@ void ProgressTree<N>::add( ProgressTree::Guide guide, const ProgressTask task )
 {
   GuideHandler<N>::add( guide, task );
 }
-
-template< cube_size N >
-Sequence ProgressTree<N>::resolve()
-{
-  Sequence result;
-  for ( auto P = m_path.begin(); P != m_current; ++ P )
-  {
-    result << P -> rotate;
-    P -> rotate = 0;
-    P -> depth  = 0;
-  }
-
-  m_current = m_path.begin();
-  return result;
-}
-
 
 #endif  //  ! ___PROGRESS_TREE__H

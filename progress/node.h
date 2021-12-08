@@ -27,11 +27,6 @@ struct Node
   {
   }
 
-  Node * end()
-  {
-    return this + depth;
-  }
-
   bool hasChild() const
   {
     // empty ( gradient == 0 ) and solved nodes ( gradient == 1 ) has no child --> stop searching

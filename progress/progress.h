@@ -8,6 +8,15 @@ class Progress: protected ProgressTree<N>
 {
   using Guide = typename GuideFactory<N>::Guide;
 
+  Node * m_current;
+  size_t m_height;
+
+  bool findSolution();
+  bool progress();
+  bool solved();
+
+  Sequence resolve() const;
+
 public:
 
   bool logs = true;
@@ -34,12 +43,11 @@ template< cube_size N >
 Sequence Progress<N>::startIDA( const int maxHeight )
 {
 
-  for ( int height = 0; height <= maxHeight && ! ProgressTree<N>::findSolution(); ++ height )
+  for ( m_height = 0; m_height <= maxHeight && ! findSolution(); ++ m_height )
   {
-    ProgressTree<N>::increase();
   }
 
- const Sequence result = ProgressTree<N>::resolve();
+ const Sequence result = resolve();
 
  if ( logs )
  {
@@ -47,6 +55,57 @@ Sequence Progress<N>::startIDA( const int maxHeight )
  }
 
  return result;
+}
+
+template< cube_size N >
+bool Progress<N>::progress()
+{
+  Node * root = ProgressTree<N>::root();
+  m_current   = root;
+  while ( m_current -> hasChild() )
+  {
+    // descending to leaves
+    while ( m_current -> hasChild() )
+    {
+      m_current += GuideHandler<N>::nextNode( m_current );
+    }
+
+    if ( solved() )
+    {
+      break;
+    }
+
+    // ascending while it's needed
+    while ( ! m_current -> hasChild() && m_current != root )
+    {
+      -- m_current;
+    }
+  }
+  return solved();
+}
+
+template< cube_size N >
+bool Progress<N>::findSolution()
+{
+  return ProgressTree<N>::set( m_height ) && progress();
+}
+
+
+template< cube_size N >
+bool Progress<N>::solved()
+{
+  return m_current -> gradient.contains( 0 ) && ! m_current -> target.empty();
+}
+
+template< cube_size N >
+Sequence Progress<N>::resolve() const
+{
+  Sequence result;
+  for ( const Node * P = ProgressTree<N>::root(); P != m_current; ++ P )
+  {
+    result << P -> rotate;
+  }
+  return result;
 }
 
 #endif  //  ! ___PROGRESS__H
