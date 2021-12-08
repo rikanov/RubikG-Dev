@@ -1,2 +1,0 @@
-/usr/bin/ar qc libcontainers.a CMakeFiles/containers.dir/source/sequence.cpp.o CMakeFiles/containers.dir/source/cube_set.cpp.o CMakeFiles/containers.dir/source/bitmap_set.cpp.o
-/usr/bin/ranlib libcontainers.a

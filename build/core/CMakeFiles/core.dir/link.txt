@@ -1,2 +1,0 @@
-/usr/bin/ar qc libcore.a CMakeFiles/core.dir/source/simplex.cpp.o CMakeFiles/core.dir/source/oriented_cube.cpp.o
-/usr/bin/ranlib libcore.a
