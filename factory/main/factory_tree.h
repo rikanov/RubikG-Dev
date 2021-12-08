@@ -6,7 +6,7 @@
 template< cube_size N >
 class GuideFactory
 {
-  static size_t m_index;
+  static int m_index;
   
 protected:
 public:

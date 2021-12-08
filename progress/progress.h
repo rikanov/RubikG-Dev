@@ -36,25 +36,21 @@ template< cube_size N >
 void Progress<N>::addGuide( const ProgressTask task, const size_t size, const PosID * pattern, AcceptFunction af )
 {
   Guide guide = GuideFactory<N>::getGuide( size, pattern, af );
-  ProgressTree<N>::add( guide , task );
+  ProgressTree<N>::add( guide , task);
 }
 
 template< cube_size N >
 Sequence Progress<N>::startIDA( const int maxHeight )
 {
 
-  for ( m_height = 0; m_height <= maxHeight && ! findSolution(); ++ m_height )
+  for ( m_height = 0; m_height <= maxHeight && ! findSolution(); ++ m_height );
+
+  const Sequence result = resolve();
+  if ( logs )
   {
+    CRotations<N>::Print( result );
   }
-
- const Sequence result = resolve();
-
- if ( logs )
- {
-   CRotations<N>::Print( result );
- }
-
- return result;
+  return result;
 }
 
 template< cube_size N >
@@ -89,7 +85,6 @@ bool Progress<N>::findSolution()
 {
   return ProgressTree<N>::set( m_height ) && progress();
 }
-
 
 template< cube_size N >
 bool Progress<N>::solved()

@@ -92,7 +92,7 @@ bool GuideFactory<N>::PatternAPI::valid( GroupID gid ) const
 }
 
 template< cube_size N >
-CubeID GuideFactory<N>::PatternAPI::getPrior(const Rubik<N>* Cube, const CubeID trans) const
+CubeID GuideFactory<N>::PatternAPI::getPrior(const Rubik<N>* Cube, const CubeID trans ) const
 {
   return Cube -> transpose( getPriorPos(), trans );
 }
