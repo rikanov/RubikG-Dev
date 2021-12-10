@@ -167,7 +167,7 @@ void CRotations<N>::Print( const RotID rotID )
 template< cube_size N >
 void CRotations<N>::Print( const Sequence & S )
 {
-  clog( "steps:", S.steps() );
+  clog( "steps:", S.size() );
   for( RotID n = S.start(); n; n = S.next() )
    Print( n );
 }

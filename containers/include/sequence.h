@@ -22,6 +22,7 @@ public:
   ~Sequence();
   
   void set( const RotID * rotations, size_t size );
+  void     operator =  ( const Sequence & S ) ;
   void     operator += ( const Sequence & S ) ;
   bool     operator == ( const Sequence & S ) const;
   Sequence operator +  ( const Sequence & S ) const;
@@ -30,7 +31,7 @@ public:
   void back();
   Sequence & operator << ( const RotID rotID );
   const RotID * raw() const;
-  size_t steps() const;
+  size_t size() const;
   RotID start( const size_t size = 0 ) const;
   RotID next() const;
   void reset();

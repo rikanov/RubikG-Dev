@@ -43,7 +43,7 @@ const RotID * Sequence::raw() const
   return m_rotations;
 }
 
-size_t Sequence::steps() const
+size_t Sequence::size() const
 {
   return m_stackPointer - m_rotations;
 }
@@ -89,12 +89,17 @@ void Sequence::set( const RotID * rotations, size_t size )
   }
 }
 
+void Sequence::operator = (const Sequence & S )
+{
+  set( S.raw(), S.size() );
+}
+
 bool Sequence::operator == ( const Sequence & S ) const
 {
-  if ( steps() != S.steps() )
+  if ( size() != S.size() )
     return false;
 
-  for ( size_t id = 0; id < steps(); ++ id )
+  for ( size_t id = 0; id < size(); ++ id )
   {
     if ( m_rotations[id] != S.m_rotations[id] )
     {
@@ -126,12 +131,12 @@ void Sequence::operator += ( const Sequence & S )
   }
 }
 
-void Sequence::save( const std::string & fname, const size_t size ) const
+void Sequence::save( const std::string & fname, const size_t fsize ) const
 {
   std::ofstream writeSeq( fname,std::ios::trunc );
   if ( writeSeq.is_open() )
   {
-    const size_t end = size == 0 ? steps() : size;
+    const size_t end = fsize == 0 ? size() : fsize;
     for ( size_t step = 0; step < end; ++ step )
     {
       writeSeq << (int) m_rotations[ step ] << ' ';
