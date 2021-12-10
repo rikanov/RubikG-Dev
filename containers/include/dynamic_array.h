@@ -30,6 +30,15 @@ public:
     return m_array[id];
   }
 
+  Type * operator() ( const size_t & id )
+  {
+    return begin() + id;
+  }
+
+  const Type * operator() ( const size_t & id ) const
+  {
+    return begin() + id;
+  }
   const Type * get() const
   {
     return m_array.get();

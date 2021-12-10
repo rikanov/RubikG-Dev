@@ -100,23 +100,14 @@ bool UnitTests::unit_Progress() const
     test.addGuide( _Scheduled, 2, bind );
     test.solve( 10 );
 
-    test.addGuide( _Scheduled, 2, block1 );
-    testCube.rotate( test.solve( 10 ) );
-    testCube.print();
-
-    test.addGuide( _Scheduled, 2, block2 );
+    test.addGuide( _Optional, 2, block1 );
+    test.addGuide( _Optional, 2, block2 );
+    test.addGuide( _Optional, 2, block3 );
+    test.addGuide( _Optional, 2, block4 );
     test.solve( 10 );
 
-    test.addGuide( _Scheduled, 2, block3 );
-    test.solve( 10 );
-
-    test.addGuide( _Scheduled, 2, block4 );
-    test.solve( 10 );
-
-    test.addGuide( _Scheduled, 5, cross2, Accept<3>::RotAxis( _Z ) );
-    test.solve( 10 );
-
-    test.addGuide( _Scheduled, 5, corners, Accept<3>::RotAxis( _Z ) );
+    test.addGuide( _Optional, 5, cross2, Accept<3>::RotAxis( _Z ) );
+    test.addGuide( _Optional, 5, corners, Accept<3>::RotAxis( _Z ) );
     test.solve( 10 );
   }
 

@@ -1,9 +1,8 @@
 #ifndef ___PATTERN_API_H
 #define ___PATTERN_API_H
 
-#include <cube_positions.h>
-#include <cube_rotations.h>
 #include <bool_array.h>
+#include <cube_set.h>
 #include <factories/pattern_factory.h>
 #include <rubik.h>
 
@@ -51,6 +50,11 @@ public:
   BitMapID priorRotIDs() const
   {
     return m_priorRotIDs;
+  }
+
+  BitMapID priorRotIDs( const CubeID prior ) const
+  {
+    return CubeSet::GetCubeSet( prior, m_priorRotIDs );
   }
 
   bool priorMoving( const RotID rotID ) const

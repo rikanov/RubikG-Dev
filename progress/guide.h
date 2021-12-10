@@ -19,21 +19,28 @@ class GuideFactory<N>::Guide: public GuideFactory<N>::EvaluatorAPI
   CubeID  m_transpositionFactory;
   CubeID  m_transpositionProgress;
 
+  Node    * m_node;
+  CubeID  * m_prior;
+  GroupID * m_state;
+  DistID    m_depth;
+
 public:
 
   Guide() = default;
   Guide( const size_t size, const PosID * pattern, AcceptFunction af, const size_t index, const CubeID trans = 0 );
 
-  void setAsRoot  ( Node *, const Rubik<N> * ) const;
-  void setAsChild ( Node *) const;
+  void setNode( Node * );
 
-  bool restrict( Node * ) const;
-  void expand( const Node *, BitMap &, BitMap & ) const;
+  void setAsRoot  ( const Rubik<N> * ) const;
+  void setAsChild () const;
+
+  bool restrict() const;
+  void expand  () const;
 
   CubeID  transpose( const CubeID cubeID = 0 );
   CubeID  getTransposition( const Rubik<N> * ) const;
 
-  bool solve( const Node * ) const;
+  bool solveNode() const;
 };
 
 template< cube_size N >
@@ -47,22 +54,31 @@ GuideFactory<N>::Guide::Guide( const size_t size, const PosID * pattern, AcceptF
 }
 
 template< cube_size N >
-void GuideFactory<N>::Guide::setAsRoot( Node * node, const Rubik<N> * cube ) const
+void GuideFactory<N>::Guide::setNode( Node * node )
 {
-  node -> prior[ m_index ] = PatternAPI::getPrior( cube, m_transposition );
-  node -> state[ m_index ] = PatternAPI::getState( cube, m_transposition );
+  m_node = node;
+  m_prior = node -> prior( m_index );
+  m_state = node -> state( m_index );
+  m_depth = node -> depth;
 }
 
 template< cube_size N >
-void GuideFactory<N>::Guide::setAsChild( Node * node ) const
+void GuideFactory<N>::Guide::setAsRoot( const Rubik<N> * cube ) const
 {
-  const Node * n = node - 1;
+  *m_prior = PatternAPI::getPrior( cube, m_transposition );
+  *m_state = PatternAPI::getState( cube, m_transposition );
+}
+
+template< cube_size N >
+void GuideFactory<N>::Guide::setAsChild() const
+{
+  const Node * n = m_node - 1;
   const CubeID   prior = n -> prior[ m_index ];
   const BitMapID state = n -> state[ m_index ];
   const RotID    rotID = n -> rotate;
 
-  node -> prior[ m_index ] = PatternAPI::movePrior( prior, rotID );
-  node -> state[ m_index ] = SubgroupAPI::lookUp( prior, state, rotID );
+  *m_prior = PatternAPI::movePrior( prior, rotID );
+  *m_state = SubgroupAPI::lookUp( prior, state, rotID );
 }
 
 template< cube_size N >
@@ -93,19 +109,16 @@ CubeID GuideFactory<N>::Guide::getTransposition( const Rubik<N> * cube ) const
 }
 
 template< cube_size N >
-bool GuideFactory<N>::Guide::restrict( Node * node ) const
+bool GuideFactory<N>::Guide::restrict() const
 {
-  const CubeID  prior = node -> prior[ m_index ];
-  const GroupID state = node -> state[ m_index ];
-
-  const BitMapID gradient = EvaluatorAPI::gradient( prior, state, node -> depth );
-  if ( ! node -> gradient.restrict( gradient ) )
+  const BitMapID gradient = EvaluatorAPI::gradient( *m_prior, *m_state, m_depth );
+  if ( ! m_node -> gradient.restrict( gradient ) )
   {
     return false;
   }
 
-  const BitMap32ID target = EvaluatorAPI::target( prior, state, node -> depth );
-  if ( ! node -> target.restrict( target ) )
+  const BitMap32ID target = EvaluatorAPI::target( *m_prior, *m_state, m_depth );
+  if ( ! m_node -> target.restrict( target ) )
   {
     return false;
   }
@@ -114,16 +127,17 @@ bool GuideFactory<N>::Guide::restrict( Node * node ) const
 }
 
 template< cube_size N >
-void GuideFactory<N>::Guide::expand( const Node* node, BitMap & gradient, BitMap & target ) const
+void GuideFactory<N>::Guide::expand() const
 {
-  gradient.expand( EvaluatorAPI::gradient( node -> prior[ m_index ],  node -> state[ m_index ], node -> depth ) );
-  target.expand( EvaluatorAPI::target( node -> prior[ m_index ],  node -> state[ m_index ], node -> depth ) );
+  m_node -> gradient.expand( EvaluatorAPI::gradient( *m_prior, *m_state, m_depth ) );
+  m_node -> target.expand( EvaluatorAPI::target( *m_prior, *m_state, m_depth ) );
 }
 
 template< cube_size N >
-bool GuideFactory<N>::Guide::solve( const Node * node ) const
+bool GuideFactory<N>::Guide::solveNode() const
 {
-  return EvaluatorAPI::accepted( node -> state[ m_index ] ) && node -> alignedTo( m_index );
+  const BitMap32ID targetSet = EvaluatorAPI::target( *m_prior, *m_state, m_depth );
+  return EvaluatorAPI::accepted( *m_state ) && m_node -> target.hasCommon( targetSet );
 }
 
 #endif  //  ! ___PROGRESS_GUIDE__H

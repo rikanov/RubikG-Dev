@@ -58,6 +58,11 @@ public:
     return m_dataSet == 0;
   }
   
+  bool hasCommon( const BitMapID set ) const
+  {
+    return ( m_dataSet & set ) != 0;
+  }
+
   uint8_t next();
 
   bool next( uint8_t & nextID );

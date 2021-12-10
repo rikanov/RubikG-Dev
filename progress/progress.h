@@ -11,7 +11,7 @@ class Progress: protected ProgressTree<N>
   Node * m_current;
   size_t m_height;
 
-  bool findSolution();
+  void findSolution();
   bool progress();
   bool solved() const;
 
@@ -24,7 +24,7 @@ public:
   void toSolve( const Rubik<N> & );
   void addGuide( const ProgressTask, const size_t, const PosID *, AcceptFunction af = Accept<N>::Normal );
 
-  Sequence solve( const int );
+  const Rubik<N> & solve( const int );
 };
 
 template< cube_size N >
@@ -41,7 +41,7 @@ void Progress<N>::addGuide( const ProgressTask task, const size_t size, const Po
 }
 
 template< cube_size N >
-Sequence Progress<N>::solve( const int maxHeight )
+const Rubik<N> & Progress<N>::solve( const int maxHeight )
 {
   Sequence result;
   auto searchStopped = [ this, maxHeight ]()
@@ -54,18 +54,9 @@ Sequence Progress<N>::solve( const int maxHeight )
   m_current = ProgressTree<N>::root();
   for ( m_height = 0; ! searchStopped(); ++ m_height )
   {
-    if ( findSolution() )
-    {
-      result = resolve();
-      ProgressTree<N>::setCube( result );
-      if ( logs )
-      {
-        CRotations<N>::Print( result );
-        ProgressTree<N>::showCube();
-      }
-    }
+    findSolution();
   }
-  return Sequence();
+  return ProgressTree<N>::getCube();
 }
 
 template< cube_size N >
@@ -96,9 +87,19 @@ bool Progress<N>::progress()
 }
 
 template< cube_size N >
-bool Progress<N>::findSolution()
+void Progress<N>::findSolution()
 {
-  return ProgressTree<N>::set( m_height ) && progress();
+  m_current = ProgressTree<N>::root();
+  if ( ProgressTree<N>::set( m_height ) && progress() )
+  {
+    const Sequence result = resolve();
+    ProgressTree<N>::setCube( result );
+    if ( logs )
+    {
+      CRotations<N>::Print( result );
+      ProgressTree<N>::showCube();
+    }
+  }
 }
 
 template< cube_size N >

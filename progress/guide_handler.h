@@ -30,9 +30,13 @@ protected:
   void add( Guide guide, const ProgressTask );
 
   bool setRoot ( Node * node, const Rubik<N> *, const CubeID );
-  bool nextNode( Node * node ) const;
+  bool nextNode( Node * node );
 
-  bool emptyPool( const Node * );
+  bool emptyPool( Node * );
+  bool optional() const
+  {
+    return m_optional.begin() != m_nextOptional;
+  }
 };
 
 template< cube_size N >
@@ -60,46 +64,56 @@ void GuideHandler<N>::add( GuideHandler::Guide guide, const ProgressTask task )
 template<cube_size N>
 bool GuideHandler<N>::setRoot( Node * node, const Rubik<N> * cube, const CubeID trans )
 {
-  NodeInit<N>::setAsRoot( node );
+  node -> reset();
+
+  NodeInit<N>::setAsRoot( node, optional() );
+
+  for ( auto P = m_optional.begin(); P != m_nextOptional; ++ P )
+  {
+    P -> setNode( node );
+    P -> transpose( trans );
+    P -> setAsRoot( cube );
+    P -> expand();
+  }
+
 
   for ( auto P = m_scheduled.begin(); P != m_nextScheduled; ++ P )
   {
+    P -> setNode( node );
     P -> transpose( trans );
-    P -> setAsRoot( node, cube );
-    if ( ! P -> restrict( node) )
+    P -> setAsRoot( cube );
+    if ( ! P -> restrict() )
     {
       return false;
     }
-  }
-
-  if ( m_optional.begin() == m_nextOptional )
-  {
-    return true;
-  }
-
-  BitMap gradient;
-  BitMap target;
-  for ( auto P = m_optional.begin(); P != m_nextOptional; ++ P )
-  {
-    P -> transpose( trans );
-    P -> setAsRoot( node, cube );
-    P -> expand( node, gradient, target );
   }
 
   return true;
 }
 
 template< cube_size N >
-bool GuideHandler<N>::nextNode( Node * node ) const
+bool GuideHandler<N>::nextNode( Node * node )
 {
   node -> rotate = node -> gradient.next();
   Node * next = node + 1;
-  NodeInit<N>::setAsChild( next );
+  next -> reset();
+
+  for ( auto P = m_optional.begin(); P != m_nextOptional; ++ P)
+  {
+    P -> setNode( next );
+    P -> setAsChild();
+    P -> expand();
+  }
+  if ( ! NodeInit<N>::setAsChild( next, optional() ) )
+  {
+    return false;
+  }
 
   for ( auto P = m_scheduled.begin(); P != m_nextScheduled; ++ P )
   {
-    P -> setAsChild( next );
-    if ( ! P -> restrict( next ) )
+    P -> setNode( next );
+    P -> setAsChild();
+    if ( ! P -> restrict() )
     {
       return false;
     }
@@ -108,12 +122,15 @@ bool GuideHandler<N>::nextNode( Node * node ) const
 }
 
 template< cube_size N >
-bool GuideHandler<N>::emptyPool( const Node * node )
+bool GuideHandler<N>::emptyPool( Node * node )
 {
   for ( auto P = m_optional.begin(), next = P; P != m_nextOptional; ++ next )
   {
-    if ( next -> solve( node ) )
+    next -> setNode( node );
+    if ( next -> solveNode() )
     {
+      clog(" move ");
+      *( m_nextScheduled ++ ) = *next;
       -- m_nextOptional;
     }
     else
@@ -121,7 +138,7 @@ bool GuideHandler<N>::emptyPool( const Node * node )
       *( P ++ ) = *next;
     }
   }
-  return m_optional.begin() == m_nextOptional;
+  return ! optional();
 }
 
 template< cube_size N >

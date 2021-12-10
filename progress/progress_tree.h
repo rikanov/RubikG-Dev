@@ -26,6 +26,7 @@ protected:
   void setCube( const Rubik<N> & );
   void setCube( const Sequence & );
   void showCube() const;
+  const Rubik<N> & getCube() const;
 
   void reset();
   bool setRoot();
@@ -65,6 +66,11 @@ void ProgressTree<N>::showCube() const
   m_cube.print();
 }
 
+template< cube_size N >
+const Rubik<N> & ProgressTree<N>::getCube() const
+{
+  return m_cube;
+}
 
 template< cube_size N >
 void ProgressTree<N>::reset()

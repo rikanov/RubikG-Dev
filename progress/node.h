@@ -33,11 +33,6 @@ struct Node
     return 0 < depth && 1 < gradient.data() && ! target.empty();
   }
 
-  bool alignedTo( const size_t index ) const
-  {
-    return target.contains( prior[ index ] );
-  }
-
   bool restrict( const BitMap & grad, const BitMap & targ )
   {
     return gradient.restrict( grad ) && target.restrict( targ );
@@ -47,6 +42,19 @@ struct Node
   {
     return gradient.contains( 0 ) && ! target.empty();
   }
+
+  void reset()
+  {
+    gradient = 0;
+    target = 0;
+  }
+
+  void print( const size_t N ) const
+  {
+    gradient.print_( 9 * N + 1, 3 * N );
+    target.print( 24, 4 );
+  }
+
 };
 
 #endif  //  ! ___TREE_NODE_H
