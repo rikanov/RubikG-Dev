@@ -31,6 +31,8 @@ protected:
 
   bool setRoot ( Node * node, const Rubik<N> *, const CubeID );
   bool nextNode( Node * node ) const;
+
+  bool emptyPool( const Node * );
 };
 
 template< cube_size N >
@@ -58,24 +60,30 @@ void GuideHandler<N>::add( GuideHandler::Guide guide, const ProgressTask task )
 template<cube_size N>
 bool GuideHandler<N>::setRoot( Node * node, const Rubik<N> * cube, const CubeID trans )
 {
-  NodeInit<N>::setRoot( node );
+  NodeInit<N>::setAsRoot( node );
 
   for ( auto P = m_scheduled.begin(); P != m_nextScheduled; ++ P )
   {
     P -> transpose( trans );
-    node -> prior[ P -> index() ] = P -> currentPrior( cube );
-    node -> state[ P -> index() ] = P -> currentState( cube );
+    P -> setAsRoot( node, cube );
     if ( ! P -> restrict( node) )
     {
       return false;
     }
   }
 
+  if ( m_optional.begin() == m_nextOptional )
+  {
+    return true;
+  }
+
+  BitMap gradient;
+  BitMap target;
   for ( auto P = m_optional.begin(); P != m_nextOptional; ++ P )
   {
     P -> transpose( trans );
-    node -> prior[ P -> index() ] = P -> currentPrior( cube );
-    node -> state[ P -> index() ] = P -> currentState( cube );
+    P -> setAsRoot( node, cube );
+    P -> expand( node, gradient, target );
   }
 
   return true;
@@ -84,21 +92,37 @@ bool GuideHandler<N>::setRoot( Node * node, const Rubik<N> * cube, const CubeID 
 template< cube_size N >
 bool GuideHandler<N>::nextNode( Node * node ) const
 {
-  const RotID rotID = node -> gradient.next();
-  NodeInit<N>::nextNode( node, rotID );
+  node -> rotate = node -> gradient.next();
+  Node * next = node + 1;
+  NodeInit<N>::setAsChild( next );
 
   for ( auto P = m_scheduled.begin(); P != m_nextScheduled; ++ P )
   {
-    if ( ! P -> restrictNext( node, rotID  ) )
+    P -> setAsChild( next );
+    if ( ! P -> restrict( next ) )
     {
       return false;
     }
   }
-
-  node -> rotate = rotID;
   return true;
 }
 
+template< cube_size N >
+bool GuideHandler<N>::emptyPool( const Node * node )
+{
+  for ( auto P = m_optional.begin(), next = P; P != m_nextOptional; ++ next )
+  {
+    if ( next -> solve( node ) )
+    {
+      -- m_nextOptional;
+    }
+    else
+    {
+      *( P ++ ) = *next;
+    }
+  }
+  return m_optional.begin() == m_nextOptional;
+}
 
 template< cube_size N >
 GuideHandler<N>::~GuideHandler()

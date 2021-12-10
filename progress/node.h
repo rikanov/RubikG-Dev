@@ -32,6 +32,21 @@ struct Node
     // empty ( gradient == 0 ) and solved nodes ( gradient == 1 ) has no child --> stop searching
     return 0 < depth && 1 < gradient.data() && ! target.empty();
   }
+
+  bool alignedTo( const size_t index ) const
+  {
+    return target.contains( prior[ index ] );
+  }
+
+  bool restrict( const BitMap & grad, const BitMap & targ )
+  {
+    return gradient.restrict( grad ) && target.restrict( targ );
+  }
+
+  bool solved() const
+  {
+    return gradient.contains( 0 ) && ! target.empty();
+  }
 };
 
 #endif  //  ! ___TREE_NODE_H

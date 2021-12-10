@@ -15,8 +15,8 @@ protected:
   NodeInit();
   ~NodeInit();
 
-  void setRoot( Node * node ) const;
-  void nextNode( Node * node, const RotID rotID ) const;
+  void setAsRoot ( Node * node ) const;
+  void setAsChild( Node * node ) const;
 };
 
 template< cube_size N >
@@ -27,17 +27,18 @@ NodeInit<N>::NodeInit()
 }
 
 template< cube_size N >
-void NodeInit<N>::setRoot( Node* node ) const
+void NodeInit<N>::setAsRoot( Node* node ) const
 {
   node -> gradient = m_allowedGradient[0];
   node -> target   = ( 1 << 24 ) - 1;
 }
 
 template< cube_size N >
-void NodeInit<N>::nextNode( Node* node, const RotID rotID ) const
+void NodeInit<N>::setAsChild( Node* node ) const
 {
-  ( node + 1 ) -> gradient = m_allowedGradient[ rotID ];
-  ( node + 1 ) -> target   = node -> target;
+  const RotID rotID = ( node - 1 ) -> rotate;
+  node -> gradient = m_allowedGradient[ rotID ];
+  node -> target   = ( node - 1 ) -> target;
 }
 
 

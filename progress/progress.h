@@ -13,7 +13,7 @@ class Progress: protected ProgressTree<N>
 
   bool findSolution();
   bool progress();
-  bool solved();
+  bool solved() const;
 
   Sequence resolve() const;
 
@@ -21,16 +21,17 @@ public:
 
   bool logs = true;
 
-  void toSolve( const Rubik<N> * cube )
-  {
-    ProgressTree<N>::m_cube = cube;
-  }
-
+  void toSolve( const Rubik<N> & );
   void addGuide( const ProgressTask, const size_t, const PosID *, AcceptFunction af = Accept<N>::Normal );
 
-  // iteratively deepening algorithm
-  Sequence startIDA( const int );
+  Sequence solve( const int );
 };
+
+template< cube_size N >
+void Progress<N>::toSolve( const Rubik<N> & cube )
+{
+  ProgressTree<N>::setCube( cube );
+}
 
 template< cube_size N >
 void Progress<N>::addGuide( const ProgressTask task, const size_t size, const PosID * pattern, AcceptFunction af )
@@ -40,31 +41,45 @@ void Progress<N>::addGuide( const ProgressTask task, const size_t size, const Po
 }
 
 template< cube_size N >
-Sequence Progress<N>::startIDA( const int maxHeight )
+Sequence Progress<N>::solve( const int maxHeight )
 {
-
-  for ( m_height = 0; m_height <= maxHeight && ! findSolution(); ++ m_height );
-
-  const Sequence result = resolve();
-  if ( logs )
+  Sequence result;
+  auto searchStopped = [ this, maxHeight ]()
   {
-    CRotations<N>::Print( result );
+    const bool finished =  m_current -> solved() && GuideHandler<N>::emptyPool( m_current );
+    return finished || ( m_height == maxHeight );
+  };
+
+  // iteratively deepening algorithm
+  m_current = ProgressTree<N>::root();
+  for ( m_height = 0; ! searchStopped(); ++ m_height )
+  {
+    if ( findSolution() )
+    {
+      result = resolve();
+      ProgressTree<N>::setCube( result );
+      if ( logs )
+      {
+        CRotations<N>::Print( result );
+        ProgressTree<N>::showCube();
+      }
+    }
   }
-  return result;
+  return Sequence();
 }
 
 template< cube_size N >
 bool Progress<N>::progress()
 {
-  Node * root = ProgressTree<N>::root();
-  m_current   = root;
+  const Node * root = ProgressTree<N>::root();
   while ( m_current -> hasChild() )
   {
     // descending to leaves
-    while ( m_current -> hasChild() )
+    do
     {
       m_current += GuideHandler<N>::nextNode( m_current );
     }
+    while ( m_current -> hasChild() );
 
     if ( solved() )
     {
@@ -87,9 +102,9 @@ bool Progress<N>::findSolution()
 }
 
 template< cube_size N >
-bool Progress<N>::solved()
+bool Progress<N>::solved() const
 {
-  return m_current -> gradient.contains( 0 ) && ! m_current -> target.empty();
+  return m_current -> solved();
 }
 
 template< cube_size N >

@@ -6,7 +6,7 @@
 
 
 template< cube_size N >
-int GuideFactory<N>::m_index = 0;
+size_t GuideFactory<N>::m_index = 0;
 
 template< cube_size N >
 GuideFactory<N>::GuideFactory()

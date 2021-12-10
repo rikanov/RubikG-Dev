@@ -8,6 +8,8 @@ class ProgressTree: protected GuideHandler<N>
 {
   using Guide = typename GuideFactory<N>::Guide;
 
+  Rubik<N>  m_cube;
+
   Array<Node> m_path;
 
   Node * m_current;
@@ -19,9 +21,12 @@ protected:
 
   static constexpr size_t TreeHeight = 11;
 
-  const Rubik<N> * m_cube;
-
   ProgressTree();
+
+  void setCube( const Rubik<N> & );
+  void setCube( const Sequence & );
+  void showCube() const;
+
   void reset();
   bool setRoot();
   bool set( const size_t height );
@@ -43,6 +48,25 @@ ProgressTree<N>::ProgressTree()
 }
 
 template< cube_size N >
+void ProgressTree<N>::setCube( const Rubik<N> & cube )
+{
+  m_cube = cube;
+}
+
+template< cube_size N >
+void ProgressTree<N>::setCube( const Sequence & seq )
+{
+  m_cube.rotate( seq );
+}
+
+template< cube_size N >
+void ProgressTree<N>::showCube() const
+{
+  m_cube.print();
+}
+
+
+template< cube_size N >
 void ProgressTree<N>::reset()
 {
   m_transposed = false;
@@ -56,7 +80,7 @@ bool ProgressTree<N>::set( const size_t height )
   {
     m_path[d].depth = height - d;
   }
-  return GuideHandler<N>::setRoot( m_path.begin(), m_cube, m_transposition );
+  return GuideHandler<N>::setRoot( m_path.begin(), &m_cube, m_transposition );
 }
 
 template< cube_size N >
@@ -76,7 +100,7 @@ void ProgressTree<N>::add( ProgressTree::Guide guide, const ProgressTask task )
 {
   if ( ! m_transposed && _Scheduled == task )
   {
-    m_transposition = guide.getTransposition( m_cube );
+    m_transposition = guide.getTransposition( &m_cube );
     m_transposed  = true;
   }
   GuideHandler<N>::add( guide, task );

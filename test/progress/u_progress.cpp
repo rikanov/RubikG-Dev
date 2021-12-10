@@ -25,16 +25,15 @@ bool UnitTests::unit_Progress() const
     };
 
     Rubik<2> testCube2;
+    testCube2.shuffle();
+    testCube2.print();
     Progress<2> test2;
 
-    test2.toSolve( &testCube2 );
+    test2.toSolve( testCube2 );
     test2.addGuide( _Scheduled, 4, left );
     test2.addGuide( _Scheduled, 4, right );
 
-    testCube2.shuffle();
-    testCube2.print();
-    testCube2.rotate( test2.startIDA( 10 ) );
-    testCube2.print();
+    test2.solve( 10 );
   }
 
 
@@ -95,38 +94,30 @@ bool UnitTests::unit_Progress() const
     testCube.print();
 
     Progress<3> test;
-    test.toSolve( &testCube );
+    test.toSolve( testCube );
 
     test.addGuide( _Scheduled, 5, cross );
     test.addGuide( _Scheduled, 2, bind );
-    testCube.rotate( test.startIDA( 10 ) );
-    testCube.print();
+    test.solve( 10 );
 
     test.addGuide( _Scheduled, 2, block1 );
-    testCube.rotate( test.startIDA( 10 ) );
+    testCube.rotate( test.solve( 10 ) );
     testCube.print();
 
     test.addGuide( _Scheduled, 2, block2 );
-    testCube.rotate( test.startIDA( 10 ) );
-    testCube.print();
+    test.solve( 10 );
 
     test.addGuide( _Scheduled, 2, block3 );
-    testCube.rotate( test.startIDA( 10 ) );
-    testCube.print();
+    test.solve( 10 );
 
     test.addGuide( _Scheduled, 2, block4 );
-    testCube.rotate( test.startIDA( 10 ) );
-    testCube.print();
+    test.solve( 10 );
 
     test.addGuide( _Scheduled, 5, cross2, Accept<3>::RotAxis( _Z ) );
-    testCube.rotate( test.startIDA( 10 ) );
-    testCube.print();
+    test.solve( 10 );
 
     test.addGuide( _Scheduled, 5, corners, Accept<3>::RotAxis( _Z ) );
-    testCube.rotate( test.startIDA( 10 ) );
-    testCube.print();
-
-    testCube.save( "progress3.rub" );
+    test.solve( 10 );
   }
 
   finish( "Progress", success );

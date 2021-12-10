@@ -17,9 +17,13 @@ public:
   BitMapID gradient( const CubeID prior, const GroupID state, const DistID D ) const;
   BitMap32ID target( const CubeID prior, const GroupID state, const DistID D ) const;
 
-  DistID distance( const GroupID gid ) const
+  bool accepted( const GroupID state ) const
   {
-    return this -> m_nodeChart[ gid ].level;
+    return 0 == Evaluator::m_nodeChart[ state ].level;
+  }
+  DistID distance( const GroupID state ) const
+  {
+    return Evaluator::m_nodeChart[ state ].level;
   }
 };
 
@@ -47,7 +51,7 @@ BitMapID GuideFactory<N>::EvaluatorAPI::gradient( const CubeID prior, const Grou
   {
     return ( 1ULL << ( 9 * N + 1 ) ) - 2;
   }
-  BitMapID grad = this -> m_nodeChart[state].grade[ ( dist > D ) ];
+  BitMapID grad = Evaluator::m_nodeChart[state].grade[ ( dist > D ) ];
   GenerateRotationSet<N>::Transform( grad, prior );
   return grad;
 }
@@ -64,7 +68,7 @@ BitMap32ID GuideFactory<N>::EvaluatorAPI::target( const CubeID prior, const Grou
   {
     return ( 1 << 24 ) - 1;
   }
-  const BitMap32ID aim = this -> m_nodeChart[ state ].aim[ dist > D ];
+  const BitMap32ID aim = Evaluator::m_nodeChart[ state ].aim[ dist > D ];
   return CubeSet::GetCubeSet( prior, aim );
 }
 
