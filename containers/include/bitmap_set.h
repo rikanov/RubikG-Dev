@@ -21,15 +21,16 @@ public:
     m_nextID  = 0;
   }
   
-  void restrict( const BitMap & bm )
+  bool restrict( const BitMap & bm )
   {
     m_dataSet &= bm.m_dataSet;  // set intersection
+    return 0 != m_dataSet;
   }
 
   bool restrict( const uint64_t rs )
   {
     m_dataSet &= rs; // set intersection
-    return 0 != rs;
+    return 0 != m_dataSet;
   }
 
   void expand( const BitMap & bm )
