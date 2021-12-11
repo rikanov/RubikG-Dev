@@ -26,6 +26,11 @@ class GuideHandler:  protected NodeInit<N>
 
   CubeID m_transposition;
 
+  void setOptionalRoot ( Node * ) ;
+  bool setScheduledRoot( Node * ) ;
+
+  bool setOptionalNext ( Node * ) ;
+  bool setScheduledNext( Node * ) ;
 
 protected:
 
@@ -61,6 +66,55 @@ GuideHandler<N>::GuideHandler()
 }
 
 template< cube_size N >
+void GuideHandler<N>::setOptionalRoot( Node * node )
+{
+  for ( auto P = m_optional.begin(); P != m_nextOptional; ++ P )
+  {
+    P -> setOptionalRoot( &m_cube, node, m_transposition );
+  }
+}
+
+template< cube_size N >
+bool GuideHandler<N>::setScheduledRoot( Node * node )
+{
+  for ( auto P = m_scheduled.begin(); P != m_nextScheduled; ++ P )
+  {
+    if ( ! P -> setScheduledRoot( &m_cube, node, m_transposition ) )
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
+template< cube_size N >
+bool GuideHandler<N>::setOptionalNext( Node * next )
+{
+  for ( auto P = m_optional.begin(); P != m_nextOptional; ++ P)
+  {
+    P -> setOptionalNode( next );
+  }
+  if ( ! NodeInit<N>::setAsChild( next, optional() ) )
+  {
+    return false;
+  }
+  return true;
+}
+
+template< cube_size N >
+bool GuideHandler<N>::setScheduledNext( Node * next )
+{
+  for ( auto P = m_scheduled.begin(); P != m_nextScheduled; ++ P )
+  {
+    if ( ! P -> setScheduledNode( next ) )
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
+template< cube_size N >
 void GuideHandler<N>::newTransposition()
 {
   m_transposition = 0xFF; // invalid
@@ -91,20 +145,8 @@ bool GuideHandler<N>::setRoot( Node * node )
 
   NodeInit<N>::setAsRoot( node, optional() );
 
-  for ( auto P = m_optional.begin(); P != m_nextOptional; ++ P )
-  {
-    P -> setOptionalRoot( &m_cube, node, m_transposition );
-  }
-
-  for ( auto P = m_scheduled.begin(); P != m_nextScheduled; ++ P )
-  {
-    if ( ! P -> setScheduledRoot( &m_cube, node, m_transposition ) )
-    {
-      return false;
-    }
-  }
-
-  return true;
+  setOptionalRoot( node );
+  return setScheduledRoot( node );
 }
 
 template< cube_size N >
@@ -114,24 +156,7 @@ bool GuideHandler<N>::nextNode( Node * node )
   Node * next = node + 1;
   next -> reset();
 
-  for ( auto P = m_optional.begin(); P != m_nextOptional; ++ P)
-  {
-    P -> setOptionalNode( next );
-  }
-  if ( ! NodeInit<N>::setAsChild( next, optional() ) )
-  {
-    return false;
-  }
-
-  for ( auto P = m_scheduled.begin(); P != m_nextScheduled; ++ P )
-  {
-    if ( ! P -> setScheduledNode( next ) )
-    {
-      return false;
-    }
-  }
-
-  return true;
+  return setOptionalNext( next ) && setScheduledNext( next );
 }
 
 template< cube_size N >
