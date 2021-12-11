@@ -41,7 +41,8 @@ bool NodeInit<N>::setAsChild( Node* node, const bool optional ) const
 {
   if ( optional )
   {
-    return node -> gradient.restrict( m_allowedGradient[ ( node - 1 ) -> rotate ] );
+    return node -> gradient.restrict( m_allowedGradient[ ( node - 1 ) -> rotate ] ) &&
+           node -> target.restrict(( node - 1 ) -> target );
   }
   else
   {

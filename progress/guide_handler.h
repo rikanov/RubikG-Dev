@@ -129,7 +129,6 @@ bool GuideHandler<N>::emptyPool( Node * node )
     next -> setNode( node );
     if ( next -> solveNode() )
     {
-      clog(" move ");
       *( m_nextScheduled ++ ) = *next;
       -- m_nextOptional;
     }
@@ -138,6 +137,15 @@ bool GuideHandler<N>::emptyPool( Node * node )
       *( P ++ ) = *next;
     }
   }
+
+  // a small optimization
+  if ( m_nextOptional - m_optional.begin() == 1 )
+  {
+    *( m_nextScheduled ++ ) = m_optional[0];
+    -- m_nextOptional;
+    return false;
+  }
+
   return ! optional();
 }
 

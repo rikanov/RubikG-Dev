@@ -47,7 +47,7 @@ const Rubik<N> & Progress<N>::solve( const int maxHeight )
   auto searchStopped = [ this, maxHeight ]()
   {
     const bool finished =  m_current -> solved() && GuideHandler<N>::emptyPool( m_current );
-    return finished || ( m_height == maxHeight );
+    return finished || ( m_height > maxHeight );
   };
 
   // iteratively deepening algorithm
@@ -99,6 +99,7 @@ void Progress<N>::findSolution()
       CRotations<N>::Print( result );
       ProgressTree<N>::showCube();
     }
+    m_height = 0;
   }
 }
 
