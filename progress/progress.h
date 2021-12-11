@@ -5,6 +5,7 @@
 
 template < cube_size N >
 class Progress: protected ProgressTree<N>
+              , protected GuideHandler<N>
 {
   using Guide = typename GuideFactory<N>::Guide;
 
@@ -25,19 +26,21 @@ public:
   void addGuide( const ProgressTask, const size_t, const PosID *, AcceptFunction af = Accept<N>::Normal );
 
   const Rubik<N> & solve( const int );
+
+  bool setTree();
 };
 
 template< cube_size N >
 void Progress<N>::toSolve( const Rubik<N> & cube )
 {
-  ProgressTree<N>::setCube( cube );
+  GuideHandler<N>::setCube( cube );
 }
 
 template< cube_size N >
 void Progress<N>::addGuide( const ProgressTask task, const size_t size, const PosID * pattern, AcceptFunction af )
 {
   Guide guide = GuideFactory<N>::getGuide( size, pattern, af );
-  ProgressTree<N>::add( guide , task);
+  GuideHandler<N>::add( guide , task);
 }
 
 template< cube_size N >
@@ -56,7 +59,7 @@ const Rubik<N> & Progress<N>::solve( const int maxHeight )
   {
     findSolution();
   }
-  return ProgressTree<N>::getCube();
+  return GuideHandler<N>::getCube();
 }
 
 template< cube_size N >
@@ -90,14 +93,14 @@ template< cube_size N >
 void Progress<N>::findSolution()
 {
   m_current = ProgressTree<N>::root();
-  if ( ProgressTree<N>::set( m_height ) && progress() )
+  if ( setTree() && progress() )
   {
     const Sequence result = resolve();
-    ProgressTree<N>::setCube( result );
+    GuideHandler<N>::setCube( result );
     if ( logs )
     {
       CRotations<N>::Print( result );
-      ProgressTree<N>::showCube();
+      GuideHandler<N>::showCube();
     }
     m_height = 0;
   }
@@ -118,6 +121,13 @@ Sequence Progress<N>::resolve() const
     result << P -> rotate;
   }
   return result;
+}
+
+template<cube_size N> bool Progress<N>::setTree()
+{
+  ProgressTree<N>::set( m_height );
+  Node * root = ProgressTree<N>::root();
+  return GuideHandler<N>::setRoot( root );
 }
 
 #endif  //  ! ___PROGRESS__H
