@@ -4,12 +4,6 @@
 #include <node.h>
 #include <APIs/evaluator_api.h>
 
-enum Pattern
-{
-  _Prior,
-  _State
-};
-
 template< cube_size N >
 class GuideFactory<N>::Guide: public GuideFactory<N>::EvaluatorAPI
 {
@@ -20,14 +14,10 @@ class GuideFactory<N>::Guide: public GuideFactory<N>::EvaluatorAPI
   CubeID  m_transpositionProgress;
 
   Node    * m_node;
+
   CubeID  * m_prior;
   GroupID * m_state;
   DistID    m_depth;
-
-public:
-
-  Guide() = default;
-  Guide( const size_t size, const PosID * pattern, AcceptFunction af, const size_t index, const CubeID trans = 0 );
 
   void setNode( Node * );
 
@@ -37,10 +27,22 @@ public:
   bool restrict() const;
   void expand  () const;
 
+public:
+
+  Guide() = default;
+  Guide( const size_t size, const PosID * pattern, AcceptFunction af, const size_t index, const CubeID trans = 0 );
+
   CubeID  transpose( const CubeID cubeID = 0 );
   CubeID  getTransposition( const Rubik<N> * ) const;
 
-  bool solveNode() const;
+  void setOptionalRoot ( const Rubik<N> * cube, Node * node, const CubeID trans );
+  bool setScheduledRoot( const Rubik<N> * cube, Node * node, const CubeID trans );
+
+  void setOptionalNode ( Node * next );
+  bool setScheduledNode( Node * next );
+
+
+  bool solveNode( const Node * node ) const;
 };
 
 template< cube_size N >
@@ -90,6 +92,41 @@ CubeID GuideFactory<N>::Guide::transpose( const CubeID cubeID )
 }
 
 template< cube_size N >
+void GuideFactory<N>::Guide::setOptionalRoot( const Rubik<N> * cube, Node * node, const CubeID transposition )
+{
+  setNode( node );
+  transpose( transposition );
+  setAsRoot( cube );
+  expand();
+}
+
+template< cube_size N >
+bool GuideFactory<N>::Guide::setScheduledRoot(const Rubik<N>* cube, Node* node, const CubeID transposition )
+{
+  setNode( node );
+  transpose( transposition );
+  setAsRoot( cube );
+  return restrict();
+}
+
+template< cube_size N >
+void GuideFactory<N>::Guide::setOptionalNode( Node * next)
+{
+  setNode( next );
+  setAsChild();
+  expand();
+}
+
+template< cube_size N >
+bool GuideFactory<N>::Guide::setScheduledNode( Node * next)
+{
+  setNode( next );
+  setAsChild();
+  return restrict();
+}
+
+
+template< cube_size N >
 CubeID GuideFactory<N>::Guide::getTransposition( const Rubik<N> * cube ) const
 {
   CubeID result;
@@ -134,10 +171,13 @@ void GuideFactory<N>::Guide::expand() const
 }
 
 template< cube_size N >
-bool GuideFactory<N>::Guide::solveNode() const
+bool GuideFactory<N>::Guide::solveNode( const Node * node ) const
 {
-  const BitMap32ID targetSet = EvaluatorAPI::target( *m_prior, *m_state, m_depth );
-  return EvaluatorAPI::accepted( *m_state ) && m_node -> target.hasCommon( targetSet );
+  const CubeID  prior = node -> prior[ m_index ];
+  const GroupID state = node -> state[ m_index ];
+
+  const BitMap32ID targetSet = EvaluatorAPI::target( prior, state, node -> depth );
+  return EvaluatorAPI::accepted( state ) && node -> target.hasCommon( targetSet );
 }
 
 #endif  //  ! ___PROGRESS_GUIDE__H
