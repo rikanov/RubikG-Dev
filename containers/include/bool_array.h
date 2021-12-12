@@ -1,32 +1,22 @@
 #ifndef BOOL_ARRAY__H
 #define BOOL_ARRAY__H
 
+#include <dynamic_array.h>
+
 class BoolArray
 {
-  size_t     m_arraySize;
-  uint32_t * m_boolArray;
+  Array<uint32_t> m_boolArray;
   
 public:
-  BoolArray()
-  : m_arraySize( 0 )
-  , m_boolArray( nullptr )
-  {}
+  BoolArray() = default;
   
   BoolArray( const size_t size )
-  : m_arraySize( size == 0 ? 0 : 1 + size / 32 )
-  , m_boolArray( size == 0 ? nullptr : new uint32_t [ m_arraySize ] {} )
+    : m_boolArray( size == 0 ? 0 : 1 + size / 32 )
   {}
   
-  virtual ~BoolArray()
-  {
-    delete[] m_boolArray;
-  }
-
   void resize( const size_t size )
   {
-    m_arraySize = 1 + size / 32;
-    delete[] m_boolArray;
-    m_boolArray = ( size == 0 ) ? nullptr : new uint32_t [ m_arraySize ] {};
+    m_boolArray = Array<uint32_t> ( ( size == 0 ) ? 0 : 1 + size / 32 );
   }
   
   void set( const uint32_t index, const bool t )
@@ -54,9 +44,25 @@ public:
  
   void clean()
   {
-    uint32_t * P = m_boolArray;
-    for( int id = 0; id < m_arraySize; ++ id )
+    uint32_t * P = m_boolArray.begin();
+    for( int id = 0; id < m_boolArray.size(); ++ id )
       * ( P ++ ) = 0;
+  }
+
+  bool operator == ( const BoolArray & ba ) const
+  {
+    if ( m_boolArray.size() != ba.m_boolArray.size() )
+    {
+      return false;
+    }
+    for ( size_t i = 0; i < m_boolArray.size(); ++ i )
+    {
+      if ( m_boolArray[i] != ba.m_boolArray[i] )
+      {
+        return false;
+      }
+    }
+    return true;
   }
 };
 
