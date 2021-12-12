@@ -43,6 +43,7 @@ public:
 public:
 
   class Guide;
+  class GuideBase;
   GuideFactory();
   static Guide getGuide( const size_t, const PosID *, AcceptFunction );
 

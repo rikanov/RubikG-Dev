@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 project(rubikg)
 
 include_directories( progress/ )
+include_directories( guidance/ )
 include_directories( factory/base/ )
 include_directories( factory/sub/ )
 include_directories( factory/main )
