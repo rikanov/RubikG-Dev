@@ -31,12 +31,15 @@ template< cube_size N >
 class CPositions
 {
   static constexpr size_t FrameworkSize [] = { 0, 1, 8 - 0, 27 - 1, 64 - 8, 125 - 27, 216 - 64, 341 - 125, 512 - 216, 721 - 341, 1000 - 512 }; //  N > 1 :  N ^ 3 - ( N - 2 ) ^ 3
+public:
+  static constexpr size_t AllPosIDs = FrameworkSize[ N ];
+protected:
   static CPositions * Singleton; 
   
-  PosID  m_routerPositions [ FrameworkSize [ N ] ][ 24 ] = {};
+  PosID  m_routerPositions [ AllPosIDs ][ 24 ] = {};
   PosID  m_frameworkLayer  [ 3 ] [ N ] [ N * N ]         = {}; // [axis] [layer index] [cubes] 
   PosID  m_coordToIndex    [ N ] [ N ] [ N ]             = {};
-  Layer  m_indexToCoord    [ FrameworkSize [ N ] ][ 3 ]  = {}; // [ PosID ] [ Axis ]
+  Layer  m_indexToCoord    [ AllPosIDs ][ 3 ]  = {}; // [ PosID ] [ Axis ]
   
   CPositions();
   
@@ -53,7 +56,7 @@ class CPositions
   static PosID* GetNode  ( int x, int y, int z )   { return GetNode( GetPosID ( x, y, z) );   }
 
 public:
-  static constexpr size_t GetSize ( ) { return FrameworkSize [ N ]; }
+  static constexpr size_t GetSize ( ) { return AllPosIDs; }
   
   static   void    Instance  ( void )                                  { if ( Singleton == nullptr ) new CPositions<N>;          }
   static   void    OnExit    ( void )                                  { delete Singleton; Singleton = nullptr;                  }

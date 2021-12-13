@@ -14,9 +14,9 @@ GuideFactory<N>::GuideFactory()
 }
 
 template< cube_size N >
-typename GuideFactory<N>::Guide GuideFactory<N>::getGuide( const size_t size, const PosID * pattern, AcceptFunction af )
+typename GuideFactory<N>::Guide GuideFactory<N>::getGuide( Pattern<N> pattern, AcceptFunction af )
 {
-  return Guide( size, pattern, af, m_index ++ );
+  return Guide( pattern, af, m_index ++ );
 }
 
 #endif  //  ! FACTORY_CREATE__H

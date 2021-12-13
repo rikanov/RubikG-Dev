@@ -1,6 +1,7 @@
 #ifndef FACTORY_TREE__H
 #define FACTORY_TREE__H
 
+#include <pattern.h>
 #include <acceptance.h>
 
 template< cube_size N >
@@ -10,11 +11,6 @@ class GuideFactory
   
 protected:
 public:
-  // Patch factory
- // ------------------------
-  class Pattern;
-  class PatternAPI;
-
   // Group generator factory
  // -------------------------
   class GroupGenerator;
@@ -45,7 +41,7 @@ public:
   class Guide;
   class GuideBase;
   GuideFactory();
-  static Guide getGuide( const size_t, const PosID *, AcceptFunction );
+  static Guide getGuide( Pattern<N>, AcceptFunction );
 
 };
 

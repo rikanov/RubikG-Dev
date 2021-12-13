@@ -20,7 +20,7 @@ protected:
 public:
   Subgroup();
   Subgroup( const GroupGeneratorAPI & groupGeneratorAPI );
-  Subgroup( const size_t size, const PosID * pos );
+  Subgroup( Pattern<N> pattern );
 
 };
 
@@ -39,8 +39,8 @@ GuideFactory<N>::Subgroup::Subgroup( const GroupGeneratorAPI & groupGeneratorAPI
 }
 
 template< cube_size N >
-GuideFactory<N>::Subgroup::Subgroup( const size_t size, const PosID * pos )
-  : GroupGeneratorAPI( size, pos )
+GuideFactory<N>::Subgroup::Subgroup( Pattern<N> pattern )
+  : GroupGeneratorAPI( pattern )
   , m_subgroupMap( GroupGeneratorAPI::groupSize() * AllRot + 1 )
   , m_transRotation ( 24 * CRotations<N>::AllRotIDs )
 {
@@ -74,7 +74,7 @@ void GuideFactory<N>::Subgroup::copyBlocks( const size_t pow )
 template< cube_size N >
 void GuideFactory<N>::Subgroup::createGroupCache()
 {
-  for ( size_t pos = 0; pos < PatternAPI::patternSize() - 1; ++ pos )
+  for ( size_t pos = 0; pos < Pattern<N>::size() - 1; ++ pos )
   {
     copyBlocks ( pos );
     GroupGeneratorAPI::generateBlock( pos, m_subgroupMap.begin() );

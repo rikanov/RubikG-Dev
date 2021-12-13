@@ -8,7 +8,7 @@
 template< cube_size N >
 class GuideFactory<N>::Connection
 {
-  PatternAPI   m_pattern;
+  Pattern<N> m_pattern;
   void init();
 
 protected:
@@ -16,19 +16,18 @@ protected:
 
 public:
   Connection();
-  Connection( const size_t size, const PosID * pos );
+  Connection( Pattern<N> pattern );
 };
 
 
 template< cube_size N >
 GuideFactory<N>::Connection::Connection()
-  : m_pattern()
 {
 }
 
 template< cube_size N >
-GuideFactory<N>::Connection::Connection( const size_t size, const PosID* pos )
-  : m_pattern( size, pos )
+GuideFactory<N>::Connection::Connection( Pattern<N> pattern )
+  : m_pattern ( pattern )
   , m_rotatePriorCube( CRotations<N>::AllRotIDs )
 {
   init();

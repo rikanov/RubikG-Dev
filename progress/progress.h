@@ -23,7 +23,7 @@ public:
   bool logs = true;
 
   void toSolve( const Rubik<N> & );
-  void addGuide( const ProgressTask, const size_t, const PosID *, AcceptFunction af = Accept<N>::Normal );
+  void addGuide( const ProgressTask, Pattern<N>, AcceptFunction af = Accept<N>::Normal );
 
   const Rubik<N> & solve( const int );
 
@@ -37,9 +37,9 @@ void Progress<N>::toSolve( const Rubik<N> & cube )
 }
 
 template< cube_size N >
-void Progress<N>::addGuide( const ProgressTask task, const size_t size, const PosID * pattern, AcceptFunction af )
+void Progress<N>::addGuide( const ProgressTask task, Pattern<N> pattern, AcceptFunction af )
 {
-  Guide guide = GuideFactory<N>::getGuide( size, pattern, af );
+  Guide guide = GuideFactory<N>::getGuide( pattern, af );
   GuideHandler<N>::add( guide , task);
 }
 

@@ -12,7 +12,7 @@ class GuideFactory<N>::SubgroupAPI: public GuideFactory<N>::Subgroup
 public:
   SubgroupAPI();
   SubgroupAPI( const Subgroup & sg );
-  SubgroupAPI( const size_t size, const PosID * pos );
+  SubgroupAPI( Pattern<N> pattern );
 
   GroupID lookUp( const GroupID gid, const RotID rid ) const
   {
@@ -39,8 +39,8 @@ GuideFactory<N>::SubgroupAPI::SubgroupAPI( const Subgroup & sg )
 }
 
 template< cube_size N >
-GuideFactory<N>::SubgroupAPI::SubgroupAPI( const size_t size, const PosID * pos )
-  : Subgroup( size, pos )
+GuideFactory<N>::SubgroupAPI::SubgroupAPI( Pattern<N> pattern )
+  : Subgroup( pattern )
 {
 }
 

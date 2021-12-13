@@ -14,7 +14,7 @@ protected:
 public:
   GroupGeneratorAPI();
   GroupGeneratorAPI( const GroupGenerator & groupGenerator );
-  GroupGeneratorAPI( const size_t size, const PosID * pos );
+  GroupGeneratorAPI( Pattern<N> pattern );
   size_t groupSize() const;
 };
 
@@ -26,8 +26,8 @@ GuideFactory<N>::GroupGeneratorAPI::GroupGeneratorAPI()
 }
 
 template< cube_size N >
-GuideFactory<N>::GroupGeneratorAPI::GroupGeneratorAPI( const size_t size, const PosID * pos )
-  : GroupGenerator( size, pos )
+GuideFactory<N>::GroupGeneratorAPI::GroupGeneratorAPI( Pattern<N> pattern )
+  : GroupGenerator( pattern )
 {
 }
 

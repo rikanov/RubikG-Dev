@@ -19,7 +19,7 @@ public:
     m_boolArray = Array<uint32_t> ( ( size == 0 ) ? 0 : 1 + size / 32 );
   }
   
-  void set( const uint32_t index, const bool t )
+  void set( const uint32_t index, const bool t = true )
   {
     if ( t )
       m_boolArray[ index / 32 ] |=  ( 1ULL << ( index % 32 ) );
@@ -32,7 +32,7 @@ public:
     return m_boolArray[ index / 32 ] & ( 1ULL << ( index % 32 ) );
   }
   
-  inline bool operator() ( const uint32_t index ) const
+  inline bool operator[] ( const uint32_t index ) const
   {
     return get( index );
   }

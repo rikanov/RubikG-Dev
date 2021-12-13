@@ -12,7 +12,7 @@ class GuideFactory<N>::EvaluatorAPI: public GuideFactory<N>::Evaluator
 
 public:
   EvaluatorAPI();
-  EvaluatorAPI( const size_t size, const PosID * pos, AcceptFunction af = Accept<N>::Normal );
+  EvaluatorAPI( Pattern<N> pattern, AcceptFunction af = Accept<N>::Normal );
 
   BitMapID gradient( const CubeID prior, const GroupID state, const DistID D ) const;
   BitMap32ID target( const CubeID prior, const GroupID state, const DistID D ) const;
@@ -34,8 +34,8 @@ GuideFactory<N>::EvaluatorAPI::EvaluatorAPI()
 }
 
 template< cube_size N >
-GuideFactory<N>::EvaluatorAPI::EvaluatorAPI( const size_t size, const PosID * pos, AcceptFunction af )
-  : Evaluator( size, pos, af )
+GuideFactory<N>::EvaluatorAPI::EvaluatorAPI( Pattern<N> pattern, AcceptFunction af )
+  : Evaluator( pattern, af )
 {
 }
 

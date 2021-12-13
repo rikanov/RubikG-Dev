@@ -23,7 +23,7 @@ class GuideFactory<N>::GuideBase: public GuideFactory<N>::EvaluatorAPI
 protected:
 
   GuideBase() = default;
-  GuideBase( const size_t size, const PosID * pattern, AcceptFunction af, const size_t index, const CubeID trans = 0 );
+  GuideBase(Pattern<N> pattern, AcceptFunction af, const size_t index, const CubeID trans );
 
   size_t index() const;
 
@@ -47,8 +47,8 @@ protected:
 };
 
 template< cube_size N >
-GuideFactory<N>::GuideBase::GuideBase( const size_t size, const PosID * pattern, AcceptFunction af, const size_t index, const CubeID trans )
-  : EvaluatorAPI( size, pattern, af )
+GuideFactory<N>::GuideBase::GuideBase( Pattern<N> pattern, AcceptFunction af, const size_t index, const CubeID trans )
+  : EvaluatorAPI( pattern, af )
   , m_index( index )
   , m_transposition(0)
   , m_transpositionFactory( trans )
@@ -74,8 +74,8 @@ void GuideFactory<N>::GuideBase::setNode( Node * node )
 template< cube_size N >
 void GuideFactory<N>::GuideBase::setAsRoot( const Rubik<N> * cube ) const
 {
-  *m_prior = PatternAPI::getPrior( cube, m_transposition );
-  *m_state = PatternAPI::getState( cube, m_transposition );
+  *m_prior = Pattern<N>::getPrior( cube, m_transposition );
+  *m_state = Pattern<N>::getState( cube, m_transposition );
 }
 
 template< cube_size N >
@@ -86,7 +86,7 @@ void GuideFactory<N>::GuideBase::setAsChild() const
   const BitMapID state = n -> state[ m_index ];
   const RotID    rotID = n -> rotate;
 
-  *m_prior = PatternAPI::movePrior( prior, rotID );
+  *m_prior = Pattern<N>::movePrior( prior, rotID );
   *m_state = SubgroupAPI::lookUp( prior, state, rotID );
 }
 
@@ -126,7 +126,7 @@ void GuideFactory<N>::GuideBase::expand() const
 template< cube_size N >
 DistID GuideFactory<N>::GuideBase::distanceOf( const Rubik<N> * cube ) const
 {
-  return EvaluatorAPI::distance( PatternAPI::getState( cube, m_transposition ) );
+  return EvaluatorAPI::distance( Pattern<N>::getState( cube, m_transposition ) );
 }
 
 #endif  //  ! ___GUIDE_BASE__H

@@ -2,10 +2,13 @@
 #define ___DYNAMIC_ARRAY__H
 
 #include <memory>
+#include <text_output.h>
+#include <initializer_list>
 
 template<class Type>
 class Array
 {
+protected:
   size_t                  m_size;
   std::shared_ptr<Type[]> m_array;
 
@@ -20,14 +23,23 @@ public:
     , m_array( new Type [size] {} )
     {}
 
-  Type & operator[]( const size_t & id )
+  Type & get( const size_t & id )
   {
     return m_array[id];
   }
 
-  const Type & operator[]( const size_t & id ) const
+  const Type & get( const size_t & id ) const
   {
     return m_array[id];
+  }
+  Type & operator[]( const size_t & id )
+  {
+    return get( id );
+  }
+
+  const Type & operator[]( const size_t & id ) const
+  {
+    return get( id );
   }
 
   Type * operator() ( const size_t & id )
@@ -74,6 +86,24 @@ public:
   const Type * end() const
   {
     return m_array.get() + m_size;
+  }
+
+  void init( const size_t size, const Type * data )
+  {
+    if ( m_size != size )
+    {
+      m_size = size;
+      m_array = std::shared_ptr<Type[]> ( new Type[size] {} );
+    }
+    for ( size_t i = 0; i < size; ++ i )
+    {
+      m_array[i] = data[i];
+    }
+  }
+
+  void init( const std::initializer_list<Type> & list )
+  {
+    init( list.size(), list.begin() );
   }
 };
 

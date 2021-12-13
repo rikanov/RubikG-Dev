@@ -4,7 +4,7 @@
 #include <factory_tree.h>
 
 template< cube_size N >
-class GuideFactory<N>::GroupGenerator: public GuideFactory<N>::PatternAPI
+class GuideFactory<N>::GroupGenerator: protected Pattern<N>
 {
   static constexpr size_t AllRot = CRotations<N>::AllRotIDs;
   
@@ -16,21 +16,20 @@ protected:
   Array<GroupID> m_groupGenerators;
 
   GroupGenerator();
-  GroupGenerator( const size_t size, const PosID * pos );
+  GroupGenerator( Pattern<N> pattern );
 };
 
 template< cube_size N >
 GuideFactory<N>::GroupGenerator::GroupGenerator()
-  : PatternAPI()
-  , m_groupSize( 0 )
+  : m_groupSize( 0 )
 {
 }
 
 template< cube_size N >
-GuideFactory<N>::GroupGenerator::GroupGenerator( const size_t size, const PosID* pos )
-  : PatternAPI( size, pos )
-  , m_groupSize( pow24( PatternAPI::patternSize() - 1 ) )
-  , m_groupGenerators( AllRot * 24 * PatternAPI::patternSize() )
+GuideFactory<N>::GroupGenerator::GroupGenerator( Pattern<N> pattern )
+  : Pattern<N>( pattern )
+  , m_groupSize( pow24( Pattern<N>::size() - 1 ) )
+  , m_groupGenerators( AllRot * 24 * Pattern<N>::size() )
 {
   init();
 }
@@ -38,7 +37,7 @@ GuideFactory<N>::GroupGenerator::GroupGenerator( const size_t size, const PosID*
 template< cube_size N >
 void GuideFactory<N>::GroupGenerator::init()
 {
-  for ( size_t pos = 0; pos < PatternAPI::patternSize(); ++ pos )
+  for ( size_t pos = 0; pos < Pattern<N>::size(); ++ pos )
   {
     baseCube( pos );
   }
@@ -54,7 +53,7 @@ void GuideFactory<N>::GroupGenerator::baseCube( const size_t pos )
     {
       ++ rid;
       CubeID res;
-      if ( layer == CPositions<N>::GetLayer( this -> getPosID( pos ), cid, axis ) )
+      if ( layer == CPositions<N>::GetLayer( Pattern<N>::get( pos ), cid, axis ) )
       {
         res = Simplex::Tilt( cid, axis, turn );
       }

@@ -11,7 +11,7 @@ class GuideFactory<N>::RootSetAPI: public GuideFactory<N>::RootSet
 public:
   RootSetAPI();
   RootSetAPI( const RootSet & rs );
-  RootSetAPI( const size_t size, const PosID * pos, AcceptFunction af = Accept<N>::Normal );
+  RootSetAPI( Pattern<N> pattern, AcceptFunction af = Accept<N>::Normal );
 
   void toQeueu( Qeueu & qeu ) const;
   void setRoots( std::function<void( const GroupID )> set ) const;
@@ -29,8 +29,8 @@ GuideFactory<N>::RootSetAPI::RootSetAPI()
 }
 
 template< cube_size N >
-GuideFactory<N>::RootSetAPI::RootSetAPI( const size_t size, const PosID * pos, AcceptFunction af )
-  : RootSet( size, pos, af )
+GuideFactory<N>::RootSetAPI::RootSetAPI( Pattern<N> pattern, AcceptFunction af )
+  : RootSet( pattern, af )
 {
 }
 

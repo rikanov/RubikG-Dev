@@ -3,15 +3,15 @@
 
 #include <dynamic_array.h>
 #include <bitmap_set.h>
-#include <APIs/pattern_api.h>
+#include <factory_tree.h>
+#include <pattern.h>
 
 template< cube_size N >
 class GuideFactory<N>::RootSet
 {
-  PatternAPI       m_pattern;
-  AcceptFunction   m_accept;
-  GroupID *        m_nextRoot;
-
+  AcceptFunction m_accept;
+  GroupID *      m_nextRoot;
+  Pattern<N>     m_pattern;
   void init( AcceptFunction af );
   void addSolution( const CubeID invPrior, const size_t id, GroupID gid );
   void resolveAcceptance();
@@ -24,16 +24,16 @@ protected:
   Array<GroupID> m_setOfRoots;
 
   RootSet() = default;
-  RootSet( const size_t size, const PosID * pos, AcceptFunction af = Accept<N>::Normal );
+  RootSet( Pattern<N> pattern, AcceptFunction af = Accept<N>::Normal );
 };
 
 
 template< cube_size N >
-GuideFactory<N>::RootSet::RootSet( const size_t size, const PosID * pos, AcceptFunction af )
-  : m_pattern( size, pos )
+GuideFactory<N>::RootSet::RootSet( Pattern<N> pattern, AcceptFunction af )
+  : m_pattern( pattern )
   , m_numberOfRoots( 0 )
   , m_allowedPriors( 0 )
-  , m_setOfRoots( 1 << ( 2 * size ) )
+  , m_setOfRoots( 1 << ( 2 * pattern.size() ) )
 {
   init( af );
 }
@@ -52,7 +52,7 @@ void GuideFactory<N>::RootSet::init( AcceptFunction af )
 template< cube_size N >
 void GuideFactory<N>::RootSet::addSolution( const CubeID invPrior, const size_t id, GroupID gid )
 {
-  BitMap cubeSet( m_accept( m_pattern.getPosID( id ) ) );
+  BitMap cubeSet( m_accept( m_pattern.get( id ) ) );
   for ( CubeID next; cubeSet >> next; )
   {
     next = Simplex::Composition( next, invPrior );
@@ -73,7 +73,7 @@ void GuideFactory<N>::RootSet::resolveAcceptance()
   BitMap cubeSet( m_allowedPriors );
   for ( CubeID prior; cubeSet >> prior; )
   {
-    addSolution( Simplex::Inverse( prior ), m_pattern.patternSize() - 2, 0 );
+    addSolution( Simplex::Inverse( prior ), m_pattern.size() - 2, 0 );
   }
 }
 

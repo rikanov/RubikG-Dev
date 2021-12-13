@@ -28,7 +28,7 @@ protected:
   Array<NodeChart> m_nodeChart;
 
   Evaluator();
-  Evaluator( const size_t size, const PosID * pos, AcceptFunction af = Accept<N>::Normal );
+  Evaluator( Pattern<N> pattern, AcceptFunction af = Accept<N>::Normal );
 
 };
 
@@ -41,10 +41,10 @@ GuideFactory<N>::Evaluator::Evaluator()
 }
 
 template< cube_size N >
-GuideFactory<N>::Evaluator::Evaluator( const size_t size, const PosID * pos, AcceptFunction af  )
-  : RootSetAPI    ( size, pos, af )
-  , ConnectionAPI ( size, pos )
-  , SubgroupAPI   ( size, pos )
+GuideFactory<N>::Evaluator::Evaluator( Pattern<N> pattern, AcceptFunction af )
+  : RootSetAPI    ( pattern, af )
+  , ConnectionAPI ( pattern )
+  , SubgroupAPI   ( pattern )
   , m_nodeChart( SubgroupAPI::groupSize() )
 {
   init();
@@ -109,7 +109,7 @@ void GuideFactory<N>::Evaluator::connectEqualNodeCharts()
   const size_t size = SubgroupAPI::groupSize() - 1;
   for ( GroupID gid = 0; gid < size; ++ gid )
   {
-    if ( ! PatternAPI::valid( gid ) )
+    if ( ! Pattern<N>::valid( gid ) )
       continue;
     NodeChart & node = m_nodeChart[gid];
     all_rotid( rotID, N )

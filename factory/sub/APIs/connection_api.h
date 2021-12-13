@@ -13,7 +13,7 @@ class GuideFactory<N>::ConnectionAPI: public GuideFactory<N>::Connection
 public:
   ConnectionAPI();
   ConnectionAPI( const Connection & cr );
-  ConnectionAPI( const size_t size, const PosID * pos );
+  ConnectionAPI( Pattern<N> pattern );
 
   void connectIfChild( NodeChart & , const NodeChart &, const RotID ) const;
   void connectOnSameLevel( NodeChart & , NodeChart &, const RotID ) const ;
@@ -28,8 +28,8 @@ GuideFactory<N>::ConnectionAPI::ConnectionAPI()
 }
 
 template< cube_size N >
-GuideFactory<N>::ConnectionAPI::ConnectionAPI( const size_t size, const PosID * pos )
-  : Connection( size, pos )
+GuideFactory<N>::ConnectionAPI::ConnectionAPI( Pattern<N> pattern )
+  : Connection( pattern )
 {
 }
 template< cube_size N >

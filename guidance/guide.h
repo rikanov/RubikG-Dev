@@ -9,7 +9,7 @@ class GuideFactory<N>::Guide: protected GuideFactory<N>::GuideBase
 public:
 
   Guide() = default;
-  Guide( const size_t size, const PosID * pattern, AcceptFunction af, const size_t index, const CubeID trans = 0 );
+  Guide( Pattern<N> pattern, AcceptFunction af, const size_t index, const CubeID trans = 0 );
 
   CubeID  getTransposition( const Rubik<N> * ) const;
 
@@ -24,8 +24,8 @@ public:
 };
 
 template< cube_size N >
-GuideFactory<N>::Guide::Guide( const size_t size, const PosID * pattern, AcceptFunction af, const size_t index, const CubeID trans )
-  : GuideBase( size, pattern, af, index, trans )
+GuideFactory<N>::Guide::Guide( Pattern<N> pattern, AcceptFunction af, const size_t index, const CubeID trans )
+  : GuideBase( pattern, af, index, trans )
 {
 }
 
@@ -39,7 +39,7 @@ void GuideFactory<N>::Guide::setOptionalRoot( const Rubik<N> * cube, Node * node
 }
 
 template< cube_size N >
-bool GuideFactory<N>::Guide::setScheduledRoot(const Rubik<N>* cube, Node* node, const CubeID transposition )
+bool GuideFactory<N>::Guide::setScheduledRoot(const Rubik<N> * cube, Node* node, const CubeID transposition )
 {
   GuideBase::setNode( node );
   GuideBase::transpose( transposition );
@@ -70,7 +70,7 @@ CubeID GuideFactory<N>::Guide::getTransposition( const Rubik<N> * cube ) const
   DistID dist = GuideBase::distanceOf( cube );
   all_cubeid( cid )
   {
-    const GroupID nextState = PatternAPI::getState( cube, cid );
+    const GroupID nextState = Pattern<N>::getState( cube, cid );
     const DistID  nextDist  = EvaluatorAPI::distance( nextState );
     if ( nextDist < dist )
     {
