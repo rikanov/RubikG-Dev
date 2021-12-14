@@ -2,6 +2,7 @@
 #define ROTATION_SEQUENCE__H
 
 #include <base_types.h>
+#include <dynamic_array.h>
 
 class Sequence
 {
@@ -10,8 +11,9 @@ public:
   static constexpr size_t StackSize = 2000;
 
 private:
-  RotID * m_rotations;
-  RotID * m_stackPointer;
+  Array<RotID>   m_rotations;
+  RotID        * m_stackPointer;
+
   mutable const RotID * m_nextRotation;
   mutable const RotID * m_endSubsequence;
 
@@ -19,7 +21,6 @@ public:
   Sequence();
   Sequence( const size_t );
   Sequence( const RotID * rotations, const size_t size );
-  ~Sequence();
   
   void set( const RotID * rotations, size_t size );
   void     operator =  ( const Sequence & S ) ;

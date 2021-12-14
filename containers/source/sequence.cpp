@@ -4,20 +4,20 @@
 #include <fstream>
 
 Sequence::Sequence()
-  : m_rotations( new RotID [ StackSize ] {} )
-  , m_stackPointer( m_rotations )
+  : m_rotations( StackSize )
+  , m_stackPointer( m_rotations.begin() )
 {
 }
 
 Sequence::Sequence( const size_t size)
-  : m_rotations( new RotID [size] {} )
-  , m_stackPointer( m_rotations )
+  : m_rotations( size )
+  , m_stackPointer( m_rotations.begin() )
 {
 }
 
 Sequence::Sequence(const RotID* rotations, const size_t size)
-  : m_rotations( new RotID [ StackSize ] {} )
-  , m_stackPointer( m_rotations )
+  : m_rotations( StackSize )
+  , m_stackPointer( m_rotations.begin() )
 {
   set( rotations, size );
 }
@@ -40,18 +40,18 @@ Sequence & Sequence::operator << ( const RotID rotID )
 
 const RotID * Sequence::raw() const
 {
-  return m_rotations;
+  return m_rotations.begin();
 }
 
 size_t Sequence::size() const
 {
-  return m_stackPointer - m_rotations;
+  return m_stackPointer - m_rotations.begin();
 }
 
 RotID Sequence::start( const size_t size ) const
 {
-  m_nextRotation = m_rotations;
-  m_endSubsequence = 0 == size ? m_stackPointer : m_rotations + size;
+  m_nextRotation = m_rotations.begin();
+  m_endSubsequence = 0 == size ? m_stackPointer : m_rotations( size );
   return next();
 }
 
@@ -62,18 +62,18 @@ RotID Sequence::next() const
 
 void Sequence::reset()
 {
-  m_stackPointer = m_rotations;
+  m_stackPointer = m_rotations.begin();
 }
 
 void Sequence::setState( const size_t size )
 {
-  m_stackPointer = m_rotations + size;
+  m_stackPointer = m_rotations( size );
 }
 
 Sequence Sequence::reverse() const
 {
   Sequence reversed;
-  for ( const RotID * rot = m_stackPointer - 1; rot >= m_rotations; -- rot )
+  for ( const RotID * rot = m_stackPointer - 1; rot >= m_rotations.begin(); -- rot )
   {
     reversed << *rot;
   }
@@ -82,7 +82,7 @@ Sequence Sequence::reverse() const
 
 void Sequence::set( const RotID * rotations, size_t size )
 {
-  m_stackPointer = m_rotations;
+  m_stackPointer = m_rotations.begin();
   for( size_t id = 0; id < size; ++ id )
   {
     *( m_stackPointer++ ) = rotations[id];
@@ -153,7 +153,7 @@ void Sequence::load( const std::string & fname )
 {
   reset();
   std::ifstream readSeq( fname );
-  m_stackPointer = m_rotations;
+  m_stackPointer = m_rotations.begin();
   if ( readSeq.is_open() )
   {
     for( int next = 0;  readSeq >> next; )
@@ -167,9 +167,4 @@ void Sequence::load( const std::string & fname )
     clog( Color::red, Color::flash, "ERR:", fname, "could not be open for writing.", Color::off );
   }
   
-}
-
-Sequence::~Sequence()
-{
-  delete[] m_rotations;
 }
