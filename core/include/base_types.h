@@ -177,9 +177,12 @@ inline char Token( Orient F )
 #define all_rotid( rotID, N ) \
    for ( RotID rotID = 1; rotID < CRotations<N>::AllRotIDs; ++ rotID )
 
-#define for_vector( x, y, z, N )   \
-   for ( Layer x = 0; x < N; ++x )  \
-     for ( Layer y = 0; y < N; ++y ) \
-        for ( Layer z = 0; z < N; ++z )
+#define all_posid( posID, N ) \
+   for ( PosID posID = 0; posID < CPositions<N>::AllPosIDs; ++ posID )
 
+#define for_vector( x, y, z, N )    \
+   for ( Layer x = 0; x < N; ++x )   \
+     for ( Layer y = 0; y < N; ++y )  \
+        for ( Layer z = 0; z < N; ++z )\
+         if ( x == 0 || x == N - 1 || y == 0 || y == N - 1 || z == 0 || z == N - 1 )
 #endif

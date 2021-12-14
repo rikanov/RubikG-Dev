@@ -122,23 +122,15 @@ void CPositions<N>::initIndices()
   idX [N] = {}, idY [N] = {}, idZ [N] = {}; // slice indices
   for_vector ( x, y, z, N )
   {
-    const bool innerCube = x != 0 && x != N - 1 && y != 0 && y != N - 1 && z != 0 && z != N - 1 ;
-    if ( !innerCube )
-    {
-      m_frameworkLayer [ _X ][ x ][ idX[x] ++ ] = index;
-      m_frameworkLayer [ _Y ][ y ][ idY[y] ++ ] = index;
-      m_frameworkLayer [ _Z ][ z ][ idZ[z] ++ ] = index;
-      
-      m_indexToCoord [ index ][ _X ] = x;
-      m_indexToCoord [ index ][ _Y ] = y;
-      m_indexToCoord [ index ][ _Z ] = z;
-      
-      m_coordToIndex [ x ][ y ][ z ] = index++;
-    }
-    else
-    {
-      m_coordToIndex[ x ][ y ][ z ] = 0xFF;
-    }
+    m_frameworkLayer [ _X ][ x ][ idX[x] ++ ] = index;
+    m_frameworkLayer [ _Y ][ y ][ idY[y] ++ ] = index;
+    m_frameworkLayer [ _Z ][ z ][ idZ[z] ++ ] = index;
+
+    m_indexToCoord [ index ][ _X ] = x;
+    m_indexToCoord [ index ][ _Y ] = y;
+    m_indexToCoord [ index ][ _Z ] = z;
+
+    m_coordToIndex [ x ][ y ][ z ] = index++;
   } // GetPosID() is fully working now
 }
 
