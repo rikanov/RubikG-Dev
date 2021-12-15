@@ -10,7 +10,7 @@ class ProgressTree
 
 protected:
 
-  static constexpr size_t TreeHeight = 20;
+  static constexpr size_t TreeHeight = 200;
 
   ProgressTree();
 

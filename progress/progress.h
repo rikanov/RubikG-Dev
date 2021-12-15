@@ -2,14 +2,17 @@
 #define ___PROGRESS__H
 
 #include <progress_tree.h>
+#include <scheduler.h>
 
 template < cube_size N >
 class Progress: protected ProgressTree<N>
               , protected GuideHandler<N>
+              , protected Scheduler<N>
 {
   using Guide = typename GuideFactory<N>::Guide;
 
   Node * m_current;
+  Node * m_root;
   size_t m_height;
 
   void findSolution();
@@ -19,7 +22,7 @@ class Progress: protected ProgressTree<N>
   Sequence resolve() const;
 
 public:
-
+  Progress(): m_root( ProgressTree<N>::root() ) {}
   bool logs = true;
 
   void toSolve( const Rubik<N> & );
@@ -65,7 +68,6 @@ const Rubik<N> & Progress<N>::solve( const int maxHeight )
 template< cube_size N >
 bool Progress<N>::progress()
 {
-  const Node * root = ProgressTree<N>::root();
   while ( m_current -> hasChild() )
   {
     // descending to leaves
@@ -81,7 +83,7 @@ bool Progress<N>::progress()
     }
 
     // ascending while it's needed
-    while ( ! m_current -> hasChild() && m_current != root )
+    while ( ! m_current -> hasChild() && m_current != m_root )
     {
       -- m_current;
     }
@@ -126,8 +128,7 @@ Sequence Progress<N>::resolve() const
 template<cube_size N> bool Progress<N>::setTree()
 {
   ProgressTree<N>::set( m_height );
-  Node * root = ProgressTree<N>::root();
-  return GuideHandler<N>::setRoot( root );
+  return GuideHandler<N>::setRoot( m_root );
 }
 
 #endif  //  ! ___PROGRESS__H
