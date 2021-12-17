@@ -35,7 +35,7 @@ public:
 template< cube_size N >
 void Progress<N>::toSolve( const Rubik<N> & cube )
 {
-  GuideManager<N>::setCube( cube );
+  GuideManager<N>::m_cube = cube;
 }
 
 template< cube_size N >
@@ -61,7 +61,7 @@ const Rubik<N> & Progress<N>::solve( const int maxHeight )
   {
     findSolution();
   }
-  return GuideManager<N>::getCube();
+  return GuideManager<N>::m_cube;
 }
 
 template< cube_size N >
@@ -97,11 +97,11 @@ void Progress<N>::findSolution()
   if ( setTree() && progress() )
   {
     const Sequence result = resolve();
-    GuideManager<N>::setCube( result );
+    GuideManager<N>::m_cube.rotate( result );
     if ( logs )
     {
       CRotations<N>::Print( result );
-      GuideManager<N>::showCube();
+      GuideManager<N>::m_cube.print();
     }
     m_height = 0;
   }
