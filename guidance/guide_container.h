@@ -17,8 +17,18 @@ class GuideContainer: protected Stack< typename GuideFactory<N>::Guide >
 public:
   GuideContainer();
   void add( const Guide & );
-  void next();
-  void revert();
+  void nextSolution();
+
+  void extend( Guides &, const size_t ) const;
+
+  const Guide * begin() const
+  {
+    return Guides::begin();
+  }
+  const Guide * end() const
+  {
+    return Guides::end();
+  }
 };
 
 template< cube_size N >
@@ -36,15 +46,16 @@ void GuideContainer<N>::add( const Guide & guide )
 }
 
 template< cube_size N >
-void GuideContainer<N>::next()
+void GuideContainer<N>::nextSolution()
 {
-  Sequence::push( Guides::next() );
+  Sequence::push( Guides::end() );
 }
 
 template< cube_size N >
-void GuideContainer<N>::revert()
+void GuideContainer<N>::extend( GuideContainer::Guides& guides, const size_t step ) const
 {
-  Guides::set( Sequence::pop() );
+  guides.push( Sequence::get( step ), Sequence::get( step + 1 ) );
 }
+
 
 #endif  //  ! ___GUIDE_CONTAINER__H

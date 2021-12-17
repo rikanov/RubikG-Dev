@@ -4,31 +4,43 @@
 #include <dynamic_array.h>
 
 template< typename Type >
-class Stack: protected Array<Type>
+class Stack: public Array<Type>
 {
 
   Type * m_push;
 
 protected:
-  Type * next()
+  bool set( Type * start )
   {
-    return m_push;
-  }
-
-  void set( Type * start )
-  {
-    m_push = start;
+    if( start <= m_push )
+    {
+      m_push = start;
+      return true;
+    }
+    else
+    {
+      return false;
+    }
   }
 
 public:
   Stack( const size_t size )
     : Array<Type>( size )
-    , m_push( Array<Type>::begin() )
-    {}
+    {
+      reset();
+    }
 
   void push( const Type & next )
   {
     *( m_push ++ ) = next;
+  }
+
+  void push( const Type * beg, const Type * end )
+  {
+    while ( beg != end )
+    {
+      push( *( beg ++ ) );
+    }
   }
 
   Type top() const
@@ -36,9 +48,14 @@ public:
     return *( m_push - 1 );
   }
 
-  Type pop() const
+  Type pop()
   {
     return *( -- m_push );
+  }
+
+  void pop( const size_t drop )
+  {
+    m_push -= drop;
   }
 
   bool empty() const
@@ -46,5 +63,34 @@ public:
     return Array<Type>::begin() == m_push;
   }
 
+  size_t size() const
+  {
+    return m_push - Array<Type>::begin();
+  }
+
+  Type * begin()
+  {
+    return Array<Type>::begin();
+  }
+
+  Type * end()
+  {
+    return Array<Type>::end();
+  }
+
+  const Type * begin() const
+  {
+    return Array<Type>::begin();
+  }
+
+  const Type * end() const
+  {
+    return Array<Type>::end();
+  }
+
+  void reset()
+  {
+    m_push = Array<Type>::begin();
+  }
 };
 #endif  //  ! ___DYNAMIC_STACK__H

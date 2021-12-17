@@ -3,6 +3,13 @@
 
 #include <guide_base.h>
 
+
+enum ProgressTask
+{
+  _Scheduled,
+  _Optional
+};
+
 template< cube_size N >
 class GuideFactory<N>::Guide: protected GuideFactory<N>::GuideBase
 {

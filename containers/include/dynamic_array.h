@@ -23,6 +23,15 @@ public:
     , m_array( new Type [size] {} )
     {}
 
+  void fill( const Type * beg, const Type * end )
+  {
+    m_array = std::shared_ptr<Type[]> ( new Type [ end - beg ] );
+    for ( size_t id = 0; beg != end; ++ id, ++ beg )
+    {
+      m_array[id] = *beg;
+    }
+  }
+
   Type & get( const size_t & id )
   {
     return m_array[id];
