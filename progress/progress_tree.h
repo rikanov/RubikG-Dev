@@ -1,7 +1,7 @@
 #ifndef ___PROGRESS_TREE__H
 #define ___PROGRESS_TREE__H
 
-#include <guide_handler.h>
+#include <node.h>
 
 template< cube_size N >
 class ProgressTree
@@ -19,8 +19,6 @@ protected:
 
   Node * root();
   const Node * root() const;
-
-  Sequence resolve( const Node * );
 };
 
 template< cube_size N >

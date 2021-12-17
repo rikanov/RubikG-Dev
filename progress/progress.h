@@ -2,11 +2,12 @@
 #define ___PROGRESS__H
 
 #include <progress_tree.h>
-#include <scheduler.h>
+#include <guide_manager.h>
+#include <guide_scheduler.h>
 
 template < cube_size N >
 class Progress: protected ProgressTree<N>
-              , protected GuideHandler<N>
+              , protected GuideManager<N>
               , protected Scheduler<N>
 {
   using Guide = typename GuideFactory<N>::Guide;
@@ -36,14 +37,14 @@ public:
 template< cube_size N >
 void Progress<N>::toSolve( const Rubik<N> & cube )
 {
-  GuideHandler<N>::setCube( cube );
+  GuideManager<N>::setCube( cube );
 }
 
 template< cube_size N >
 void Progress<N>::addGuide( const ProgressTask task, Pattern<N> pattern, AcceptFunction af )
 {
   Guide guide = GuideFactory<N>::getGuide( pattern, af );
-  GuideHandler<N>::add( guide , task);
+  GuideManager<N>::add( guide , task);
 }
 
 template< cube_size N >
@@ -52,7 +53,7 @@ const Rubik<N> & Progress<N>::solve( const int maxHeight )
   Sequence result;
   auto searchStopped = [ this, maxHeight ]()
   {
-    const bool finished =  m_current -> solved() && GuideHandler<N>::emptyPool( m_current );
+    const bool finished =  m_current -> solved() && GuideManager<N>::emptyPool( m_current );
     return finished || ( m_height > maxHeight );
   };
 
@@ -62,7 +63,7 @@ const Rubik<N> & Progress<N>::solve( const int maxHeight )
   {
     findSolution();
   }
-  return GuideHandler<N>::getCube();
+  return GuideManager<N>::getCube();
 }
 
 template< cube_size N >
@@ -73,7 +74,7 @@ bool Progress<N>::progress()
     // descending to leaves
     do
     {
-      m_current += GuideHandler<N>::nextNode( m_current );
+      m_current += GuideManager<N>::nextNode( m_current );
     }
     while ( m_current -> hasChild() );
 
@@ -98,11 +99,11 @@ void Progress<N>::findSolution()
   if ( setTree() && progress() )
   {
     const Sequence result = resolve();
-    GuideHandler<N>::setCube( result );
+    GuideManager<N>::setCube( result );
     if ( logs )
     {
       CRotations<N>::Print( result );
-      GuideHandler<N>::showCube();
+      GuideManager<N>::showCube();
     }
     m_height = 0;
   }
@@ -128,7 +129,7 @@ Sequence Progress<N>::resolve() const
 template<cube_size N> bool Progress<N>::setTree()
 {
   ProgressTree<N>::set( m_height );
-  return GuideHandler<N>::setRoot( m_root );
+  return GuideManager<N>::setRoot( m_root );
 }
 
 #endif  //  ! ___PROGRESS__H
