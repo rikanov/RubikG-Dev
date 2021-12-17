@@ -1,51 +1,40 @@
 #ifndef ___PROGRESS_TREE__H
 #define ___PROGRESS_TREE__H
 
-#include <node.h>
+#include <dynamic_stack.h>
+#include <sub_tree.h>
 
-template< cube_size N >
-class ProgressTree
+class ProgressTree: public Stack<SubTree>
 {
-  Array<Node> m_path;
+  static constexpr size_t MaximumSteps = 20;
+
+  size_t m_step;
+  SubTree * m_subTree;
 
 protected:
 
-  static constexpr size_t TreeHeight = 200;
+  ProgressTree()
+    : Stack<SubTree> ( MaximumSteps )
+    , m_step( 0 )
+  {
+    m_subTree = Stack<SubTree>::begin();
+  }
 
-  ProgressTree();
+  void set( const size_t height )
+  {
+    m_subTree -> set( height );
+  }
 
-  bool setRoot();
-  void set( const size_t height );
+  Node * root()
+  {
+    return m_subTree -> begin();
+  }
 
-  Node * root();
-  const Node * root() const;
+  const Node * root() const
+  {
+    return m_subTree -> begin();
+  }
 };
 
-template< cube_size N >
-ProgressTree<N>::ProgressTree()
-  : m_path( TreeHeight )
-{
-}
-
-template< cube_size N >
-void ProgressTree<N>::set( const size_t height )
-{
-  for ( int d = 0; d <= height; ++ d )
-  {
-    m_path[d].depth = height - d;
-  }
-}
-
-template< cube_size N >
-Node * ProgressTree<N>::root()
-{
-  return m_path.begin();
-}
-
-template< cube_size N >
-const Node * ProgressTree<N>::root() const
-{
-  return m_path.begin();
-}
 
 #endif  //  ! ___PROGRESS_TREE__H

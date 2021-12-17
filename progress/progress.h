@@ -6,7 +6,7 @@
 #include <guide_scheduler.h>
 
 template < cube_size N >
-class Progress: protected ProgressTree<N>
+class Progress: protected ProgressTree
               , protected GuideManager<N>
               , protected Scheduler<N>
 {
@@ -23,7 +23,7 @@ class Progress: protected ProgressTree<N>
   Sequence resolve() const;
 
 public:
-  Progress(): m_root( ProgressTree<N>::root() ) {}
+  Progress(): m_root( ProgressTree::root() ) {}
   bool logs = true;
 
   void toSolve( const Rubik<N> & );
@@ -58,7 +58,7 @@ const Rubik<N> & Progress<N>::solve( const int maxHeight )
   };
 
   // iteratively deepening algorithm
-  m_current = ProgressTree<N>::root();
+  m_current = ProgressTree::root();
   for ( m_height = 0; ! searchStopped(); ++ m_height )
   {
     findSolution();
@@ -95,7 +95,7 @@ bool Progress<N>::progress()
 template< cube_size N >
 void Progress<N>::findSolution()
 {
-  m_current = ProgressTree<N>::root();
+  m_current = ProgressTree::root();
   if ( setTree() && progress() )
   {
     const Sequence result = resolve();
@@ -119,7 +119,7 @@ template< cube_size N >
 Sequence Progress<N>::resolve() const
 {
   Sequence result;
-  for ( const Node * P = ProgressTree<N>::root(); P != m_current; ++ P )
+  for ( const Node * P = ProgressTree::root(); P != m_current; ++ P )
   {
     result << P -> rotate;
   }
@@ -128,7 +128,7 @@ Sequence Progress<N>::resolve() const
 
 template<cube_size N> bool Progress<N>::setTree()
 {
-  ProgressTree<N>::set( m_height );
+  ProgressTree::set( m_height );
   return GuideManager<N>::setRoot( m_root );
 }
 
