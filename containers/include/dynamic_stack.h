@@ -75,7 +75,7 @@ public:
 
   Type * end()
   {
-    return Array<Type>::end();
+    return m_push;
   }
 
   const Type * begin() const
@@ -85,7 +85,7 @@ public:
 
   const Type * end() const
   {
-    return Array<Type>::end();
+    return m_push;
   }
 
   void reset()

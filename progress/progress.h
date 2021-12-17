@@ -3,12 +3,10 @@
 
 #include <progress_tree.h>
 #include <guide_manager.h>
-#include <guide_scheduler.h>
 
 template < cube_size N >
 class Progress: protected ProgressTree
               , protected GuideManager<N>
-              , protected Scheduler<N>
 {
   using Guide = typename GuideFactory<N>::Guide;
 
