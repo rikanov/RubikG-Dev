@@ -7,7 +7,7 @@
 
 template< cube_size N >
 class GuideManager:  public Scheduler<N>
-                      ,  protected NodeInit<N>
+                  ,  protected NodeInit<N>
 {
   using Guide = typename GuideFactory<N>::Guide;
 
@@ -21,6 +21,7 @@ protected:
   Rubik<N>  m_cube;
 
   GuideManager();
+  void setStep( const size_t );
   bool setRoot ( Node * node );
   bool nextNode( Node * node );
   bool optional() const;
@@ -42,6 +43,12 @@ GuideManager<N>::GuideManager()
   , m_optional ( Node::MaxPatterns )
 {
   m_transposition = 0xFF;
+}
+
+template< cube_size N >
+void GuideManager<N>::setStep( const size_t size )
+{
+  Scheduler<N>::expand( m_scheduled, m_optional, size );
 }
 
 template<cube_size N>
@@ -119,19 +126,6 @@ bool GuideManager<N>::setScheduledNext( Node * next )
     }
   }
   return true;
-}
-
-template< cube_size N >
-void GuideManager<N>::add( GuideManager::Guide guide, const ProgressTask task )
-{
-  if ( _Scheduled == task )
-  {
-    m_scheduled.push( guide );
-  }
-  else
-  {
-    m_optional.push( guide );
-  }
 }
 
 template< cube_size N >

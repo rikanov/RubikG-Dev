@@ -6,10 +6,13 @@
 
 template < cube_size N >
 class Progress: protected ProgressTree
-              , protected GuideManager<N>
+              , public GuideManager<N>
 {
   using Guide = typename GuideFactory<N>::Guide;
 
+  const int maxHeight = 10;
+
+  size_t m_numberOfSteps;
   Node * m_current;
   Node * m_root;
   size_t m_height;
@@ -21,13 +24,12 @@ class Progress: protected ProgressTree
   Sequence resolve() const;
 
 public:
-  Progress(): m_root( ProgressTree::root() ) {}
+  Progress(): m_numberOfSteps( 0 ), m_root( ProgressTree::root() ), m_height( 0 )  {}
   bool logs = true;
 
   void toSolve( const Rubik<N> & );
-  void addGuide( const ProgressTask, Pattern<N>, AcceptFunction af = Accept<N>::Normal );
-
-  const Rubik<N> & solve( const int );
+  void solve( const size_t );
+  const Rubik<N> & start();
 
   bool setTree();
 };
@@ -39,27 +41,33 @@ void Progress<N>::toSolve( const Rubik<N> & cube )
 }
 
 template< cube_size N >
-void Progress<N>::addGuide( const ProgressTask task, Pattern<N> pattern, AcceptFunction af )
+void Progress<N>::solve( const size_t )
 {
-  Guide guide = GuideFactory<N>::getGuide( pattern, af );
-  GuideManager<N>::add( guide , task);
+  ++ m_numberOfSteps;
+  Scheduler<N>::nextSolution();
 }
 
+
 template< cube_size N >
-const Rubik<N> & Progress<N>::solve( const int maxHeight )
+const Rubik<N> & Progress<N>::start()
 {
   Sequence result;
-  auto searchStopped = [ this, maxHeight ]()
+  auto searchStopped = [ this ]()
   {
     const bool finished =  m_current -> solved() && GuideManager<N>::emptyPool( m_current );
-    return finished || ( m_height > maxHeight );
+    return finished || ( m_height > this -> maxHeight );
   };
 
-  // iteratively deepening algorithm
   m_current = ProgressTree::root();
-  for ( m_height = 0; ! searchStopped(); ++ m_height )
+
+  for ( size_t step = 0; step < m_numberOfSteps; ++ step )
   {
-    findSolution();
+    GuideManager<N>::setStep( step );
+    // iteratively deepening algorithm
+    for ( m_height = 0; ! searchStopped(); ++ m_height )
+    {
+      findSolution();
+    }
   }
   return GuideManager<N>::m_cube;
 }

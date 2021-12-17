@@ -34,8 +34,9 @@ bool UnitTests::unit_Progress() const
     test2.toSolve( testCube2 );
     test2.addGuide( _Scheduled, left );
     test2.addGuide( _Scheduled, right );
-
     test2.solve( 10 );
+
+    test2.start();
   }
 
 
@@ -115,6 +116,8 @@ bool UnitTests::unit_Progress() const
     test.addGuide( _Optional, cross2 );
     test.addGuide( _Optional, corners );
     test.solve( 10 );
+
+    test.start();
   }
 
   finish( "Progress", success );

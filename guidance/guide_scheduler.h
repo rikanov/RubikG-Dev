@@ -14,11 +14,19 @@ class Scheduler
 public:
   Scheduler() = default;
 
+  void addGuide( const ProgressTask, Pattern<N>, AcceptFunction af = Accept<N>::Normal );
   void addGuide( const ProgressTask, const Guide & );
   void nextSolution();
 
   void expand( Stack<Guide> &, Stack<Guide> &, const size_t );
 };
+
+template< cube_size N >
+void Scheduler<N>::addGuide( const ProgressTask task, Pattern<N> pattern, AcceptFunction af )
+{
+  Guide guide = GuideFactory<N>::getGuide( pattern, af );
+  addGuide( task, guide );
+}
 
 template< cube_size N >
 void Scheduler<N>::addGuide( const ProgressTask ptask, const Guide & guide )
