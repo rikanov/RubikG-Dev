@@ -46,9 +46,9 @@ GuideManager<N>::GuideManager()
 }
 
 template< cube_size N >
-void GuideManager<N>::setStep( const size_t size )
+void GuideManager<N>::setStep( const size_t step )
 {
-  Scheduler<N>::expand( m_scheduled, m_optional, size );
+  Scheduler<N>::expand( m_scheduled, m_optional, step );
 }
 
 template<cube_size N>
@@ -61,10 +61,10 @@ bool GuideManager<N>::setRoot( Node * node )
   }
   node -> reset();
 
-  NodeInit<N>::setAsRoot( node, GuideManager<N>::optional() );
+  NodeInit<N>::setAsRoot( node, optional() );
 
-  GuideManager<N>::setOptionalRoot( node );
-  return GuideManager<N>::setScheduledRoot( node );
+  setOptionalRoot( node );
+  return setScheduledRoot( node );
 }
 
 template< cube_size N >

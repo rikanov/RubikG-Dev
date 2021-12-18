@@ -2,6 +2,7 @@
 #define ___SUB_TREE__H
 
 #include <node.h>
+#include <sequence.h>
 
 class SubTree: public Array<Node>
 {
@@ -17,8 +18,16 @@ public:
   {
     for ( int d = 0; d <= height; ++ d )
     {
-      Array<Node>::get( d ).depth = height - d;
+      Node & next = Array<Node>::get( d );
+      next.reset();
+      next.depth = height - d;
     }
+  }
+
+  Sequence getSolution()
+  {
+    // ToDo
+    return Sequence();
   }
 };
 

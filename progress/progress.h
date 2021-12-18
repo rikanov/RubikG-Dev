@@ -15,23 +15,20 @@ class Progress: protected ProgressTree
   size_t m_numberOfSteps;
   Node * m_current;
   Node * m_root;
-  size_t m_height;
 
-  void findSolution();
   bool progress();
-  bool solved() const;
-
   Sequence resolve() const;
 
+  // iteratively deepening algorithm
+  bool startIDA();
+
 public:
-  Progress(): m_numberOfSteps( 0 ), m_root( ProgressTree::root() ), m_height( 0 )  {}
+  Progress(): m_numberOfSteps( 0 ), m_root( ProgressTree::root() ) {}
   bool logs = true;
 
   void toSolve( const Rubik<N> & );
   void solve( const size_t );
-  const Rubik<N> & start();
-
-  bool setTree();
+  size_t start();
 };
 
 template< cube_size N >
@@ -47,29 +44,48 @@ void Progress<N>::solve( const size_t )
   Scheduler<N>::nextSolution();
 }
 
-
 template< cube_size N >
-const Rubik<N> & Progress<N>::start()
+size_t Progress<N>::start()
 {
-  Sequence result;
-  auto searchStopped = [ this ]()
+  for ( size_t step = 0, set = 1; step < m_numberOfSteps; step += set )
   {
-    const bool finished =  m_current -> solved() && GuideManager<N>::emptyPool( m_current );
-    return finished || ( m_height > this -> maxHeight );
-  };
-
-  m_current = ProgressTree::root();
-
-  for ( size_t step = 0; step < m_numberOfSteps; ++ step )
-  {
-    GuideManager<N>::setStep( step );
-    // iteratively deepening algorithm
-    for ( m_height = 0; ! searchStopped(); ++ m_height )
+    if ( set )
     {
-      findSolution();
+      ProgressTree::setStep( step );
+      GuideManager<N>::setStep( step );
+    }
+    startIDA();
+    if ( ! m_current -> solved() )
+    {
+      return step;
+    }
+    set = GuideManager<N>::emptyPool( m_current );
+  }
+  return 0;
+}
+
+template<cube_size N> bool Progress<N>::startIDA()
+{
+  bool solved = false;
+  m_root = ProgressTree::root();
+  m_current = ProgressTree::root();
+  for ( size_t height = 0; ! solved && height <= maxHeight; ++ height )
+  {
+    ProgressTree::set( height );
+    GuideManager<N>::setRoot( m_root );
+    solved = progress();
+  }
+  if ( solved )
+  {
+    const Sequence result = resolve();
+    GuideManager<N>::m_cube.rotate( result );
+    if ( logs )
+    {
+      CRotations<N>::Print( result );
+      GuideManager<N>::m_cube.print();
     }
   }
-  return GuideManager<N>::m_cube;
+  return solved;
 }
 
 template< cube_size N >
@@ -84,7 +100,7 @@ bool Progress<N>::progress()
     }
     while ( m_current -> hasChild() );
 
-    if ( solved() )
+    if ( m_current -> solved() )
     {
       break;
     }
@@ -95,29 +111,6 @@ bool Progress<N>::progress()
       -- m_current;
     }
   }
-  return solved();
-}
-
-template< cube_size N >
-void Progress<N>::findSolution()
-{
-  m_current = ProgressTree::root();
-  if ( setTree() && progress() )
-  {
-    const Sequence result = resolve();
-    GuideManager<N>::m_cube.rotate( result );
-    if ( logs )
-    {
-      CRotations<N>::Print( result );
-      GuideManager<N>::m_cube.print();
-    }
-    m_height = 0;
-  }
-}
-
-template< cube_size N >
-bool Progress<N>::solved() const
-{
   return m_current -> solved();
 }
 
@@ -130,12 +123,6 @@ Sequence Progress<N>::resolve() const
     result << P -> rotate;
   }
   return result;
-}
-
-template<cube_size N> bool Progress<N>::setTree()
-{
-  ProgressTree::set( m_height );
-  return GuideManager<N>::setRoot( m_root );
 }
 
 #endif  //  ! ___PROGRESS__H

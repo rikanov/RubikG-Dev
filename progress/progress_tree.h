@@ -20,6 +20,11 @@ protected:
     m_subTree = Stack<SubTree>::begin();
   }
 
+  void setStep( const size_t step )
+  {
+    m_subTree = Stack<SubTree>::at( step );
+  }
+
   void set( const size_t height )
   {
     m_subTree -> set( height );
@@ -33,6 +38,11 @@ protected:
   const Node * root() const
   {
     return m_subTree -> begin();
+  }
+
+  Sequence getSolution() const
+  {
+    return m_subTree -> getSolution();
   }
 };
 

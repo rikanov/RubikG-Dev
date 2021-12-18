@@ -41,6 +41,17 @@ public:
   {
     return m_array[id];
   }
+
+  Type * at( const size_t & id )
+  {
+    return begin() + id;
+  }
+
+  const Type * at( const size_t & id ) const
+  {
+    return begin() + id;
+  }
+
   Type & operator[]( const size_t & id )
   {
     return get( id );
@@ -53,12 +64,12 @@ public:
 
   Type * operator() ( const size_t & id )
   {
-    return begin() + id;
+    return at( id );
   }
 
   const Type * operator() ( const size_t & id ) const
   {
-    return begin() + id;
+    return at( id );
   }
   const Type * get() const
   {
