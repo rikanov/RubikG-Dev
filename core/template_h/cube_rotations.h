@@ -40,8 +40,8 @@ public:
   static std::string ToString( const RotID );
   static std::string ToString( const Axis, const Layer, const Turn );
   
-  static void Print( const RotID );
-  static void Print( const Sequence & S );
+  static void Print( const RotID, const int err = 0 );
+  static bool Print( const Sequence & S );
 };
 
 template< cube_size N >
@@ -145,7 +145,7 @@ std::string CRotations<N>::ToString( const RotID rotID )
 }
 
 template< cube_size N >
-void CRotations<N>::Print( const RotID rotID )
+void CRotations<N>::Print( const RotID rotID, const int err )
 {
   switch ( CRotations<N>::GetAxis( rotID ) )
   {
@@ -161,15 +161,69 @@ void CRotations<N>::Print( const RotID rotID )
     default:
       clog_( Color::flash, "Error: rot id =", (int) rotID ); // error
   }
-  clog( CRotations<N>::ToString( rotID ), Color::off );
+  clog_( CRotations<N>::ToString( rotID ), Color::off );
+  switch ( err )
+  {
+    case 1:
+      clog_( Color::red, " ERROR: repeating rotation", Color::off );
+      break;
+    case 2:
+      clog_( Color::red, " ERROR: axis & layer equality", Color::off );
+      break;
+    case 3:
+      clog_( Color::red, " ERROR: unnecessary transposition", Color::off );
+      break;
+    default:
+      break;
+  }
+  NL();
 }
 
 template< cube_size N >
-void CRotations<N>::Print( const Sequence & S )
+bool CRotations<N>::Print( const Sequence & S )
 {
+  bool result = true;
+  size_t c1 = 0, c2 = 0;
   clog( "steps:", S.size() );
-  for( auto n = S.begin(); n != S.end(); ++ n )
-   Print( *n );
+  for( auto P = S.begin(); P != S.end(); ++ P )
+  {
+    if ( S.end() - 1 == P )
+    {
+      Print( *P );
+      continue;
+    }
+    const RotID next = *( P + 1 );
+    if ( *P == next )
+    {
+      Print( *P, 1 );
+      result = false;
+      continue;
+    }
+    if ( GetAxis( *P ) == GetAxis( next ) && GetLayer( *P ) == GetLayer( next ) )  // Axes and Layers equal
+    {
+      Print( *P, 2 );
+      result = false;
+      continue;
+    }
+    if ( GetAxis( *P ) == GetAxis( next ) )
+    {
+      ++ c1;
+      c2 = GetTurn( *P ) == GetTurn( next ) ? c2 + 1 : 0;
+    }
+    else
+    {
+      c1 = 0;
+      c2 = 0;
+    }
+    if ( c1 > 0 && ( N - 1 == c1 || N - 2 == c2 ) )
+    {
+      Print( *P, 3 );
+      result = false;
+      continue;
+    }
+    Print( *P );
+  }
+  return result;
 }
 
-#endif // ! CUBE_ROTATIONS__H
+#endif  //  ! CUBE_ROTATIONS__H

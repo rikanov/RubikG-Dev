@@ -27,6 +27,7 @@ class Progress: protected ProgressTree
 public:
   Progress(): m_numberOfSteps( 0 ), m_root( ProgressTree::root() ) {}
   bool logs = true;
+  bool consistency = true;
 
   void next();
   size_t solve( Rubik<N> & );
@@ -42,6 +43,7 @@ void Progress<N>::next()
 template< cube_size N >
 size_t Progress<N>::solve( Rubik<N> & cube )
 {
+  consistency = true;
   m_cube = &cube;
   GuideManager<N>::m_cube = &cube;
   for ( size_t step = 0, set = 1; step < m_numberOfSteps; step += set )
@@ -78,7 +80,7 @@ template<cube_size N> bool Progress<N>::startIDA()
     m_cube -> rotate( result );
     if ( logs )
     {
-      CRotations<N>::Print( result );
+      consistency &= CRotations<N>::Print( result );
       GuideManager<N>::m_cube -> print();
     }
   }
