@@ -12,6 +12,8 @@ class Progress: protected ProgressTree
 
   const int maxHeight = 10;
 
+  Rubik<N> * m_cube;
+
   size_t m_numberOfSteps;
   Node * m_current;
   Node * m_root;
@@ -26,27 +28,22 @@ public:
   Progress(): m_numberOfSteps( 0 ), m_root( ProgressTree::root() ) {}
   bool logs = true;
 
-  void toSolve( const Rubik<N> & );
-  void solve( const size_t );
-  size_t start();
+  void next();
+  size_t solve( Rubik<N> & );
 };
 
 template< cube_size N >
-void Progress<N>::toSolve( const Rubik<N> & cube )
-{
-  GuideManager<N>::m_cube = cube;
-}
-
-template< cube_size N >
-void Progress<N>::solve( const size_t )
+void Progress<N>::next()
 {
   ++ m_numberOfSteps;
   Scheduler<N>::nextSolution();
 }
 
 template< cube_size N >
-size_t Progress<N>::start()
+size_t Progress<N>::solve( Rubik<N> & cube )
 {
+  m_cube = &cube;
+  GuideManager<N>::m_cube = &cube;
   for ( size_t step = 0, set = 1; step < m_numberOfSteps; step += set )
   {
     if ( set )
@@ -78,11 +75,11 @@ template<cube_size N> bool Progress<N>::startIDA()
   if ( solved )
   {
     const Sequence result = resolve();
-    GuideManager<N>::m_cube.rotate( result );
+    m_cube -> rotate( result );
     if ( logs )
     {
       CRotations<N>::Print( result );
-      GuideManager<N>::m_cube.print();
+      GuideManager<N>::m_cube -> print();
     }
   }
   return solved;

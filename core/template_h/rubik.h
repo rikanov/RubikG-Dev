@@ -30,7 +30,8 @@ public:
   void revert  ( const size_t step );
   void rotate  ( const RotID rotID );
   void rotate  ( const Sequence & seq );
-  void shuffle ( int depth = 0 );
+
+  size_t shuffle ( int depth = 0 );
   
   // Operators
   bool      operator== ( const Rubik<N>& X ) const;
@@ -104,16 +105,16 @@ template< cube_size N >
 void Rubik<N>::history( const size_t step )
 {
   reset();
-  for ( RotID rotID = start( step ); rotID; rotID = next() )
+  for ( auto P = begin(); P != Array<RotID>::at( step ); ++ P )
   {
-    setRotate( rotID );
+    setRotate( *P );
   }
 }
 
 template< cube_size N >
 void Rubik<N>::revert( const size_t step )
 {
-  setState( step );
+  Stack<RotID>::set( step );
   refresh();
 }
 
@@ -190,19 +191,19 @@ template< cube_size N >
 void Rubik<N>::rotate( const RotID rotID )
 {
   setRotate( rotID );
-  store( rotID );
+  push( rotID );
 }
 template< cube_size N >
 void Rubik<N>::rotate( const Sequence & seq )
 {
-  for( RotID next = seq.start(); next; next = seq.next() )
+  for( auto P = seq.begin(); P != seq.end(); ++ P )
   {
-    rotate( next );
+    rotate( *P );
   }
 }
 
 template< cube_size N > 
-void Rubik<N>::shuffle( int depth )
+size_t Rubik<N>::shuffle( int depth )
 {
   static std::random_device randomDevice;
   static std::default_random_engine engine( randomDevice() );
@@ -212,6 +213,7 @@ void Rubik<N>::shuffle( int depth )
   {
     Rubik<N>::rotate( CRotations<N>::Random() );
   }
+  return Stack<RotID>::size();
 }
 
  // Query functions

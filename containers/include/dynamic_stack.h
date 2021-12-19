@@ -10,17 +10,9 @@ class Stack: public Array<Type>
   Type * m_push;
 
 protected:
-  bool set( Type * start )
+  void set( const size_t id )
   {
-    if( start <= m_push )
-    {
-      m_push = start;
-      return true;
-    }
-    else
-    {
-      return false;
-    }
+    m_push = Array<Type>::at( id );
   }
 
 public:

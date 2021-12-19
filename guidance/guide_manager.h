@@ -18,7 +18,7 @@ class GuideManager:  public Scheduler<N>
 
 protected:
 
-  Rubik<N>  m_cube;
+  const Rubik<N> * m_cube;
 
   GuideManager();
   void setStep( const size_t );
@@ -57,7 +57,7 @@ bool GuideManager<N>::setRoot( Node * node )
   if ( 0xFF == m_transposition )
   {
     const Guide * first = m_scheduled.empty() ? m_optional.begin() : m_scheduled.begin();
-    m_transposition = first -> getTransposition( &m_cube );
+    m_transposition = first -> getTransposition( m_cube );
   }
   node -> reset();
 
@@ -89,7 +89,7 @@ void GuideManager<N>::setOptionalRoot( Node * node )
 {
   for ( auto P = m_optional.begin(); P != m_optional.end(); ++ P )
   {
-    P -> setOptionalRoot( &m_cube, node, m_transposition );
+    P -> setOptionalRoot( m_cube, node, m_transposition );
   }
 }
 
@@ -98,7 +98,7 @@ bool GuideManager<N>::setScheduledRoot( Node * node )
 {
   for ( auto P = m_scheduled.begin(); P != m_scheduled.end(); ++ P )
   {
-    if ( ! P -> setScheduledRoot( &m_cube, node, m_transposition ) )
+    if ( ! P -> setScheduledRoot( m_cube, node, m_transposition ) )
     {
       return false;
     }

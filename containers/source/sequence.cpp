@@ -4,104 +4,47 @@
 #include <fstream>
 
 Sequence::Sequence()
-  : m_rotations( StackSize )
-  , m_stackPointer( m_rotations.begin() )
+  :Stack<RotID>( StackSize )
 {
 }
 
 Sequence::Sequence( const size_t size)
-  : m_rotations( size )
-  , m_stackPointer( m_rotations.begin() )
+  : Stack<RotID>( size )
 {
 }
 
-Sequence::Sequence(const RotID* rotations, const size_t size)
-  : m_rotations( StackSize )
-  , m_stackPointer( m_rotations.begin() )
+Sequence::Sequence( const RotID* rotations, const size_t size )
+  : Stack<RotID> ( StackSize )
 {
-  set( rotations, size );
+  Array<RotID>::fill( rotations, rotations + size );
 }
 
-void Sequence::store( const RotID rotID )
+Sequence::Sequence( const RotID * beg, const RotID * end )
+  : Stack<RotID>( StackSize )
 {
-  *( m_stackPointer ++ ) = rotID;
-}
-
-void Sequence::back()
-{
-  -- m_stackPointer;
+  Array<RotID>::fill( beg, end );
 }
 
 Sequence & Sequence::operator << ( const RotID rotID )
 {
-  store( rotID );
+  Stack<RotID>::push( rotID );
   return *this;
-}
-
-const RotID * Sequence::raw() const
-{
-  return m_rotations.begin();
-}
-
-size_t Sequence::size() const
-{
-  return m_stackPointer - m_rotations.begin();
-}
-
-RotID Sequence::start( const size_t size ) const
-{
-  m_nextRotation = m_rotations.begin();
-  m_endSubsequence = 0 == size ? m_stackPointer : m_rotations( size );
-  return next();
-}
-
-RotID Sequence::next() const
-{
-  return ( m_nextRotation < m_endSubsequence ) ? *( m_nextRotation ++ ) : 0;
-}
-
-void Sequence::reset()
-{
-  m_stackPointer = m_rotations.begin();
-}
-
-void Sequence::setState( const size_t size )
-{
-  m_stackPointer = m_rotations( size );
-}
-
-Sequence Sequence::reverse() const
-{
-  Sequence reversed;
-  for ( const RotID * rot = m_stackPointer - 1; rot >= m_rotations.begin(); -- rot )
-  {
-    reversed << *rot;
-  }
-  return reversed;
-}
-
-void Sequence::set( const RotID * rotations, size_t size )
-{
-  m_stackPointer = m_rotations.begin();
-  for( size_t id = 0; id < size; ++ id )
-  {
-    *( m_stackPointer++ ) = rotations[id];
-  }
 }
 
 void Sequence::operator = (const Sequence & S )
 {
-  set( S.raw(), S.size() );
+  Stack<RotID>::reset();
+  push( S.begin(), S.end() );
 }
 
-bool Sequence::operator == ( const Sequence & S ) const
+bool Sequence::operator == ( const Sequence & Seq ) const
 {
-  if ( size() != S.size() )
+  if ( size() != Seq.size() )
     return false;
 
-  for ( size_t id = 0; id < size(); ++ id )
+  for ( auto P = begin(), S = Seq.begin(); P != end(); ++ P, ++ S )
   {
-    if ( m_rotations[id] != S.m_rotations[id] )
+    if ( *P != *S )
     {
       return false;
     }
@@ -109,26 +52,9 @@ bool Sequence::operator == ( const Sequence & S ) const
   return true;
 }
 
-Sequence Sequence::operator + ( const Sequence & S ) const
-{
-  Sequence result;
-  for( RotID n = start(); n; n = next() )
-  {
-    result << n;
-  }
-  for( RotID n = S.start(); n; n = S.next() )
-  {
-    result << n;
-  }
-  return result;
-}
-
 void Sequence::operator += ( const Sequence & S )
 {
-  for( RotID n = S.start(); n; n = S.next() )
-  {
-    *( m_stackPointer++ ) = n;
-  }
+  Stack<RotID>::push( S.begin(), S.end() );
 }
 
 void Sequence::save( const std::string & fname, const size_t fsize ) const
@@ -139,7 +65,7 @@ void Sequence::save( const std::string & fname, const size_t fsize ) const
     const size_t end = fsize == 0 ? size() : fsize;
     for ( size_t step = 0; step < end; ++ step )
     {
-      writeSeq << (int) m_rotations[ step ] << ' ';
+      writeSeq << (int) Array<RotID>::get( step ) << ' ';
     }
     writeSeq.close();
   }
@@ -153,12 +79,11 @@ void Sequence::load( const std::string & fname )
 {
   reset();
   std::ifstream readSeq( fname );
-  m_stackPointer = m_rotations.begin();
   if ( readSeq.is_open() )
   {
     for( int next = 0;  readSeq >> next; )
     {
-      *( m_stackPointer ++ ) = next;
+      push( next );
     }
     readSeq.close();
   }

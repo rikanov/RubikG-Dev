@@ -168,8 +168,8 @@ template< cube_size N >
 void CRotations<N>::Print( const Sequence & S )
 {
   clog( "steps:", S.size() );
-  for( RotID n = S.start(); n; n = S.next() )
-   Print( n );
+  for( auto n = S.begin(); n != S.end(); ++ n )
+   Print( *n );
 }
 
 #endif // ! CUBE_ROTATIONS__H
