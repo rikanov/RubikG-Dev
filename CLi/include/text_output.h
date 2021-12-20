@@ -28,15 +28,22 @@ inline void CLS()
 #endif
 }
 
+
+#define OUT if(!LoggingON)return;
+
+extern bool LoggingON;
+
 // new line
 inline void NL()
 {
+  OUT
   std::cout << std::endl;
 }
 
 // set text color & new line
 inline void NL( Color::Modifier c )
 {
+  OUT
   std::cout << c << std::endl;
 }
 
@@ -45,6 +52,7 @@ inline void NL( Color::Modifier c )
 template <typename T>
 void clog_ (T t) 
 {
+  OUT
   if ( typeid( t ) != typeid( Color::Modifier ) )
   {
     std::cout << t << ' ';
@@ -58,6 +66,7 @@ void clog_ (T t)
 template <typename T, typename... Args>
 void clog_ (T t, Args... args) 
 {
+  OUT
   clog_ ( t );
   clog_ ( args... );
   std::cout << std::flush;
@@ -66,12 +75,14 @@ void clog_ (T t, Args... args)
 template <typename T>
 void clog (T t) 
 {
+  OUT
   std::cout << t << std::endl ;
 }
 
 template<typename T, typename... Args>
 void clog (T t, Args... args) // recursive variadic function
 {
+  OUT
   clog_ ( t );
   clog  ( args... ) ;
 }
@@ -81,6 +92,7 @@ void clog (T t, Args... args) // recursive variadic function
 template < typename T>
 void slog_ ( const char * sep, T t) 
 {
+  OUT
   if ( typeid( t ) != typeid( Color::Modifier ) )
   {
     std::cout << t << sep;
@@ -93,6 +105,7 @@ void slog_ ( const char * sep, T t)
 template < typename T, typename... Args>
 void slog_ ( const char * sep, T t, Args... args ) 
 {
+  OUT
   slog_ ( sep, t );
   slog_ ( sep, args... );
 }
@@ -100,35 +113,23 @@ void slog_ ( const char * sep, T t, Args... args )
 template < typename T >
 void slog ( const char * sep, T t) 
 {
+  OUT
   std::cout << t << std::endl ;
 }
 
 template< typename T, typename... Args >
 void slog ( const char * sep, T t, Args... args) // recursive variadic function
 {
+  OUT
   slog_ ( sep, t );
   slog  ( sep, args... ) ;
 }
 
-inline std::string numL( const uint64_t num, const size_t size )
-{
-  std::string out = std::to_string( num );
-  if ( size > out.size() )
-    out += std::string( size - out.size(), ' ' );
-  return out;
-}
-
-inline std::string numR( const uint64_t num, const size_t size )
-{
-  std::string out = std::to_string( num );
-  if ( size > out.size() )
-    out = std::string( size - out.size(), ' ' ) + out;
-  return out;
-}
+std::string numL( const uint64_t num, const size_t size );
+std::string numR( const uint64_t num, const size_t size );
 
 // draw line
-inline void cdraw( const char c, int p )
-{
-  std::cout << std::string( p, c ) << std::endl;
-}
+void cdraw( const char c, int p );
+
+#undef OUT
 #endif // ! TEXT_OUTPUT__H

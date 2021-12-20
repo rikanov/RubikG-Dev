@@ -114,8 +114,10 @@ bool UnitTests::unit_Progress() const
       testCube.shuffle();
       test.solve( testCube );
       cdraw( '=', 30 );
-      clog ( "end of", i, ". test case" );
+      clog_( "end of", i, ". test case" );
+      stamp( test.consistency, success );
     }
+
     test.addGuide( _Scheduled, cross2, Accept<N>::RotAxis( _Z ) );
     test.addGuide( _Scheduled, corners, Accept<N>::RotAxis( _Z ) );
     test.next();
@@ -125,7 +127,6 @@ bool UnitTests::unit_Progress() const
     test.next();
 
     test.solve( testCube );
-    testCube.save( "test_3.rub" );
     stamp( test.consistency, success );
   }
 

@@ -9,11 +9,11 @@ void Rubik<N>::show( Orient F ) const
 {
   if ( _NF == F )
   {
-    std::cout << "  ";
+    slog_( "", "  " );
   }
   else
   {
-    std::cout << colorOf( F ) << FChar << ' ';
+    clog_( colorOf( F ), FChar );
   }
 }
 
@@ -27,7 +27,7 @@ void Rubik<N>::show( Orient right, Orient up, Layer x, Layer y ) const
 template< cube_size N >
 void Rubik<N>::print( Orient right, Orient up ) const
 {
-  std::cout << std::endl;
+  NL();
   for ( Layer y = N - 1; y >= 0; --y )
   {
     for ( Layer x = 0; x < N; ++x )
