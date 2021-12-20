@@ -35,15 +35,16 @@ protected:
   bool restrict() const;
   void expand  () const;
 
+  DistID distanceOf( const Rubik<N> * cube ) const;
+
+  void setOptionalNode ( Node * next );
+  bool setScheduledNode( Node * next );
+public:
   CubeID  transpose( const CubeID cubeID = 0 );
   CubeID  getTransposition( const Rubik<N> * ) const;
 
   void setOptionalRoot ( const Rubik<N> * cube, Node * node, const CubeID trans );
   bool setScheduledRoot( const Rubik<N> * cube, Node * node, const CubeID trans );
-  DistID distanceOf( const Rubik<N> * cube ) const;
-
-  void setOptionalNode ( Node * next );
-  bool setScheduledNode( Node * next );
 };
 
 template< cube_size N >
@@ -96,6 +97,25 @@ CubeID GuideFactory<N>::GuideBase::transpose( const CubeID cubeID )
   m_transpositionProgress = cubeID;
   m_transposition = Simplex::Composition( m_transpositionFactory, m_transpositionProgress );
   return m_transposition;
+}
+
+template< cube_size N >
+CubeID GuideFactory<N>::GuideBase::getTransposition( const Rubik<N> * cube ) const
+{
+  CubeID result = m_transpositionProgress;
+  DistID dist = distanceOf( cube );
+  all_cubeid( cid )
+  {
+    const GroupID nextState = Pattern<N>::getState( cube, cid );
+    const DistID  nextDist  = EvaluatorAPI::distance( nextState );
+    if ( nextDist < dist )
+    {
+      dist = nextDist;
+      result = cid;
+    }
+  }
+
+  return result;
 }
 
 template< cube_size N >

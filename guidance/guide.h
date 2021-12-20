@@ -11,14 +11,12 @@ enum ProgressTask
 };
 
 template< cube_size N >
-class GuideFactory<N>::Guide: protected GuideFactory<N>::GuideBase
+class GuideFactory<N>::Guide: public GuideFactory<N>::GuideBase
 {
 public:
 
   Guide() = default;
   Guide( Pattern<N> pattern, AcceptFunction af, const size_t index, const CubeID trans = 0 );
-
-  CubeID  getTransposition( const Rubik<N> * ) const;
 
   void setOptionalRoot ( const Rubik<N> * cube, Node * node, const CubeID trans );
   bool setScheduledRoot( const Rubik<N> * cube, Node * node, const CubeID trans );
@@ -68,25 +66,6 @@ bool GuideFactory<N>::Guide::setScheduledNode( Node * next)
   GuideBase::setNode( next );
   GuideBase::setAsChild();
   return GuideBase::restrict();
-}
-
-template< cube_size N >
-CubeID GuideFactory<N>::Guide::getTransposition( const Rubik<N> * cube ) const
-{
-  CubeID result;
-  DistID dist = GuideBase::distanceOf( cube );
-  all_cubeid( cid )
-  {
-    const GroupID nextState = Pattern<N>::getState( cube, cid );
-    const DistID  nextDist  = EvaluatorAPI::distance( nextState );
-    if ( nextDist < dist )
-    {
-      dist = nextDist;
-      result = cid;
-    }
-  }
-
-  return result;
 }
 
 template< cube_size N >

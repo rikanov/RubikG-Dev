@@ -34,7 +34,7 @@ protected:
 
   bool emptyPool( Node * node );
 
-  void add( Guide guide, const ProgressTask );
+  void reset();
 };
 
 template< cube_size N >
@@ -153,6 +153,14 @@ bool GuideManager<N>::emptyPool( Node * node )
   }
 
   return ! optional();
+}
+
+template< cube_size N >
+void GuideManager<N>::reset()
+{
+  m_transposition = 0xFF;
+  m_scheduled = Stack<Guide>( Node::MaxPatterns );
+  m_optional  = Stack<Guide>( Node::MaxPatterns );
 }
 
 #endif  //  ! ___GUIDE_HANDLER_BASE__H

@@ -30,7 +30,7 @@ struct Node
   bool hasChild() const
   {
     // empty ( gradient == 0 ) and solved nodes ( gradient == 1 ) has no child --> stop searching
-    return 0 < depth && 1 < gradient.data() && ! target.empty();
+    return 0 < depth && ! gradient.empty() && ! target.empty();
   }
 
   bool restrict( const BitMap & grad, const BitMap & targ )

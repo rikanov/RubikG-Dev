@@ -205,6 +205,7 @@ void Rubik<N>::rotate( const Sequence & seq )
 template< cube_size N > 
 size_t Rubik<N>::shuffle( int depth )
 {
+  Stack<RotID>::reset();
   static std::random_device randomDevice;
   static std::default_random_engine engine( randomDevice() );
   static std::uniform_int_distribution<int> dist( 2 * N * N, 3 * N * N);

@@ -96,6 +96,7 @@ bool UnitTests::unit_Progress() const
 
     Rubik<N> testCube;
     const size_t step = testCube.shuffle();
+    clog( "shuffle steps:", step );
     testCube.print();
 
     Progress<N> test;
@@ -108,6 +109,13 @@ bool UnitTests::unit_Progress() const
     test.addGuide( _Optional,  block4 );
     test.next();
 
+    for ( int i = 0; i < 100 && test.consistency; ++ i )
+    {
+      testCube.shuffle();
+      test.solve( testCube );
+      cdraw( '=', 30 );
+      clog ( "end of", i, ". test case" );
+    }
     test.addGuide( _Scheduled, cross2, Accept<N>::RotAxis( _Z ) );
     test.addGuide( _Scheduled, corners, Accept<N>::RotAxis( _Z ) );
     test.next();
