@@ -20,8 +20,6 @@ class GuideFactory<N>::Evaluator: public GuideFactory<N>::RootSetAPI
   void createRoot();
   void bindSolutionNodeCharts( const GroupID, const RotID );
   void buildSolutionGraph();
-  void connectEqualNodeCharts();
-  void finishTargets();
 
 protected:
 
@@ -69,8 +67,8 @@ void GuideFactory<N>::Evaluator::createRoot()
   auto rootNodeSettings = [ this ]( const GroupID gid )
   {
     NodeChart & node = m_nodeChart[ gid ];
-    node.grade[0] = 1;
-    node.aim  [0] = this -> acceptedPriorStates();
+    node.grade = 1;
+    node.aim   = this -> acceptedPriorStates();
   };
 
   RootSetAPI::setRoots( rootNodeSettings );
@@ -104,52 +102,11 @@ void GuideFactory<N>::Evaluator::buildSolutionGraph()
 }
 
 template< cube_size N >
-void GuideFactory<N>::Evaluator::connectEqualNodeCharts()
-{
-  const size_t size = SubgroupAPI::groupSize() - 1;
-  for ( GroupID gid = 0; gid < size; ++ gid )
-  {
-    if ( ! Pattern<N>::valid( gid ) )
-      continue;
-    NodeChart & node = m_nodeChart[gid];
-    all_rotid( rotID, N )
-    {
-      const GroupID neighborID = SubgroupAPI::lookUp( gid, rotID );
-      NodeChart & neighbor = m_nodeChart[neighborID];
-      ConnectionAPI::connectOnSameLevel( node, neighbor, rotID );
-    }
-    node.grade[1] |= node.grade[0];
-  }
-}
-
-template< cube_size N >
-void GuideFactory<N>::Evaluator::finishTargets()
-{
-  for ( GroupID next; m_qeueu >> next; )
-  {
-    NodeChart & parent = m_nodeChart[ next ];
-    BitMap guide;
-    guide.unit( CRotations<N>::AllRotIDs );
-    guide.exclude( 1 | parent.grade[0] | parent.grade[1] );
-    for ( RotID rotID = 0; guide >> rotID; )
-    {
-      const RotID   inv     = CRotations<N>::GetInvRotID( rotID );
-      const GroupID childID = SubgroupAPI::lookUp( next, rotID );
-      NodeChart &   child   = m_nodeChart[ childID ];
-      ConnectionAPI::connectAimsToParent( child, parent, rotID );
-      m_qeueu << childID;
-    }
-  }
-}
-
-template< cube_size N >
 void GuideFactory<N>::Evaluator::build()
 {
   createRoot();
   buildSolutionGraph();
-  connectEqualNodeCharts();
   createRoot();
-  finishTargets();
   m_qeueu.resize( 0 ); //  de-alloc qeueu memory
 }
 

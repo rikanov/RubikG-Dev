@@ -3,9 +3,9 @@
 
 struct NodeChart
 {
-  DistID      level   =  0;
-  BitMapID    grade[2]= {};
-  BitMap32ID  aim[2]  = {};
+  DistID      level = 0;
+  BitMapID    grade = 0;
+  BitMap32ID  aim   = 0;;
 };
 
 #endif  //  ! NODE_CHART__H
