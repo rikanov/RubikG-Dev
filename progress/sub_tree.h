@@ -8,9 +8,12 @@ class SubTree: public Array<Node>
 {
   static constexpr size_t TreeHeight = 20;
 
+  size_t m_maxHeight;
+
 public:
   SubTree()
     : Array<Node>( TreeHeight )
+    , m_maxHeight( 0 )
   {
   }
 
@@ -22,6 +25,16 @@ public:
       next.reset();
       next.depth = height - d;
     }
+  }
+
+  void height( const size_t maxHeight )
+  {
+    m_maxHeight = maxHeight;
+  }
+
+  size_t height() const
+  {
+    return m_maxHeight;
   }
 
   Sequence getSolution()

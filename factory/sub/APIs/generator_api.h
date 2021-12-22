@@ -43,7 +43,7 @@ void GuideFactory<N>::GroupGeneratorAPI::generateBlock( const size_t pow, GroupI
   GroupID next = 0;
   all_cubeid( block )
   {
-    const GroupID * add = this -> m_groupGenerators.get() + ( 24 * pow + block ) * CRotations<N>::AllRotIDs;
+    const GroupID * add = this -> m_groupGenerators.begin() + ( 24 * pow + block ) * CRotations<N>::AllRotIDs;
     for ( size_t line = 0; line < pow24( pow ); ++ line, ++ next )
     {
       addGenerator( cache + next * CRotations<N>::AllRotIDs, add );

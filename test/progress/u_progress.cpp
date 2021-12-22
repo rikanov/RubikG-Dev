@@ -117,11 +117,11 @@ bool UnitTests::unit_Progress() const
     }
     test.addGuide( _Scheduled, cross2, Accept<N>::RotAxis( _Z ) );
     test.addGuide( _Scheduled, corners, Accept<N>::RotAxis( _Z ) );
-    test.next();
+    test.next( 10 );
 
     test.addGuide( _Optional, cross2 );
     test.addGuide( _Optional, corners );
-    test.next();
+    test.next( 10 );
 
     test.solve( testCube );
     stamp( test.consistency, success );

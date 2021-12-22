@@ -25,7 +25,7 @@
 class Simplex
 {
     static Simplex * Singleton;
-  
+
 private: 
   // functions
   Simplex();
@@ -40,6 +40,7 @@ private:
   CubeID  m_simplexGroupID   [ 6 /*Right*/ ][ 6 /*Up*/ ];
   CubeID  m_composition      [ 24 /* A */  ][ 24 /*B*/ ]; // X = AB
   CubeID  m_inverse          [ 24 ];
+
   const OCube & getCube     ( CubeID ID )                    const  { return m_simplexGroup [ID];                      }
   const OCube & getCube     ( Orient r, Orient u )           const  { return m_simplexGroup[ m_simplexGroupID[r][u] ]; }
   CubeID        getGroupID  ( Orient r, Orient u )           const  { return m_simplexGroupID [r][u];                  }

@@ -10,8 +10,6 @@ class Progress: protected ProgressTree
 {
   using Guide = typename GuideFactory<N>::Guide;
 
-  const int maxHeight = 10;
-
   Rubik<N> * m_cube;
 
   size_t m_numberOfSteps;
@@ -28,14 +26,15 @@ public:
   Progress(): m_numberOfSteps( 0 ), m_root( ProgressTree::root() ) {}
   bool consistency = true;
 
-  void next();
+  void next( const size_t maxHeight = 8 );
   size_t solve( Rubik<N> & );
 };
 
 template< cube_size N >
-void Progress<N>::next()
+void Progress<N>::next( const size_t maxHeight )
 {
-  ++ m_numberOfSteps;
+
+  ProgressTree::height( m_numberOfSteps ++, maxHeight );
   Scheduler<N>::nextSolution();
 }
 
@@ -68,7 +67,7 @@ template<cube_size N> bool Progress<N>::startIDA()
   bool solved = false;
   m_root = ProgressTree::root();
   m_current = ProgressTree::root();
-  for ( size_t height = 0; ! solved && height <= maxHeight; ++ height )
+  for ( size_t height = 0; ! solved && height <= ProgressTree::height(); ++ height )
   {
     ProgressTree::set( height );
     GuideManager<N>::setRoot( m_root );

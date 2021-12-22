@@ -30,6 +30,16 @@ protected:
     m_subTree -> set( height );
   }
 
+  size_t height() const
+  {
+    return m_subTree -> height();
+  }
+
+  void height( const size_t step, const size_t maxHeight )
+  {
+    Stack<SubTree>::at( step ) -> height( maxHeight );
+  }
+
   Node * root()
   {
     return m_subTree -> begin();
@@ -44,6 +54,7 @@ protected:
   {
     return m_subTree -> getSolution();
   }
+
 };
 
 
