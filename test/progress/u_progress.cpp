@@ -50,13 +50,10 @@ bool UnitTests::unit_Progress() const
       CPositions<N>::GetPosID( 0, 1, 2 ),
       CPositions<N>::GetPosID( 1, 1, 2 ),
       CPositions<N>::GetPosID( 2, 1, 2 ),
-      CPositions<N>::GetPosID( 1, 0, 2 )
+      CPositions<N>::GetPosID( 1, 0, 2 ),
+      CPositions<N>::GetPosID( 1, 0, 1 )
     };
 
-    const Pattern<N> bind = {
-      CPositions<N>::GetPosID( 1, 0, 1 ),
-      CPositions<N>::GetPosID( 1, 0, 2 ),
-    };
     const Pattern<N> block1 = {
       CPositions<N>::GetPosID( 2, 0, 2 ),
       CPositions<N>::GetPosID( 2, 0, 1 ),
@@ -101,13 +98,14 @@ bool UnitTests::unit_Progress() const
 
     Progress<N> test;
 
+    timerON();
     test.addGuide( _Scheduled, cross );
-    test.addGuide( _Scheduled, bind );
     test.addGuide( _Optional,  block1 );
     test.addGuide( _Optional,  block2 );
     test.addGuide( _Optional,  block3 );
     test.addGuide( _Optional,  block4 );
     test.next();
+    timerOFF();
 
     for ( int i = 0; i < 100 && test.consistency; ++ i )
     {
@@ -117,7 +115,6 @@ bool UnitTests::unit_Progress() const
       clog_( "end of", i, ". test case" );
       stamp( test.consistency, success );
     }
-
     test.addGuide( _Scheduled, cross2, Accept<N>::RotAxis( _Z ) );
     test.addGuide( _Scheduled, corners, Accept<N>::RotAxis( _Z ) );
     test.next();
@@ -130,6 +127,7 @@ bool UnitTests::unit_Progress() const
     stamp( test.consistency, success );
   }
 
+    clog( ellapsed() );
   finish( "Progress", success );
 
   return success;

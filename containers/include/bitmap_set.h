@@ -1,5 +1,5 @@
-#ifndef BITMAP__H
-#define BITMAP__H
+#ifndef ___BITMAP__H
+#define ___BITMAP__H
 
 #include <base_types.h>
 
@@ -101,4 +101,4 @@ public:
   static void Print ( const BitMap32ID, const uint8_t length = 32, const uint8_t slice = 0 );
 };
 
-#endif  //  ! BITMAP__H
+#endif  //  ! ___BITMAP__H

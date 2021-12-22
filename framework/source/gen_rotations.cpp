@@ -1,33 +1,5 @@
-#ifndef BITMANIP__H
-#define BITMANIP__H
+#include <gen_rotation_set.h>
 
-#include <base_types.h>
-#include <simplex.h>
-
-template< cube_size N >
-class GenerateRotationSet
-{
-  static constexpr unsigned m_length  = 3 * N;
-  static constexpr BitMapID m_mask    = ( 1ULL << m_length ) - 1;
-
-  static const BitMapID * m_flipped;
-  static const BitMapID   * m_shadowing;
-
-  GenerateRotationSet() = default;
-  
-  static void FlipAxis  ( BitMapID & , const Axis );
-  static void Permute   ( BitMapID & , const Axis, const Axis, const Axis );
-  static Axis TransAxis ( BitMapID & , const Axis, const CubeID );
-
-  static void createFlipCache();
-  static void createShadowing();
-
-public:
- 
-  static void Instance();
-  static void OnExit();
-  static void Transform( BitMapID &, const CubeID );
-};
 
  // Instantiations
 // ---------------
@@ -100,7 +72,7 @@ void GenerateRotationSet<N>::Permute( BitMapID & rotSetID, const Axis x, const A
   const BitMapID X = ( rotSetID                 ) & m_mask;
   const BitMapID Y = ( rotSetID >>     m_length ) & m_mask;
   const BitMapID Z = ( rotSetID >> 2 * m_length ) & m_mask;
-  
+
   rotSetID  = X << ( x * m_length );
   rotSetID |= Y << ( y * m_length );
   rotSetID |= Z << ( z * m_length );
@@ -109,9 +81,9 @@ void GenerateRotationSet<N>::Permute( BitMapID & rotSetID, const Axis x, const A
 
 template< cube_size N >
 Axis GenerateRotationSet<N>::TransAxis( BitMapID & rotSetID, const Axis axis, const CubeID cid )
-{ 
+{
   const Orient axisBase = GetAxisBase( axis );
-  
+
   switch( Simplex::GetCube( cid ).whereIs( axisBase ) )
   {
     case _F:
@@ -134,7 +106,7 @@ Axis GenerateRotationSet<N>::TransAxis( BitMapID & rotSetID, const Axis axis, co
 
     case _B:
       return _Z;
- 
+
     default:
       return _NA;
   }
@@ -144,7 +116,7 @@ template< cube_size N >
 void GenerateRotationSet<N>::Transform( BitMapID & rotSetID , const CubeID cid )
 {
   if ( rotSetID < 2 )
-    return; // do nothing with gradients belong to solved or unsolvable states 
+    return; // do nothing with gradients belong to solved or unsolvable states
 
   rotSetID >>= 1; // omit 0 place ie. empty rotation
   const Axis x = TransAxis( rotSetID, _X, cid );
@@ -155,4 +127,3 @@ void GenerateRotationSet<N>::Transform( BitMapID & rotSetID , const CubeID cid )
   rotSetID <<= 1;
 }
 
-#endif  //  ! BITMANIP__H

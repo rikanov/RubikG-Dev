@@ -97,6 +97,6 @@ CubeSet::~CubeSet()
 {
   delete[] m_lowMapLeft;
   delete[] m_highMapLeft;
-    m_lowMapLeft  = nullptr;
-    m_highMapLeft = nullptr;
+  m_lowMapLeft  = nullptr;
+  m_highMapLeft = nullptr;
 }

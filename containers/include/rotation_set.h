@@ -1,5 +1,5 @@
-#ifndef ROTATION_SET__H
-#define ROTATION_SET__H
+#ifndef ___ROTATION_SET__H
+#define ___ROTATION_SET__H
 
 #include <base_types.h>
 
@@ -42,4 +42,4 @@ public:
 };
 
 
-#endif  //  ! ROTATION_SET__H
+#endif  //  ! ___ROTATION_SET__H

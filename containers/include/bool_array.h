@@ -1,5 +1,5 @@
-#ifndef BOOL_ARRAY__H
-#define BOOL_ARRAY__H
+#ifndef ___BOOL_ARRAY__H
+#define ___BOOL_ARRAY__H
 
 #include <dynamic_array.h>
 
@@ -66,4 +66,4 @@ public:
   }
 };
 
-#endif
+#endif  //  ! ___BOOL_ARRAY__H

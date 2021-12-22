@@ -1,5 +1,5 @@
-#ifndef FINAL_STATES_CACHE__H
-#define FINAL_STATES_CACHE__H
+#ifndef ___CUBE_SET__H
+#define ___CUBE_SET__H
 
 #include<base_types.h>
 
@@ -50,4 +50,4 @@ public:
   static void Print_( BitMap32ID bid, const bool head = false );
 };
 
-#endif  //  ! FINAL_STATES_CACHE__H
+#endif  //  ! ___CUBE_SET__H

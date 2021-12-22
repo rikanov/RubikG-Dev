@@ -1,5 +1,5 @@
-#ifndef ROTATION_SEQUENCE__H
-#define ROTATION_SEQUENCE__H
+#ifndef ___ROTATION_SEQUENCE__H
+#define ___ROTATION_SEQUENCE__H
 
 #include <base_types.h>
 #include <dynamic_stack.h>
@@ -26,4 +26,4 @@ public:
 };
 
 
-#endif  // !  ROTATION_SEQUENCE__H
+#endif  // !  ___ROTATION_SEQUENCE__H

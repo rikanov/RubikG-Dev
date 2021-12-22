@@ -1,10 +1,11 @@
-#ifndef QEUEU__H
-#define QEUEU__H
+#ifndef ___CONDITIONAL_QEUEU__H
+#define ___CONDITIONAL_QEUEU__H
 
 #include <base_types.h>
 #include <bool_array.h>
 
 // an excluding FIFO object: any GroupID value can be pushed in only once a life time
+// inline methods are defined in headers to reach more than 30 % chache building performance
 class Qeueu: protected BoolArray
 {
   size_t m_size;
@@ -26,15 +27,15 @@ public:
     delete[] m_qeueudCubes;
     m_qeueudCubes = ( size == 0 ) ? nullptr : new GroupID [ size + 1 ];
     BoolArray::resize( size );
-    m_qeuIn = m_qeuOut = m_qeueudCubes;    
+    m_qeuIn = m_qeuOut = m_qeueudCubes;
   }
-  
+
   void clean()
   {
     BoolArray::clean();
-    m_qeuIn = m_qeuOut = m_qeueudCubes;    
+    m_qeuIn = m_qeuOut = m_qeueudCubes;
   }
-  
+
   void push_back( const GroupID& id )
   {
     BoolArray::set( id, true );
@@ -80,4 +81,4 @@ public:
 };
 
 
-#endif  //  ! QEUEU__H
+#endif  //  ! ___CONDITIONAL_QEUEU__H

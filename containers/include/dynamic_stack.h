@@ -10,79 +10,31 @@ class Stack: public Array<Type>
   Type * m_push;
 
 protected:
-  void set( const size_t id )
-  {
-    m_push = Array<Type>::at( id );
-  }
+  void set( const size_t id );
 
 public:
-  Stack( const size_t size )
-    : Array<Type>( size )
-    {
-      reset();
-    }
+  Stack( const size_t size );
 
-  void push( const Type & next )
-  {
-    *( m_push ++ ) = next;
-  }
+  void push( const Type & next );
+  void push( const Type * beg, const Type * end );
 
-  void push( const Type * beg, const Type * end )
-  {
-    while ( beg != end )
-    {
-      push( *( beg ++ ) );
-    }
-  }
+  Type top() const;
+  Type pop();
+  void pop( const size_t drop );
 
-  Type top() const
-  {
-    return *( m_push - 1 );
-  }
+  bool empty() const;
+  size_t size() const;
 
-  Type pop()
-  {
-    return *( -- m_push );
-  }
+  Type * begin();
+  Type * end();
 
-  void pop( const size_t drop )
-  {
-    m_push -= drop;
-  }
+  const Type * begin() const;
+  const Type * end() const;
 
-  bool empty() const
-  {
-    return Array<Type>::begin() == m_push;
-  }
-
-  size_t size() const
-  {
-    return m_push - Array<Type>::begin();
-  }
-
-  Type * begin()
-  {
-    return Array<Type>::begin();
-  }
-
-  Type * end()
-  {
-    return m_push;
-  }
-
-  const Type * begin() const
-  {
-    return Array<Type>::begin();
-  }
-
-  const Type * end() const
-  {
-    return m_push;
-  }
-
-  void reset()
-  {
-    m_push = Array<Type>::begin();
-  }
+  void reset();
 };
+
+// include template source
+#include "../source/dynamic_stack.cpp"
+
 #endif  //  ! ___DYNAMIC_STACK__H
