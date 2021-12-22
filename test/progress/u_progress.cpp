@@ -119,9 +119,30 @@ bool UnitTests::unit_Progress() const
     test.addGuide( _Scheduled, corners, Accept<N>::RotAxis( _Z ) );
     test.next( 10 );
 
-    test.addGuide( _Optional, cross2 );
-    test.addGuide( _Optional, corners );
+    BitMap restrict = {
+      CRotations<N>::GetRotID( _Y, 0, 1 ),
+      CRotations<N>::GetRotID( _Y, 0, 2 ),
+      CRotations<N>::GetRotID( _Y, 0, 3 ),
+      CRotations<N>::GetRotID( _Y, 2, 1 ),
+      CRotations<N>::GetRotID( _Y, 2, 2 ),
+      CRotations<N>::GetRotID( _Y, 2, 3 ),
+      CRotations<N>::GetRotID( _X, 0, 1 ),
+      CRotations<N>::GetRotID( _X, 0, 2 ),
+      CRotations<N>::GetRotID( _X, 0, 3 ),
+      CRotations<N>::GetRotID( _X, 2, 1 ),
+      CRotations<N>::GetRotID( _X, 2, 2 ),
+      CRotations<N>::GetRotID( _X, 2, 3 ),
+      CRotations<N>::GetRotID( _Z, 0, 1 ),
+      CRotations<N>::GetRotID( _Z, 0, 2 ),
+      CRotations<N>::GetRotID( _Z, 0, 3 ),
+      CRotations<N>::GetRotID( _Z, 2, 1 ),
+      CRotations<N>::GetRotID( _Z, 2, 2 ),
+      CRotations<N>::GetRotID( _Z, 2, 3 ),
+    };
+    test.addGuide( _Scheduled, cross2 );
     test.next( 10 );
+    test.addGuide( _Scheduled, corners );
+    test.next( 11, restrict );
 
     test.solve( testCube );
     stamp( test.consistency, success );

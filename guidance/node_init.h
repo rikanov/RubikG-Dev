@@ -9,11 +9,13 @@ template < cube_size N >
 class NodeInit
 {
   Array<BitMapID>  m_allowedGradient;
-  void initGradients();
+  static constexpr BitMapID NoRestriction = ( 1ULL << CRotations<N>::AllRotIDs ) - 1;
 
 protected:
   NodeInit();
   ~NodeInit();
+
+  void initGradients( const size_t restriction = NoRestriction );
 
   void setAsRoot ( Node * node, const bool ) const;
   bool setAsChild( Node * node, const bool ) const;
@@ -54,24 +56,26 @@ bool NodeInit<N>::setAsChild( Node* node, const bool optional ) const
 
 
 template< cube_size N >
-void NodeInit<N>::initGradients()
+void NodeInit<N>::initGradients( const size_t restriction )
 {
-  constexpr BitMapID allRotations = ( 1ULL << CRotations<N>::AllRotIDs ) - 1; // include the solved bit
-
+  m_allowedGradient = Array<BitMapID>( CRotations<N>::AllRotIDs );
   RotID rotID    = 0;
-  BitMapID allow = allRotations;
+  BitMapID allowed = restriction;
 
-  m_allowedGradient[ rotID ++ ] = allRotations;
+  m_allowedGradient[ rotID ++ ] = allowed;
 
   all_rot( axis, layer, turn, N )
   {
     if ( 1 == turn && 0 == layer )
-      allow = allRotations;
+      allowed = restriction;
 
     if ( 1 == turn )
-      allow -= 7ULL << ( 3 * ( axis * N + layer ) + 1 );
-
-    m_allowedGradient[ rotID ++ ] = allow;
+    {
+      const BitMapID mask = 7ULL << ( 3 * ( axis * N + layer ) + 1 );
+      allowed |= mask;
+      allowed -= mask;
+    }
+    m_allowedGradient[ rotID ++ ] = allowed;
   }
 }
 

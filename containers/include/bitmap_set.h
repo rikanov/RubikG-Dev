@@ -1,15 +1,18 @@
 #ifndef ___BITMAP__H
 #define ___BITMAP__H
 
+#include <initializer_list>
 #include <base_types.h>
 
 class BitMap
 {
+  using Init = std::initializer_list<uint64_t>;
   BitMapID m_dataSet;
   uint8_t  m_nextID;
 
 public:
   BitMap(): m_dataSet( 0 ), m_nextID( 0 ) {};
+  BitMap( const Init & );
   BitMap( const uint64_t ds )
   {
     set( ds );

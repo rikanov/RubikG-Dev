@@ -40,7 +40,6 @@ Axis Accept<N>::OnSide( PosID posID )
   return 1 == alignSide ? result : _NA;
 }
 
-
 template< cube_size N >
 AcceptFunction Accept<N>::RotAxis( const Axis axis )
 {

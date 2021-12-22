@@ -13,7 +13,7 @@ class GuideManager:  public Scheduler<N>
 
   Stack<Guide> m_scheduled;
   Stack<Guide> m_optional;
-
+  Stack<BitMapID> m_restrictions;
   CubeID m_transposition;
 
 protected:
@@ -21,6 +21,7 @@ protected:
   const Rubik<N> * m_cube;
 
   GuideManager();
+  void restrict( const BitMapID );
   void setStep( const size_t );
   bool setRoot ( Node * node );
   bool nextNode( Node * node );
@@ -41,13 +42,22 @@ template< cube_size N >
 GuideManager<N>::GuideManager()
   : m_scheduled( Node::MaxPatterns )
   , m_optional ( Node::MaxPatterns )
+  , m_restrictions( Node::MaxPatterns )
 {
   m_transposition = 0xFF;
 }
 
 template< cube_size N >
+void GuideManager<N>::restrict( const BitMapID restriction )
+{
+  m_restrictions.push( restriction | 1 );
+}
+
+
+template< cube_size N >
 void GuideManager<N>::setStep( const size_t step )
 {
+  NodeInit<N>::initGradients( m_restrictions[step] );
   Scheduler<N>::expand( m_scheduled, m_optional, step );
 }
 

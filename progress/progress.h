@@ -23,17 +23,25 @@ class Progress: protected ProgressTree
   bool startIDA();
 
 public:
+  static constexpr BitMapID NoRestriction = ( 1ULL << CRotations<N>::AllRotIDs ) - 1;
   Progress(): m_numberOfSteps( 0 ), m_root( ProgressTree::root() ) {}
   bool consistency = true;
 
-  void next( const size_t maxHeight = 8 );
+  void next( const size_t maxHeight = 10, const BitMapID restriction = NoRestriction );
+  void next( const size_t maxHeight, const BitMap & );
   size_t solve( Rubik<N> & );
 };
 
 template< cube_size N >
-void Progress<N>::next( const size_t maxHeight )
+void Progress<N>::next( const size_t maxHeight, const BitMap & bm )
 {
+  next( maxHeight, bm.data() );
+}
 
+template< cube_size N >
+void Progress<N>::next( const size_t maxHeight, const BitMapID restriction )
+{
+  GuideManager<N>::restrict( restriction );
   ProgressTree::height( m_numberOfSteps ++, maxHeight );
   Scheduler<N>::nextSolution();
 }

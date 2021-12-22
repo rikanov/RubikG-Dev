@@ -1,6 +1,15 @@
 #include <bitmap_set.h>
 #include <text_output.h>
 
+BitMap::BitMap( const BitMap::Init & iList )
+  : m_dataSet( 0 )
+  , m_nextID( 0 )
+{
+  for ( auto P : iList )
+  {
+    add( P );
+  }
+}
 
 uint8_t BitMap::next()
 {
