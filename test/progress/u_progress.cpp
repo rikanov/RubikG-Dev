@@ -28,7 +28,8 @@ bool UnitTests::unit_Progress() const
     test2.addGuide( _Scheduled, right );
     test2.next();
 
-    test2.solve( testCube2 );
+    test2.toSolve( testCube2 );
+    test2.start();
 
     stamp( test2.consistency, success );
   }
@@ -81,11 +82,11 @@ bool UnitTests::unit_Progress() const
     test.next();
     timerOFF();
 
+    test.toSolve( testCube );
     for ( int i = 1; i <= 100 && test.consistency; ++ i )
     {
       testCube.shuffle();
-      test.reset();
-      test.solve( testCube );
+      test.restart();
       cdraw( '=', 30 );
       clog_( "end of the", i, ". test case" );
       stamp( test.consistency, success );
@@ -101,7 +102,7 @@ bool UnitTests::unit_Progress() const
     test.addGuide( _Optional, corners );
     test.next( 10 );
 
-    test.solve( testCube );
+    test.start();
 
     BitMap restrict = {
       CRotations<N>::GetRotID( _Y, 0, 1 ),

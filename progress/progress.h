@@ -13,15 +13,16 @@ class Progress: protected ProgressTree
   Rubik<N> * m_cube;
 
   size_t m_numberOfSteps;
+  size_t m_step;
   Node * m_current;
   Node * m_root;
 
+  void reset();
   bool progress();
   Sequence resolve() const;
 
   // iteratively deepening algorithm
   bool startIDA();
-
 public:
   static constexpr BitMapID NoRestriction = ( 1ULL << CRotations<N>::AllRotIDs ) - 1;
   Progress(): m_numberOfSteps( 0 ), m_root( ProgressTree::root() ) {}
@@ -29,8 +30,9 @@ public:
 
   void next( const size_t maxHeight = 10, const BitMapID restriction = NoRestriction );
   void next( const size_t maxHeight, const BitMap & );
-  void reset();
-  size_t solve( Rubik<N> & );
+  void toSolve( Rubik<N> & );
+  size_t start();
+  size_t restart();
 };
 
 template< cube_size N >
@@ -46,35 +48,47 @@ void Progress<N>::next( const size_t maxHeight, const BitMapID restriction )
   ProgressTree::height( m_numberOfSteps ++, maxHeight );
   Scheduler<N>::nextSolution();
 }
-
 template< cube_size N >
 void Progress<N>::reset()
 {
+  m_step = 0;
   consistency = true;
   GuideManager<N>::reset();
 }
 
-
 template< cube_size N >
-size_t Progress<N>::solve( Rubik<N> & cube )
+void Progress<N>::toSolve( Rubik<N> & cube )
 {
+  reset();
   m_cube = &cube;
   GuideManager<N>::m_cube = &cube;
-  for ( size_t step = 0, set = 1; step < m_numberOfSteps; step += set )
+}
+
+template< cube_size N >
+size_t Progress<N>::start()
+{
+  for ( bool set = true; m_step < m_numberOfSteps; m_step += set )
   {
     if ( set )
     {
-      ProgressTree::setStep( step );
-      GuideManager<N>::setStep( step );
+      ProgressTree::setStep( m_step );
+      GuideManager<N>::setStep( m_step );
     }
     startIDA();
     if ( ! m_current -> solved() )
     {
-      return step;
+      return m_step;
     }
     set = GuideManager<N>::emptyPool( m_current );
   }
   return 0;
+}
+
+template< cube_size N >
+size_t Progress<N>::restart()
+{
+  reset();
+  return start();
 }
 
 template<cube_size N> bool Progress<N>::startIDA()
