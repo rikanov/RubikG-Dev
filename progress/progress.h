@@ -29,6 +29,7 @@ public:
 
   void next( const size_t maxHeight = 10, const BitMapID restriction = NoRestriction );
   void next( const size_t maxHeight, const BitMap & );
+  void reset();
   size_t solve( Rubik<N> & );
 };
 
@@ -47,11 +48,17 @@ void Progress<N>::next( const size_t maxHeight, const BitMapID restriction )
 }
 
 template< cube_size N >
-size_t Progress<N>::solve( Rubik<N> & cube )
+void Progress<N>::reset()
 {
   consistency = true;
-  m_cube = &cube;
   GuideManager<N>::reset();
+}
+
+
+template< cube_size N >
+size_t Progress<N>::solve( Rubik<N> & cube )
+{
+  m_cube = &cube;
   GuideManager<N>::m_cube = &cube;
   for ( size_t step = 0, set = 1; step < m_numberOfSteps; step += set )
   {
@@ -79,7 +86,7 @@ template<cube_size N> bool Progress<N>::startIDA()
   {
     ProgressTree::set( height );
     GuideManager<N>::setRoot( m_root );
-    solved = progress();
+    solved =  m_current -> solved() || progress();
   }
   if ( solved )
   {

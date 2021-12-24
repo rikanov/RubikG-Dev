@@ -6,19 +6,27 @@
 #include <rubik.h>
 
 template< cube_size N >
-class Pattern: public Array<PosID>
+class Pattern: public Stack<PosID>
 {
   BitMapID  m_priorRotIDs;
+  PosID     m_priorPos;
+
+  void setPrior()
+  {
+    m_priorPos = top();
+    m_priorRotIDs = CPositions<N>::ActOn( m_priorPos );
+  }
 
 public:
   Pattern() = default;
+  Pattern( const size_t );
   Pattern( const Pattern<N> & ) = default;
   Pattern( const std::initializer_list<PosID> & list );
   Pattern( const size_t size, const PosID * ref );
 
   PosID getPriorPos() const
   {
-    return *( end() - 1 );
+    return m_priorPos;
   }
 
   BitMapID priorRotIDs() const
@@ -50,22 +58,30 @@ public:
   Pattern<N> operator * ( const CubeID ) const;
   bool operator == ( const Pattern<N> & ) const;
   bool getTransposition( const Pattern<N> & from, CubeID & trans /*result*/ ) const;
+  void print() const;
 };
+
+template< cube_size N > Pattern<N>::Pattern( const size_t size )
+  : Stack<PosID>( size )
+{
+}
 
 template< cube_size N >
 Pattern<N>::Pattern( const size_t size, const PosID * ref )
+  : Stack<PosID>( size )
 {
   init( size, ref );
   std::sort( begin(), end() );
-  m_priorRotIDs = CPositions<N>::ActOn( getPriorPos() );
+  setPrior();
 }
 
 template< cube_size N >
 Pattern<N>::Pattern( const std::initializer_list<PosID> & list )
+  : Stack<PosID>( list.size() )
 {
-  init( list );
+  push( list.begin(), list.end() );
   std::sort( begin(), end() );
-  m_priorRotIDs = CPositions<N>::ActOn( getPriorPos() );
+  setPrior();
 }
 
 template< cube_size N >
@@ -108,15 +124,17 @@ GroupID Pattern<N>::getState( const Rubik<N> * Cube, const CubeID trans ) const
 }
 
 template< cube_size N >
-Pattern<N> Pattern<N>::operator * (const CubeID cid ) const
+Pattern<N> Pattern<N>::operator * ( const CubeID transposition ) const
 {
   Pattern<N> result( size() );
 
-  for ( size_t id = 0; id < size(); ++ id )
+  size_t index = 0;
+  for ( auto P : *this )
   {
-    result[id] =  Simplex::Composition( get( id ), cid );
+    result.push( CPositions<N>::GetPosID( P, transposition ) );
   }
   std::sort( result.begin(), result.end() );
+  result.setPrior();
   return result;
 }
 
@@ -125,7 +143,7 @@ bool Pattern<N>::operator == ( const Pattern<N> & p ) const
 {
   for ( size_t id = 0; id < size(); ++ id )
   {
-    if ( get( id ) != p[id] );
+    if ( get( id ) != p[id] )
     {
       return false;
     }
@@ -145,6 +163,16 @@ bool Pattern<N>::getTransposition( const Pattern<N> & from, CubeID & trans ) con
     }
   }
   return false;
+}
+
+template< cube_size N >
+void Pattern<N>::print() const
+{
+  clog( "size:", size() );
+  for ( auto P : *this )
+  {
+    CPositions<N>::Print( P );
+  }
 }
 
 #endif  //  ! ___CUBE_PATTERN_H

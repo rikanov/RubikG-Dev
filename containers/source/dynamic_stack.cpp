@@ -1,5 +1,11 @@
 #include <dynamic_stack.h>
 
+
+template< typename Type >
+Stack<Type>::Stack()
+{
+}
+
 template< typename Type >
 Stack<Type>::Stack( const size_t size )
   : Array<Type>( size )

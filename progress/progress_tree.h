@@ -8,14 +8,12 @@ class ProgressTree: public Stack<SubTree>
 {
   static constexpr size_t MaximumSteps = 20;
 
-  size_t m_step;
   SubTree * m_subTree;
 
 protected:
 
   ProgressTree()
     : Stack<SubTree> ( MaximumSteps )
-    , m_step( 0 )
   {
     m_subTree = Stack<SubTree>::begin();
   }
@@ -56,6 +54,5 @@ protected:
   }
 
 };
-
 
 #endif  //  ! ___PROGRESS_TREE__H

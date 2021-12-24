@@ -72,6 +72,7 @@ public:
   static   Coord   GetCoord  ( PosID );
   static   PosID   Random    ();
   static BitMapID  ActOn     ( const PosID posID );
+  static   void    Print     ( const PosID posID );
 };
 
 // include template source

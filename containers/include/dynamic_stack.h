@@ -13,6 +13,7 @@ protected:
   void set( const size_t id );
 
 public:
+  Stack();
   Stack( const size_t size );
 
   void push( const Type & next );

@@ -1,7 +1,6 @@
 #ifndef ___ROOT_SET_FACTORY__H
 #define ___ROOT_SET_FACTORY__H
 
-#include <dynamic_array.h>
 #include <bitmap_set.h>
 #include <factory_tree.h>
 #include <pattern.h>

@@ -176,3 +176,9 @@ PosID CPositions<N>::Random()
 
  return distribution( randomEngine );
 }
+
+template< cube_size N >
+void CPositions<N>::Print( const PosID posID )
+{
+  clog( GetCoord( posID ).toString() );
+}
