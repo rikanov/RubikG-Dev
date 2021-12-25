@@ -7,9 +7,7 @@
 template< cube_size N >
 class GuideFactory
 {
-  static size_t m_index;
-  
-protected:
+
 public:
   // Group generator factory
  // -------------------------
@@ -36,12 +34,15 @@ public:
   class Evaluator;
   class EvaluatorAPI;
 
+private:
+  Stack<Subgroup> m_subgroups;
+
 public:
 
   class Guide;
   class GuideBase;
   GuideFactory();
-  static Guide getGuide( Pattern<N>, AcceptFunction );
+  Guide getGuide( Pattern<N>, AcceptFunction );
 
 };
 

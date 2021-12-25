@@ -16,7 +16,7 @@ class GuideFactory<N>::Guide: public GuideFactory<N>::GuideBase
 public:
 
   Guide() = default;
-  Guide( Pattern<N> pattern, AcceptFunction af, const size_t index, const CubeID trans = 0 );
+  Guide( const Subgroup & subgroup, AcceptFunction af, const size_t index, const CubeID trans = 0 );
 
   void setOptionalRoot ( const Rubik<N> * cube, Node * node, const CubeID trans );
   bool setScheduledRoot( const Rubik<N> * cube, Node * node, const CubeID trans );
@@ -29,8 +29,8 @@ public:
 };
 
 template< cube_size N >
-GuideFactory<N>::Guide::Guide( Pattern<N> pattern, AcceptFunction af, const size_t index, const CubeID trans )
-  : GuideBase( pattern, af, index, trans )
+GuideFactory<N>::Guide::Guide( const Subgroup & subgroup, AcceptFunction af, const size_t index, const CubeID trans )
+  : GuideBase( subgroup, af, index, trans )
 {
 }
 

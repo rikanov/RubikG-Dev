@@ -19,7 +19,7 @@ public:
   void push( const Type & next );
   void push( const Type * beg, const Type * end );
 
-  Type top() const;
+  const Type & top() const;
   Type pop();
   void pop( const size_t drop );
 

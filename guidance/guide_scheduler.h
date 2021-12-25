@@ -8,6 +8,7 @@ class Scheduler
 {
   using Guide = typename GuideFactory<N>::Guide;
 
+  GuideFactory<N>   m_factory;
   GuideContainer<N> m_scheduled;
   GuideContainer<N> m_optional;
 
@@ -24,7 +25,7 @@ public:
 template< cube_size N >
 void Scheduler<N>::addGuide( const ProgressTask task, Pattern<N> pattern, AcceptFunction af )
 {
-  Guide guide = GuideFactory<N>::getGuide( pattern, af );
+  Guide guide = m_factory.getGuide( pattern, af );
   addGuide( task, guide );
 }
 

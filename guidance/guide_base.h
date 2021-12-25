@@ -11,10 +11,7 @@ class GuideFactory<N>::GuideBase: public GuideFactory<N>::EvaluatorAPI
   size_t  m_index;
 
   CubeID  m_transposition;
-  CubeID  m_transpositionFactory;
-  CubeID  m_transpositionProgress;
-
-  Node    * m_node;
+  Node  * m_node;
 
   CubeID  * m_prior;
   GroupID * m_state;
@@ -23,7 +20,7 @@ class GuideFactory<N>::GuideBase: public GuideFactory<N>::EvaluatorAPI
 protected:
 
   GuideBase() = default;
-  GuideBase(Pattern<N> pattern, AcceptFunction af, const size_t index, const CubeID trans );
+  GuideBase( const Subgroup & subgroup, AcceptFunction af, const size_t index, const CubeID trans );
 
   size_t index() const;
 
@@ -37,24 +34,19 @@ protected:
 
   DistID distanceOf( const Rubik<N> * cube ) const;
 
-  void setOptionalNode ( Node * next );
-  bool setScheduledNode( Node * next );
 public:
-  CubeID  transpose( const CubeID cubeID = 0 );
+  void transpose( const CubeID cubeID = 0 );
   CubeID  getTransposition( const Rubik<N> * ) const;
 
-  void setOptionalRoot ( const Rubik<N> * cube, Node * node, const CubeID trans );
-  bool setScheduledRoot( const Rubik<N> * cube, Node * node, const CubeID trans );
 };
 
 template< cube_size N >
-GuideFactory<N>::GuideBase::GuideBase( Pattern<N> pattern, AcceptFunction af, const size_t index, const CubeID trans )
-  : EvaluatorAPI( pattern, af )
+GuideFactory<N>::GuideBase::GuideBase( const Subgroup & subgroup, AcceptFunction af, const size_t index, const CubeID trans )
+  : EvaluatorAPI( subgroup, af )
   , m_index( index )
-  , m_transposition(0)
-  , m_transpositionFactory( trans )
-  , m_transpositionProgress( 0 )
+  , m_transposition( 0 )
 {
+
 }
 
 template< cube_size N >
@@ -66,7 +58,7 @@ size_t GuideFactory<N>::GuideBase::index() const
 template< cube_size N >
 void GuideFactory<N>::GuideBase::setNode( Node * node )
 {
-  m_node = node;
+  m_node  = node;
   m_prior = node -> prior( m_index );
   m_state = node -> state( m_index );
   m_depth = node -> depth;
@@ -92,17 +84,16 @@ void GuideFactory<N>::GuideBase::setAsChild() const
 }
 
 template< cube_size N >
-CubeID GuideFactory<N>::GuideBase::transpose( const CubeID cubeID )
+void GuideFactory<N>::GuideBase::transpose( const CubeID cubeID )
 {
-  m_transpositionProgress = cubeID;
-  m_transposition = Simplex::Composition( m_transpositionFactory, m_transpositionProgress );
-  return m_transposition;
+  m_transposition = cubeID;
 }
 
 template< cube_size N >
 CubeID GuideFactory<N>::GuideBase::getTransposition( const Rubik<N> * cube ) const
 {
-  CubeID result = m_transpositionProgress;
+  return 0;
+  CubeID result = m_transposition;
   DistID dist = distanceOf( cube );
   all_cubeid( cid )
   {
@@ -115,7 +106,7 @@ CubeID GuideFactory<N>::GuideBase::getTransposition( const Rubik<N> * cube ) con
     }
   }
 
-  return result;
+  return Simplex::Composition( result, m_transposition );
 }
 
 template< cube_size N >

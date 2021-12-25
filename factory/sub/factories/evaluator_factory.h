@@ -26,6 +26,8 @@ protected:
   Array<NodeChart> m_nodeChart;
 
   Evaluator();
+  Evaluator( const GuideFactory<N>::Evaluator & ) = default;
+  Evaluator( const GuideFactory<N>::Subgroup &, AcceptFunction af = Accept<N>::Normal );
   Evaluator( Pattern<N> pattern, AcceptFunction af = Accept<N>::Normal );
 
 };
@@ -36,6 +38,16 @@ GuideFactory<N>::Evaluator::Evaluator()
   , m_nodeChart( 0 )
 {
 
+}
+
+template< cube_size N >
+GuideFactory<N>::Evaluator::Evaluator( const GuideFactory<N>::Subgroup & subgroup, AcceptFunction af )
+  : RootSetAPI   ( subgroup, af )
+  , ConnectionAPI( subgroup )
+  , SubgroupAPI  ( subgroup )
+  , m_nodeChart( SubgroupAPI::groupSize() )
+{
+  init();
 }
 
 template< cube_size N >

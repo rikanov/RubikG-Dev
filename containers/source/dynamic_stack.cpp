@@ -35,7 +35,7 @@ void Stack<Type>::push( const Type * beg, const Type * end )
 }
 
 template< typename Type >
-Type Stack<Type>::top() const
+const Type & Stack<Type>::top() const
 {
   return *( m_push - 1 );
 }

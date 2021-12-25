@@ -29,6 +29,10 @@ public:
   {
     return Guides::end();
   }
+  const Guide & top() const
+  {
+    return Guides::top();
+  }
 };
 
 template< cube_size N >

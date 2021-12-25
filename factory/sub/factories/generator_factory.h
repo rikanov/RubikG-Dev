@@ -4,7 +4,7 @@
 #include <factory_tree.h>
 
 template< cube_size N >
-class GuideFactory<N>::GroupGenerator: protected Pattern<N>
+class GuideFactory<N>::GroupGenerator: public Pattern<N>
 {
   static constexpr size_t AllRot = CRotations<N>::AllRotIDs;
   
