@@ -37,6 +37,7 @@ template< cube_size N >
 GuideFactory<N>::EvaluatorAPI::EvaluatorAPI( const Subgroup & subgroup, AcceptFunction af )
   : Evaluator( subgroup, af )
 {
+
 }
 
 template< cube_size N >

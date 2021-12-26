@@ -11,11 +11,23 @@ GuideFactory<N>::GuideFactory()
 }
 
 template< cube_size N >
-typename GuideFactory<N>::Guide GuideFactory<N>::getGuide( Pattern<N> pattern, AcceptFunction af )
+typename GuideFactory<N>::Guide GuideFactory<N>::getGuide( const Pattern<N> & pattern, AcceptFunction af )
 {
-  m_subgroups.push( Subgroup( pattern ) );
+  static size_t index = 0;
+  Subgroup next;
+  for ( auto P : m_subgroups )
+  {
+    CubeID trans = 0;
+    if ( P.getTransposition( pattern, trans ) )
+    {
+      next = Guide( P, af, index ++, trans );
+    }
+  }
 
-  return Guide( m_subgroups.top(), af, m_subgroups.size() - 1, 0 );
+  next = Subgroup( pattern );
+  m_subgroups.push( next );
+
+  return Guide( next, af, index ++, 0 );
 }
 
 #endif  //  ! FACTORY_CREATE__H

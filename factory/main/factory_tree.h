@@ -42,7 +42,7 @@ public:
   class Guide;
   class GuideBase;
   GuideFactory();
-  Guide getGuide( Pattern<N>, AcceptFunction );
+  Guide getGuide( const Pattern<N> &, AcceptFunction );
 
 };
 

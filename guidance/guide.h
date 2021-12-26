@@ -30,8 +30,9 @@ public:
 
 template< cube_size N >
 GuideFactory<N>::Guide::Guide( const Subgroup & subgroup, AcceptFunction af, const size_t index, const CubeID trans )
-  : GuideBase( subgroup, af, index, trans )
+  : GuideBase( subgroup, af, index)
 {
+  GuideBase::rotatePattern( trans );
 }
 
 template< cube_size N >

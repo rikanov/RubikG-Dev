@@ -27,7 +27,7 @@ protected:
 
   Evaluator();
   Evaluator( const GuideFactory<N>::Evaluator & ) = default;
-  Evaluator( const GuideFactory<N>::Subgroup &, AcceptFunction af = Accept<N>::Normal );
+  Evaluator( const GuideFactory<N>::Subgroup &, AcceptFunction af );
   Evaluator( Pattern<N> pattern, AcceptFunction af = Accept<N>::Normal );
 
 };

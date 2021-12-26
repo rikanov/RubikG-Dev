@@ -55,7 +55,6 @@ public:
   CubeID getPrior ( const Rubik<N> * Cube, const CubeID trans = 0 ) const;
   GroupID getState( const Rubik<N> * Cube, const CubeID trans = 0 ) const;
 
-  Pattern<N> transpose  ( const CubeID ) const;
   Pattern<N> operator * ( const CubeID ) const;
   bool operator == ( const Pattern<N> & ) const;
   bool getTransposition( const Pattern<N> & from, CubeID & trans /*result*/ ) const;
@@ -125,11 +124,10 @@ GroupID Pattern<N>::getState( const Rubik<N> * Cube, const CubeID trans ) const
 }
 
 template< cube_size N >
-Pattern<N> Pattern<N>::transpose( const CubeID transposition ) const
+Pattern<N> Pattern<N>::operator * ( const CubeID transposition ) const
 {
   Pattern<N> result( size() );
 
-  size_t index = 0;
   for ( auto P : *this )
   {
     result.push( CPositions<N>::GetPosID( P, transposition ) );
@@ -137,12 +135,6 @@ Pattern<N> Pattern<N>::transpose( const CubeID transposition ) const
   std::sort( result.begin(), result.end() );
   result.setPrior();
   return result;
-}
-
-template< cube_size N >
-Pattern<N> Pattern<N>::operator * ( const CubeID transposition ) const
-{
-  return transpose( transposition );
 }
 
 template< cube_size N >
