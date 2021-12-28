@@ -11,7 +11,6 @@ class GuideFactory<N>::GuideBase: public GuideFactory<N>::EvaluatorAPI
   size_t  m_index;
 
   CubeID  m_transposition;
-  CubeID  m_rotatePattern;
   Node  * m_node;
 
   CubeID  * m_prior;
@@ -35,11 +34,11 @@ protected:
 
   DistID distanceOf( const Rubik<N> * cube ) const;
 
-  void rotatePattern( const CubeID );
 public:
   void transpose( const CubeID cubeID = 0 );
   CubeID  getTransposition( const Rubik<N> * ) const;
 
+  bool solveNode( const Node * node ) const;
 };
 
 template< cube_size N >
@@ -86,16 +85,9 @@ void GuideFactory<N>::GuideBase::setAsChild() const
 }
 
 template< cube_size N >
-void GuideFactory<N>::GuideBase::rotatePattern( const CubeID transposition )
-{
-  m_rotatePattern = transposition;
-}
-
-
-template< cube_size N >
 void GuideFactory<N>::GuideBase::transpose( const CubeID cubeID )
 {
-  m_transposition = Simplex::Composition( m_rotatePattern, cubeID );
+  m_transposition = Simplex::Composition( EvaluatorAPI::base(), cubeID );
 }
 
 template< cube_size N >
@@ -126,8 +118,7 @@ bool GuideFactory<N>::GuideBase::restrict() const
     return false;
   }
 
-  const BitMap32ID target = EvaluatorAPI::target( *m_prior, *m_state, m_depth );
-  if ( ! m_node -> target.restrict( target ) )
+  if ( ! m_node -> target.restrict( EvaluatorAPI::target( *m_prior, *m_state, m_depth ) ) )
   {
     return false;
   }
@@ -146,6 +137,16 @@ template< cube_size N >
 DistID GuideFactory<N>::GuideBase::distanceOf( const Rubik<N> * cube ) const
 {
   return EvaluatorAPI::distance( Pattern<N>::getState( cube, m_transposition ) );
+}
+
+template< cube_size N >
+bool GuideFactory<N>::GuideBase::solveNode( const Node * node ) const
+{
+  const size_t index = GuideBase::index();
+  const CubeID prior = node -> prior[ index ];
+  const GroupID state = node -> state[ index ];
+  const BitMap32ID target = EvaluatorAPI::target( prior, state, node -> depth );
+  return EvaluatorAPI::accepted( state ) && node -> target.hasCommon( target );
 }
 
 #endif  //  ! ___GUIDE_BASE__H

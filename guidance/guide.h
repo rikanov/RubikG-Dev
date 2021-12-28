@@ -16,7 +16,7 @@ class GuideFactory<N>::Guide: public GuideFactory<N>::GuideBase
 public:
 
   Guide() = default;
-  Guide( const Subgroup & subgroup, AcceptFunction af, const size_t index, const CubeID trans = 0 );
+  Guide( const Subgroup & subgroup, AcceptFunction af, const size_t index, const CubeID trans );
 
   void setOptionalRoot ( const Rubik<N> * cube, Node * node, const CubeID trans );
   bool setScheduledRoot( const Rubik<N> * cube, Node * node, const CubeID trans );
@@ -24,15 +24,13 @@ public:
   void setOptionalNode ( Node * next );
   bool setScheduledNode( Node * next );
 
-
-  bool solveNode( const Node * node ) const;
 };
 
 template< cube_size N >
 GuideFactory<N>::Guide::Guide( const Subgroup & subgroup, AcceptFunction af, const size_t index, const CubeID trans )
   : GuideBase( subgroup, af, index)
 {
-  GuideBase::rotatePattern( trans );
+  EvaluatorAPI::rebase( trans );
 }
 
 template< cube_size N >
@@ -69,15 +67,5 @@ bool GuideFactory<N>::Guide::setScheduledNode( Node * next)
   return GuideBase::restrict();
 }
 
-template< cube_size N >
-bool GuideFactory<N>::Guide::solveNode( const Node * node ) const
-{
-  const size_t index = GuideBase::index();
-  const CubeID  prior = node -> prior[ index ];
-  const GroupID state = node -> state[ index ];
-
-  const BitMap32ID targetSet = EvaluatorAPI::target( prior, state, node -> depth );
-  return EvaluatorAPI::accepted( state ) && node -> target.hasCommon( targetSet );
-}
 
 #endif  //  ! ___PROGRESS_GUIDE__H

@@ -20,7 +20,7 @@ protected:
 public:
   Subgroup();
   Subgroup( const GroupGeneratorAPI & groupGeneratorAPI );
-  Subgroup( Pattern<N> pattern );
+  Subgroup( const Pattern<N> & pattern );
 
 };
 
@@ -39,7 +39,7 @@ GuideFactory<N>::Subgroup::Subgroup( const GroupGeneratorAPI & groupGeneratorAPI
 }
 
 template< cube_size N >
-GuideFactory<N>::Subgroup::Subgroup( Pattern<N> pattern )
+GuideFactory<N>::Subgroup::Subgroup( const Pattern<N> & pattern )
   : GroupGeneratorAPI( pattern )
   , m_subgroupMap( GroupGeneratorAPI::groupSize() * AllRot + 1 )
   , m_transRotation ( 24 * CRotations<N>::AllRotIDs )

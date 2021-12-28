@@ -10,10 +10,22 @@ template< cube_size N >
 class GuideFactory<N>::EvaluatorAPI: public GuideFactory<N>::Evaluator
 {
 
+  CubeID m_rebase;
+  CubeID m_inverseBase;
+
 public:
   EvaluatorAPI();
-  EvaluatorAPI( const Subgroup & subgroup, AcceptFunction af = Accept<N>::Normal );
+  EvaluatorAPI( const Subgroup & subgroup, AcceptFunction af );
 
+  void rebase( const CubeID rot )
+  {
+    m_rebase = rot;
+    m_inverseBase = Simplex::Inverse( rot );
+  }
+  CubeID base() const
+  {
+    return m_rebase;
+  }
   BitMapID gradient( const CubeID prior, const GroupID state, const DistID D ) const;
   BitMap32ID target( const CubeID prior, const GroupID state, const DistID D ) const;
 
@@ -30,12 +42,14 @@ public:
 template< cube_size N >
 GuideFactory<N>::EvaluatorAPI::EvaluatorAPI()
   : Evaluator()
+  , m_rebase( 0 )
 {
 }
 
 template< cube_size N >
 GuideFactory<N>::EvaluatorAPI::EvaluatorAPI( const Subgroup & subgroup, AcceptFunction af )
   : Evaluator( subgroup, af )
+  , m_rebase( 0 )
 {
 
 }
@@ -70,7 +84,7 @@ BitMap32ID GuideFactory<N>::EvaluatorAPI::target( const CubeID prior, const Grou
     return ( 1 << 24 ) - 1;
   }
   const BitMap32ID aim = Evaluator::m_nodeChart[ state ].aim;
-  return CubeSet::GetCubeSet( prior, aim );
+  return CubeSet::GetCubeSet( prior, aim, m_inverseBase );
 }
 
 #endif  //  ! ___EVALUATOR_API__H

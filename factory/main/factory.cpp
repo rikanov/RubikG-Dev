@@ -20,7 +20,7 @@ typename GuideFactory<N>::Guide GuideFactory<N>::getGuide( const Pattern<N> & pa
     CubeID trans = 0;
     if ( P.getTransposition( pattern, trans ) )
     {
-      next = Guide( P, af, index ++, trans );
+      return Guide( P, af, index ++, trans );
     }
   }
 

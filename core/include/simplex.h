@@ -58,6 +58,7 @@ public:
   static const OCube &   GetCube     ( Orient r, Orient u )           { return Singleton -> getCube     ( r, u ); }
   static CubeID          GetGroupID  ( Orient r, Orient u )           { return Singleton -> getGroupID  ( r, u ); }
   static CubeID          Composition ( CubeID a, CubeID b )           { return Singleton -> composition ( a, b ); }
+  static CubeID          Composition ( CubeID a, CubeID b, CubeID c ) { return Composition( Composition( a, b), c );}
   static CubeID          Tilt        ( Axis a, Turn t = 1 )           { return Singleton -> tilt        ( a, t ); }
   static CubeID          Tilt        ( CubeID c, Axis a, Turn t = 1 ) { return Singleton -> tilt     ( c, a, t ); }
   static CubeID          Inverse     ( CubeID a )                     { return Singleton -> inverse     ( a );    }

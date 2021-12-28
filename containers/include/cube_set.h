@@ -45,6 +45,10 @@ public:
   {
     return m_lowMapRight[ 24 * ( sid & 4095 ) + cid ] | m_highMapRight[ 24 * ( sid >> 12 ) + cid ];
   }
+  static BitMap32ID GetCubeSet ( const CubeID cid1, const BitMap32ID sid, const CubeID cid2 )
+  {
+    return GetCubeSet( GetCubeSet( cid1, sid ), cid2 );
+  }
   static void PrintHead();
   static void Print ( BitMap32ID bid, const bool head = false );
   static void Print_( BitMap32ID bid, const bool head = false );

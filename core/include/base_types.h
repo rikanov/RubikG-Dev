@@ -24,8 +24,6 @@
 #include <def_colors.h>
 #include <string>
 
-typedef uint8_t byte;
-
  // ID types
 //  --------
 typedef uint8_t  cube_size;
