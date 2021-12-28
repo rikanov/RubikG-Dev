@@ -46,10 +46,14 @@ bool UnitTests::unit_Progress() const
       CPositions<N>::GetPosID( 1, 1, 2 ),
       CPositions<N>::GetPosID( 2, 1, 2 ),
       CPositions<N>::GetPosID( 1, 0, 2 ),
+    };
+
+    const Pattern<N> bind = {
+      CPositions<N>::GetPosID( 1, 0, 2 ),
       CPositions<N>::GetPosID( 1, 0, 1 )
     };
 
-    const Pattern<N> block = {
+    const Pattern<N> block0 = {
       CPositions<N>::GetPosID( 2, 0, 2 ),
       CPositions<N>::GetPosID( 2, 0, 1 ),
       CPositions<N>::GetPosID( 1, 0, 2 )
@@ -71,11 +75,12 @@ bool UnitTests::unit_Progress() const
     Progress<N> test;
 
     timerON();
-    const Pattern<N> block1 = block * Simplex::Tilt( _Z, 1 );
-    const Pattern<N> block2 = block * Simplex::Tilt( _Z, 2 );
-    const Pattern<N> block3 = block * Simplex::Tilt( _Z, 3 );
+    const Pattern<N> block1 = block0 * Simplex::Tilt( _Z, 1 );
+    const Pattern<N> block2 = block0 * Simplex::Tilt( _Z, 2 );
+    const Pattern<N> block3 = block0 * Simplex::Tilt( _Z, 3 );
     test.addGuide( _Scheduled, cross );
-    test.addGuide( _Optional,  block );
+    test.addGuide( _Scheduled, bind );
+    test.addGuide( _Optional,  block0 );
     test.addGuide( _Optional,  block1 );
     test.addGuide( _Optional,  block2 );
     test.addGuide( _Optional,  block3 );

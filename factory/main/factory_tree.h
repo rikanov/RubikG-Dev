@@ -34,13 +34,14 @@ public:
   class Evaluator;
   class EvaluatorAPI;
 
+  class Guide;
+  class GuideBase;
+
 private:
-  Stack<Subgroup> m_subgroups;
+  Stack<Guide> m_guides;
 
 public:
 
-  class Guide;
-  class GuideBase;
   GuideFactory();
   Guide getGuide( const Pattern<N> &, AcceptFunction );
 

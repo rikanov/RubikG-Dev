@@ -72,7 +72,6 @@ const Rubik<N>& Rubik<N>::operator = ( const Rubik<N>& C )
   return *this;
 }
 
-// equlity
 template< cube_size N >
 bool Rubik<N>::operator == ( const Rubik<N>& C ) const
 {

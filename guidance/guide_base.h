@@ -22,8 +22,6 @@ protected:
   GuideBase() = default;
   GuideBase( const Subgroup & subgroup, AcceptFunction af, const size_t index );
 
-  size_t index() const;
-
   void setNode( Node * );
 
   void setAsRoot  ( const Rubik<N> * ) const;
@@ -35,6 +33,11 @@ protected:
   DistID distanceOf( const Rubik<N> * cube ) const;
 
 public:
+  size_t index() const;
+  void index( const size_t id )
+  {
+    m_index = id;
+  }
   void transpose( const CubeID cubeID = 0 );
   CubeID  getTransposition( const Rubik<N> * ) const;
 

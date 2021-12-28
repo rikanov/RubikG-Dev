@@ -24,6 +24,9 @@ protected:
 
   RootSet() = default;
   RootSet( Pattern<N> pattern, AcceptFunction af = Accept<N>::Normal );
+
+public:
+  AcceptFunction acceptance() const;
 };
 
 
@@ -84,6 +87,12 @@ void GuideFactory<N>::RootSet::addRoot( const GroupID rootID )
     ++ m_numberOfRoots;
     *( m_nextRoot ++ ) = rootID;
   }
+}
+
+template< cube_size N >
+AcceptFunction GuideFactory<N>::RootSet::acceptance() const
+{
+  return m_accept;
 }
 
 #endif  //  ! ___ROOT_SET_FACTORY__H

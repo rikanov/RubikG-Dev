@@ -59,7 +59,7 @@ public:
   void transpose( const CubeID );
   Pattern<N> operator * ( const CubeID ) const;
   bool operator == ( const Pattern<N> & ) const;
-  bool getTransposition( const Pattern<N> & from, CubeID & trans /*result*/ ) const;
+  bool isTransposed( const Pattern<N> & from, CubeID & trans /*result*/ ) const;
   void print() const;
 };
 
@@ -162,7 +162,7 @@ bool Pattern<N>::operator == ( const Pattern<N> & p ) const
 }
 
 template< cube_size N >
-bool Pattern<N>::getTransposition( const Pattern<N> & from, CubeID & trans ) const
+bool Pattern<N>::isTransposed( const Pattern<N> & from, CubeID & trans ) const
 {
   all_cubeid( cid )
   {
