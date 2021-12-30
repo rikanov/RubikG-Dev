@@ -48,9 +48,9 @@ protected:
     return m_subTree -> begin();
   }
 
-  Sequence getSolution() const
+  Sequence getSolution( const Node * last ) const
   {
-    return m_subTree -> getSolution();
+    return m_subTree -> getSolution( last );
   }
 
 };

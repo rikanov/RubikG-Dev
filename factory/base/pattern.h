@@ -1,9 +1,12 @@
 #ifndef ___CUBE_PATTERN_H
 #define ___CUBE_PATTERN_H
 
+#include <bool_array.h>
 #include <cube_set.h>
+#include <dynamic_stack.h>
 #include <algorithm>
-#include <rubik.h>
+#include <cube_rotations.h>
+#include <cube_positions.h>
 
 template< cube_size N >
 class Pattern: public Stack<PosID>
@@ -52,9 +55,6 @@ public:
 
   CubeID movePrior( const CubeID prior, const RotID rotID ) const;
   bool valid( GroupID ) const;
-
-  CubeID getPrior ( const Rubik<N> * Cube, const CubeID trans = 0 ) const;
-  GroupID getState( const Rubik<N> * Cube, const CubeID trans = 0 ) const;
 
   void transpose( const CubeID );
   Pattern<N> operator * ( const CubeID ) const;
@@ -105,24 +105,6 @@ bool Pattern<N>::valid( GroupID gid ) const
     positions.set( next, true );
   }
   return true;
-}
-
-template< cube_size N >
-CubeID Pattern<N>::getPrior(const Rubik<N>* Cube, const CubeID trans ) const
-{
-  return Cube -> transpose( getPriorPos(), trans );
-}
-
-template< cube_size N >
-GroupID Pattern<N>::getState( const Rubik<N> * Cube, const CubeID trans ) const
-{
-  BitMapID result = 0;
-  const CubeID invPrior = Simplex::Inverse( getPrior( Cube, trans ) );
-  for ( int id = 0; id < size() - 1; ++ id )
-  {
-    result += Simplex::Composition( Cube -> transpose( m_array[id], trans ), invPrior ) * pow24( id );
-  }
-  return result;
 }
 
 template< cube_size N >

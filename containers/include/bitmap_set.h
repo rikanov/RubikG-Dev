@@ -18,6 +18,11 @@ public:
     set( ds );
   }
   
+  operator BitMapID & ()
+  {
+    return m_dataSet;
+  }
+
   void set( const uint64_t ds )
   {
     m_dataSet = ds;
@@ -90,7 +95,7 @@ public:
     return m_dataSet & ( 1ULL << bit );
   }
 
-  BitMapID data() const
+  const BitMapID & data() const
   {
     return m_dataSet;
   }

@@ -1,11 +1,30 @@
-#include <rubik.h>
+#include <rubik_api.h>
 
-
- // Printer
-//  -------
 
 template< cube_size N >
-void Rubik<N>::show( Orient F ) const
+OCube RubikAPI<N>::getCube( const PosID id ) const
+{
+  return Simplex::GetCube( RubikGroup<N>::getCubeID ( id ) );
+}
+
+template< cube_size N >
+Orient RubikAPI<N>::getOrient( const Orient right, const Orient up, const Layer x, const Layer y ) const
+{
+  if ( Coaxial ( right, up ) || x < 0 || x >= N || y < 0 || y >= N ) // invalid setting
+  {
+    return _NF;
+  }
+
+  const CubeID trans  = Simplex::GetGroupID     ( right, up );
+  const CubeID inv    = Simplex::Inverse        ( trans );
+  const Orient orient = OCube::FrontSide        ( right, up ); // = Simplex::GetCube( trans ).whatIs( _F );
+  const PosID  index  = CPositions<N>::GetPosID ( x, y, N - 1, inv );
+
+  return getCube ( index ).whatIs( orient );
+}
+
+template< cube_size N >
+void RubikAPI<N>::show( const Orient F ) const
 {
   if ( _NF == F )
   {
@@ -18,14 +37,14 @@ void Rubik<N>::show( Orient F ) const
 }
 
 template< cube_size N >
-void Rubik<N>::show( Orient right, Orient up, Layer x, Layer y ) const
+void RubikAPI<N>::show( const Orient right, const Orient up, const Layer x, const Layer y ) const
 {
   const Orient F = getOrient( right, up, x, y );
   show( F );
 }
 
 template< cube_size N >
-void Rubik<N>::print( Orient right, Orient up ) const
+void RubikAPI<N>::print( const Orient right, const Orient up ) const
 {
   NL();
   for ( Layer y = N - 1; y >= 0; --y )
@@ -35,14 +54,14 @@ void Rubik<N>::print( Orient right, Orient up ) const
       show( right, up, x, y );
     }
     NL();
-  }        
+  }
   NL();
 }
 
 template< cube_size N >
-void Rubik<N>::print( bool separator ) const
+void RubikAPI<N>::print( const bool separator ) const
 {
-  const int SideSize = separator ? N + 1 : N; 
+  const int SideSize = separator ? N + 1 : N;
   // print UP side
   for ( Layer y = SideSize; y > 0; --y )
   {
@@ -66,8 +85,8 @@ void Rubik<N>::print( bool separator ) const
       {
         show( right, _U, x, y - 1 );
       }
-	}
-	NL();
+    }
+    NL();
   }
   // print DOWN side
   for ( Layer y = SideSize ; y > 0; --y )

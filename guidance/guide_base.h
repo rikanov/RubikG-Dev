@@ -4,6 +4,7 @@
 
 #include <node.h>
 #include <APIs/evaluator_api.h>
+#include <rubik.h>
 
 template< cube_size N >
 class GuideFactory<N>::GuideBase: public GuideFactory<N>::EvaluatorAPI
@@ -71,8 +72,8 @@ void GuideFactory<N>::GuideBase::setNode( Node * node )
 template< cube_size N >
 void GuideFactory<N>::GuideBase::setAsRoot( const Rubik<N> * cube ) const
 {
-  *m_prior = Pattern<N>::getPrior( cube, m_transposition );
-  *m_state = Pattern<N>::getState( cube, m_transposition );
+  *m_prior = cube -> getPrior( *this, m_transposition );
+  *m_state = cube -> getState( *this, m_transposition );
 }
 
 template< cube_size N >
@@ -100,7 +101,7 @@ CubeID GuideFactory<N>::GuideBase::getTransposition( const Rubik<N> * cube ) con
   DistID dist = distanceOf( cube );
   all_cubeid( cid )
   {
-    const GroupID nextState = Pattern<N>::getState( cube, cid );
+    const GroupID nextState = cube -> getState( *this, cid );
     const DistID  nextDist  = EvaluatorAPI::distance( nextState );
     if ( nextDist < dist )
     {
@@ -139,7 +140,7 @@ void GuideFactory<N>::GuideBase::expand() const
 template< cube_size N >
 DistID GuideFactory<N>::GuideBase::distanceOf( const Rubik<N> * cube ) const
 {
-  return EvaluatorAPI::distance( Pattern<N>::getState( cube, m_transposition ) );
+  return EvaluatorAPI::distance( cube -> getState( *this, m_transposition ) );
 }
 
 template< cube_size N >

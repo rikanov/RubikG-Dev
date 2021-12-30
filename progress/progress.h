@@ -19,7 +19,6 @@ class Progress: protected ProgressTree
 
   void reset();
   bool progress();
-  Sequence resolve() const;
 
   // iteratively deepening algorithm
   bool startIDA();
@@ -104,7 +103,7 @@ template<cube_size N> bool Progress<N>::startIDA()
   }
   if ( solved )
   {
-    const Sequence result = resolve();
+    const Sequence result = ProgressTree::getSolution( m_current );
     m_cube -> rotate( result );
     consistency &= CRotations<N>::Print( result );
     GuideManager<N>::m_cube -> print();
@@ -136,17 +135,6 @@ bool Progress<N>::progress()
     }
   }
   return m_current -> solved();
-}
-
-template< cube_size N >
-Sequence Progress<N>::resolve() const
-{
-  Sequence result;
-  for ( const Node * P = ProgressTree::root(); P != m_current; ++ P )
-  {
-    result << P -> rotate;
-  }
-  return result;
 }
 
 #endif  //  ! ___PROGRESS__H

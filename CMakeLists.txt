@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 
 project(rubikg)
 
+include_directories( rubik/include/ )
 include_directories( progress/ )
 include_directories( guidance/ )
 include_directories( factory/base/ )

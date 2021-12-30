@@ -20,8 +20,8 @@ Array<Type>::Array( const size_t size )
 template<class Type>
 void Array<Type>::fill( const Type * beg, const Type * end )
 {
-  m_array = std::shared_ptr<Type[]> ( new Type [ end - beg ] );
-  for ( size_t id = 0; beg != end; ++ id, ++ beg )
+  const int d = ( beg < end ) ? 1 : -1;
+  for ( size_t id = 0; beg != end; ++ id, beg += d )
   {
     m_array[id] = *beg;
   }

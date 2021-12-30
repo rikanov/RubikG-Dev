@@ -37,10 +37,14 @@ public:
     return m_maxHeight;
   }
 
-  Sequence getSolution()
+  Sequence getSolution( const Node * last )
   {
-    // ToDo
-    return Sequence();
+    Sequence result;
+    for ( const Node * P = Array<Node>::begin(); P != last; ++ P )
+    {
+      result << P -> rotate;
+    }
+    return result;
   }
 };
 
