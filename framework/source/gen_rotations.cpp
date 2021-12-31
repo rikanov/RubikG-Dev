@@ -58,7 +58,7 @@ void GenerateRotationSet<N>::createShadowing()
 }
 
 
-template< cube_size N >
+template< cube_size N > inline
 void GenerateRotationSet<N>::FlipAxis( BitMapID & rotSetID , const Axis axis )
 {
   const BitMapID flippedPart = m_flipped[ ( rotSetID >> ( axis * m_length ) ) & m_mask ];
@@ -66,7 +66,7 @@ void GenerateRotationSet<N>::FlipAxis( BitMapID & rotSetID , const Axis axis )
   rotSetID |= flippedPart << ( axis * m_length );
 }
 
-template< cube_size N >
+template< cube_size N > inline
 void GenerateRotationSet<N>::Permute( BitMapID & rotSetID, const Axis x, const Axis y, const Axis z )
 {
   const BitMapID X = ( rotSetID                 ) & m_mask;
@@ -79,7 +79,7 @@ void GenerateRotationSet<N>::Permute( BitMapID & rotSetID, const Axis x, const A
 }
 
 
-template< cube_size N >
+template< cube_size N > inline
 Axis GenerateRotationSet<N>::TransAxis( BitMapID & rotSetID, const Axis axis, const CubeID cid )
 {
   const Orient axisBase = GetAxisBase( axis );
@@ -112,7 +112,7 @@ Axis GenerateRotationSet<N>::TransAxis( BitMapID & rotSetID, const Axis axis, co
   }
 }
 
-template< cube_size N >
+template< cube_size N > inline
 void GenerateRotationSet<N>::Transform( BitMapID & rotSetID , const CubeID cid )
 {
   if ( rotSetID < 2 )

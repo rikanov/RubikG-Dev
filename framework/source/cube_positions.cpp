@@ -1,3 +1,6 @@
+
+#include <simplex.h>
+#include <random>
 #include <cube_positions.h>
 
 
@@ -24,7 +27,8 @@ void CPositions<N>::OnExit( void )
   delete Singleton; Singleton = nullptr;
 }
 
-template< cube_size N > PosID * CPositions<N>::GetNode( CubeID id )
+template< cube_size N > inline
+PosID * CPositions<N>::GetNode( CubeID id )
 {
   return Singleton->m_routerPositions[ id ];
 }
@@ -35,55 +39,49 @@ PosID * CPositions<N>::GetNode( Layer x, Layer y, Layer z )
   return GetNode( GetPosID ( x, y, z) );
 }
 
-template< cube_size N >
+template< cube_size N > inline
 bool CPositions<N>::ValID( PosID id )
 {
   return 0 <= id && id < GetSize();
 }
 
-template< cube_size N >
+template< cube_size N > inline
 PosID CPositions<N>::GetPosID( PosID id, CubeID rot )
 {
   return Singleton -> m_routerPositions[ id ][ rot ];
 }
 
-template< cube_size N >
+template< cube_size N > inline
 PosID CPositions<N>::GetPosID( const Coord & C )
 {
   return GetPosID( C.x, C.y, C.z);
 }
 
-template< cube_size N >
+template< cube_size N > inline
 PosID CPositions<N>::GetPosID( Layer x, Layer y, Layer z )
 {
   return Singleton -> m_coordToIndex[ x ][ y ][ z ];
 }
 
-template< cube_size N >
+template< cube_size N > inline
 PosID CPositions<N>::GetPosID( Layer x, Layer y, Layer z, CubeID rot )
 {
   return GetNode( x, y, z ) [ rot ];
 }
 
-template< cube_size N >
+template< cube_size N > inline
 PosID CPositions<N>::GetLayer( Axis a, Layer l, size_t id )
 {
   return Singleton -> m_frameworkLayer [ a ][ l ][ id ];
 }
 
-template< cube_size N >
-Layer CPositions<N>::LayerSize( Layer l )
-{
-  return l == 0 || l == N - 1 ? N * N : 4 * ( N - 1 );
-}
-
-template< cube_size N >
+template< cube_size N > inline
 Layer CPositions<N>::GetLayer( PosID p, Axis a )
 {
   return Singleton -> m_indexToCoord [ p ][ a ];
 }
 
-template< cube_size N >
+template< cube_size N > inline
 Layer CPositions<N>::GetLayer( PosID p, CubeID r, Axis a )
 {
   return Singleton -> m_indexToCoord [ Singleton -> m_routerPositions[ p ][ r ] ][ a ];
@@ -112,7 +110,7 @@ Coord CPositions<N>::rotate( Layer x, Layer y, Layer z, CubeID id)
   return result;
 }
 
-template< cube_size N >
+template< cube_size N > inline
 BitMapID CPositions<N>::ActOn( const PosID posID )
 {
   const Coord pos = CPositions<N>::GetCoord( posID );
@@ -126,10 +124,6 @@ void CPositions<N>::initIndices()
   idX [N] = {}, idY [N] = {}, idZ [N] = {}; // slice indices
   for_vector ( x, y, z, N )
   {
-    m_frameworkLayer [ _X ][ x ][ idX[x] ++ ] = index;
-    m_frameworkLayer [ _Y ][ y ][ idY[y] ++ ] = index;
-    m_frameworkLayer [ _Z ][ z ][ idZ[z] ++ ] = index;
-
     m_indexToCoord [ index ][ _X ] = x;
     m_indexToCoord [ index ][ _Y ] = y;
     m_indexToCoord [ index ][ _Z ] = z;
@@ -146,18 +140,16 @@ void CPositions<N>::initPositions()
   {
     if ( GetPosID( x, y, z ) != 0xFF )
     {
-      if ( SHOW_LOG ) clog ( '\n', N, 'X', N,"  ... ", (Layer)x, (Layer)y, (Layer)z, "\t  ", (Layer) GetPosID( x, y, z) );
       all_cubeid ( id )
       {
         const Coord C = rotate ( x, y, z, id );
-        if ( SHOW_LOG ) clog ( Simplex::GetCube ( id ).toString(), " --> ", C.toString() , "\t| ", (Layer) GetPosID( C ) );
         m_routerPositions[ GetPosID( x, y, z ) ][ id ] = GetPosID( C );
       }
     }
   }
 }
 
-template< cube_size N >
+template< cube_size N > inline
 Coord CPositions<N>::GetCoord( PosID p )
 {
   return Coord(
@@ -175,10 +167,4 @@ PosID CPositions<N>::Random()
  static std::uniform_int_distribution<int> distribution( 0, AllPosIDs - 1 );
 
  return distribution( randomEngine );
-}
-
-template< cube_size N >
-void CPositions<N>::Print( const PosID posID )
-{
-  clog( GetCoord( posID ).toString() );
 }

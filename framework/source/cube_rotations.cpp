@@ -1,49 +1,49 @@
 #include <cube_rotations.h>
 
 
-template< cube_size N >
+template< cube_size N > inline
 RotID CRotations<N>::GetInvRotID( const RotID rotID )
 {
   return rotID + 2 - 2 * ( ( rotID - 1 ) % 3 );
 }
 
-template< cube_size N >
+template< cube_size N > inline
 RotID CRotations<N>::GetInvRotID( const Axis A, const Layer L, const Turn T )
 {
   return A * 3 * N + L * 3 + 4 - T;
 }
 
-template< cube_size N >
+template< cube_size N > inline
 RotID CRotations<N>::GetRotID( const Axis A, const Layer L, const Turn T )
 {
   return A * 3 * N + L * 3 + T;
 }
 
-template< cube_size N >
+template< cube_size N > inline
 Axis CRotations<N>::GetAxis( const RotID rotID )
 {
   return static_cast< Axis > ( ( rotID - 1 ) / ( 3 * N ) );
 }
 
-template< cube_size N >
+template< cube_size N > inline
 Layer CRotations<N>::GetLayer( const RotID rotID )
 {
   return ( ( rotID - 1 ) /3 ) % N;
 }
 
-template< cube_size N >
+template< cube_size N > inline
 Turn CRotations<N>::GetTurn( const RotID rotID )
 {
   return ( rotID - 1 ) % 3 + 1;
 }
 
-template< cube_size N >
+template< cube_size N > inline
 CubeID CRotations<N>::GetTilt( const RotID rotID )
 {
   return Simplex::Tilt( GetAxis( rotID ), GetTurn( rotID ) );
 }
 
-template< cube_size N >
+template< cube_size N > inline
 void CRotations<N>::Transform( Axis & axis, Layer & layer, Turn & turn, const CubeID cubeID )
 {
   const Orient base  = GetAxisBase( axis );
@@ -86,7 +86,7 @@ void CRotations<N>::Transform( Axis & axis, Layer & layer, Turn & turn, const Cu
   }
 }
 
-template< cube_size N >
+template< cube_size N > inline
 RotID CRotations<N>::GetRotID( const RotID rotID, const CubeID cubeID )
 {
   RotID R = rotID - 1;
@@ -98,7 +98,7 @@ RotID CRotations<N>::GetRotID( const RotID rotID, const CubeID cubeID )
   return GetRotID( axis, layer, turn );
 }
 
-template< cube_size N >
+template< cube_size N > inline
 CubeID CRotations<N>::Tilt( const CubeID cubeID, const RotID rotID  )
 {
   return Simplex::Tilt( cubeID, GetAxis( rotID ), GetTurn( rotID ) );
@@ -114,7 +114,7 @@ RotID CRotations<N>::Random()
   return distribution( randomEngine );
 }
 
-template< cube_size N >
+template< cube_size N > inline
 std::string CRotations<N>::ToString( const Axis A )
 {
   switch ( A )

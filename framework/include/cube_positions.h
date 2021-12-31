@@ -20,9 +20,7 @@
 #ifndef ___CUBE_POSITIONS_H
 #define ___CUBE_POSITIONS_H
 
-#include <text_output.h>
-#include <simplex.h>
-#include <random>
+#include <base_types.h>
 
 static constexpr bool SHOW_LOG = false; // setting true is only for debuging purposes
 
@@ -37,7 +35,6 @@ protected:
   static CPositions * Singleton; 
   
   PosID  m_routerPositions [ AllPosIDs ][ 24 ] = {};
-  PosID  m_frameworkLayer  [ 3 ] [ N ] [ N * N ]         = {}; // [axis] [layer index] [cubes] 
   PosID  m_coordToIndex    [ N ] [ N ] [ N ]             = {};
   Layer  m_indexToCoord    [ AllPosIDs ][ 3 ]  = {}; // [ PosID ] [ Axis ]
   
@@ -66,13 +63,11 @@ public:
   static   PosID   GetPosID  ( Layer x, Layer y, Layer z );
   static   PosID   GetPosID  ( Layer x, Layer y, Layer z, CubeID rot );
   static   PosID   GetLayer  ( Axis a, Layer l, size_t id );
-  static   Layer   LayerSize ( Layer l );
   static   Layer   GetLayer  ( PosID p, Axis a );
   static   Layer   GetLayer  ( PosID p, CubeID r, Axis a );
   static   Coord   GetCoord  ( PosID );
   static   PosID   Random    ();
   static BitMapID  ActOn     ( const PosID posID );
-  static   void    Print     ( const PosID posID );
 };
 
 // include template source

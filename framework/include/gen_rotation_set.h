@@ -11,7 +11,7 @@ class GenerateRotationSet
   static constexpr BitMapID m_mask    = ( 1ULL << m_length ) - 1;
 
   static const BitMapID * m_flipped;
-  static const BitMapID   * m_shadowing;
+  static const BitMapID * m_shadowing;
 
   GenerateRotationSet() = default;
   
