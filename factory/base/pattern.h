@@ -56,7 +56,7 @@ public:
   CubeID movePrior( const CubeID prior, const RotID rotID ) const;
   bool valid( GroupID ) const;
 
-  void transpose( const CubeID );
+  Pattern<N> transpose  ( const CubeID ) const;
   Pattern<N> operator * ( const CubeID ) const;
   bool operator == ( const Pattern<N> & ) const;
   bool isTransposed( const Pattern<N> & from, CubeID & trans /*result*/ ) const;
@@ -84,7 +84,7 @@ Pattern<N>::Pattern( const std::initializer_list<PosID> & list )
   setPrior();
 }
 
-template< cube_size N >
+template< cube_size N > inline
 CubeID Pattern<N>::movePrior( const CubeID prior, const RotID rotID ) const
 {
   return priorMoving( prior, rotID ) ? CRotations<N>::Tilt( prior, rotID ) : prior;
@@ -107,18 +107,8 @@ bool Pattern<N>::valid( GroupID gid ) const
   return true;
 }
 
-template< cube_size N >
-void Pattern<N>::transpose( const CubeID transposition )
-{
-  for ( auto P : *this )
-  {
-    P = CPositions<N>::GetPosID( P, transposition );
-  }
-  setPrior();
-}
-
-template< cube_size N >
-Pattern<N> Pattern<N>::operator * ( const CubeID transposition ) const
+template< cube_size N > inline
+Pattern<N> Pattern<N>::transpose( const CubeID transposition ) const
 {
   Pattern<N> result( size() );
 
@@ -128,6 +118,12 @@ Pattern<N> Pattern<N>::operator * ( const CubeID transposition ) const
   }
   result.setPrior();
   return result;
+}
+
+template< cube_size N >
+Pattern<N> Pattern<N>::operator * ( const CubeID transposition ) const
+{
+  return transpose( transposition );
 }
 
 template< cube_size N >

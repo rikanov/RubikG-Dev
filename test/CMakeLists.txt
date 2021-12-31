@@ -22,4 +22,4 @@ add_library(test  test.h
                  )
 
 
-target_link_libraries( test cli core containers factory )
+target_link_libraries( test cli core containers )

@@ -10,9 +10,9 @@ class GuideContainer: protected Stack< typename GuideFactory<N>::Guide >
 {
   static constexpr size_t MaxNumberOfGuides = 200;
 
-  using Guide = typename GuideFactory<N>::Guide;
+  using Guide  = typename GuideFactory<N>::Guide;
   using Guides = Stack<Guide>;
-  using Sequence = Stack<Guide *>;
+  using GSeq   = Stack<Guide *>;
 
 public:
   GuideContainer();
@@ -37,28 +37,36 @@ public:
 
 template< cube_size N >
 GuideContainer<N>::GuideContainer()
-  : Guides( MaxNumberOfGuides )
-  , Sequence( MaxNumberOfGuides )
+  : Guides ( MaxNumberOfGuides )
+  , GSeq   ( MaxNumberOfGuides )
 {
-  Sequence::push( Guides::begin() );
+  GSeq::push( Guides::begin() );
 }
 
 template< cube_size N >
 void GuideContainer<N>::add( const Guide & guide )
 {
+  for ( auto P = Guides::begin(); P != Guides::end(); ++ P )
+  {
+    if ( guide.stricterThan( *P ) )
+    {
+      *P = guide;
+      return;
+    }
+  }
   Guides::push( guide );
 }
 
 template< cube_size N >
 void GuideContainer<N>::nextSolution()
 {
-  Sequence::push( Guides::end() );
+  GSeq::push( Guides::end() );
 }
 
 template< cube_size N >
 void GuideContainer<N>::extend( GuideContainer::Guides& guides, const size_t step ) const
 {
-  guides.push( Sequence::get( step ), Sequence::get( step + 1 ) );
+  guides.push( GSeq::get( step ), GSeq::get( step + 1 ) );
 }
 
 

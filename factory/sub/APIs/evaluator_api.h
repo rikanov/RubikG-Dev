@@ -37,6 +37,14 @@ public:
   {
     return Evaluator::m_nodeChart[ state ].level;
   }
+  Pattern<N> pattern() const
+  {
+    return Pattern<N>::transpose( m_rebase );
+  }
+  bool stricterThan( const EvaluatorAPI & e ) const
+  {
+    return e.pattern() == pattern() && Accept<N>::Stricter( Evaluator::acceptance(), e.acceptance() );
+  }
 };
 
 template< cube_size N >
@@ -54,7 +62,7 @@ GuideFactory<N>::EvaluatorAPI::EvaluatorAPI( const Subgroup & subgroup, AcceptFu
 
 }
 
-template< cube_size N >
+template< cube_size N > inline
 BitMapID GuideFactory<N>::EvaluatorAPI::gradient( const CubeID prior, const GroupID state, const DistID dist ) const
 {
   const DistID D = distance( state );
@@ -71,7 +79,7 @@ BitMapID GuideFactory<N>::EvaluatorAPI::gradient( const CubeID prior, const Grou
   return grad;
 }
 
-template< cube_size N >
+template< cube_size N > inline
 BitMap32ID GuideFactory<N>::EvaluatorAPI::target( const CubeID prior, const GroupID state, const DistID dist ) const
 {
   const DistID D = distance( state );
