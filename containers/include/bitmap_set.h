@@ -23,6 +23,10 @@ public:
     return m_dataSet;
   }
 
+  operator BitMapID () const
+  {
+    return m_dataSet;
+  }
   void set( const uint64_t ds )
   {
     m_dataSet = ds;
