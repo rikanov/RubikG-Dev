@@ -25,6 +25,8 @@ protected:
   RootSet() = default;
   RootSet( Pattern<N> pattern, AcceptFunction af = Accept<N>::Normal );
 
+  bool accept( const PosID ) const;
+
 public:
   AcceptFunction acceptance() const;
 };
@@ -93,6 +95,12 @@ template< cube_size N >
 AcceptFunction GuideFactory<N>::RootSet::acceptance() const
 {
   return m_accept;
+}
+
+template< cube_size N >
+bool GuideFactory<N>::RootSet::accept( const PosID pos ) const
+{
+  return m_accept( pos );
 }
 
 #endif  //  ! ___ROOT_SET_FACTORY__H

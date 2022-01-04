@@ -168,3 +168,13 @@ PosID CPositions<N>::Random()
 
  return distribution( randomEngine );
 }
+
+template < cube_size N >
+std::string CPositions<N>::ToString( const PosID & posID )
+{
+  std::string result = "<";
+  result += std::to_string( GetLayer( posID, _X ) ) + ",";
+  result += std::to_string( GetLayer( posID, _Y ) ) + ",";
+  result += std::to_string( GetLayer( posID, _Z ) ) + ">";
+  return result;
+}

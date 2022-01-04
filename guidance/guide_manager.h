@@ -145,21 +145,13 @@ bool GuideManager<N>::emptyPool( Node * node )
   {
     if ( next -> solveNode( node ) )
     {
-      m_scheduled.push( *next );
+      m_scheduled.push( *next, [next]( const Guide & p ) { return next -> stricterThan( p ); } );
       m_optional.pop();
     }
     else
     {
       *( P ++ ) = *next;
     }
-  }
-
-  // a small optimization
-  if ( m_optional.size() == 1 )
-  {
-    m_scheduled.push( m_optional[0] );
-    m_optional.pop();
-    return false;
   }
 
   return ! optional();

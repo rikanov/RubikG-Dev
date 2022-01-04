@@ -43,7 +43,7 @@ public:
   }
   bool stricterThan( const EvaluatorAPI & e ) const
   {
-    return e.pattern() == pattern() && Accept<N>::Stricter( Evaluator::acceptance(), e.acceptance() );
+    return e.pattern() == pattern() && Accept<N>::StricterOn( pattern(), Evaluator::acceptance(), e.acceptance() );
   }
 };
 

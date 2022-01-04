@@ -68,6 +68,8 @@ public:
   static   Coord   GetCoord  ( PosID );
   static   PosID   Random    ();
   static BitMapID  ActOn     ( const PosID posID );
+
+  static std::string ToString ( const PosID & posID );
 };
 
 // include template source

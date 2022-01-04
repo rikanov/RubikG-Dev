@@ -159,7 +159,7 @@ void Pattern<N>::print() const
   clog( "size:", size() );
   for ( auto P : *this )
   {
-    CPositions<N>::Print( P );
+    clog_( CPositions<N>::ToString( P ) );
   }
 }
 

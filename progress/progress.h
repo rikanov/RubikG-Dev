@@ -67,7 +67,7 @@ template< cube_size N >
 size_t Progress<N>::start()
 {
   for ( bool set = true; m_step < m_numberOfSteps; m_step += set )
-  {
+  {clog( m_step, ':', m_numberOfSteps );
     if ( set )
     {
       ProgressTree::setStep( m_step );
@@ -76,11 +76,11 @@ size_t Progress<N>::start()
     startIDA();
     if ( ! m_current -> solved() )
     {
-      return m_step;
+      break;
     }
     set = GuideManager<N>::emptyPool( m_current );
   }
-  return 0;
+  return m_step;
 }
 
 template< cube_size N >

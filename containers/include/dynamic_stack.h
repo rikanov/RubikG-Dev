@@ -2,6 +2,7 @@
 #define ___DYNAMIC_STACK__H
 
 #include <dynamic_array.h>
+#include <functional>
 
 template< typename Type >
 class Stack: public Array<Type>
@@ -13,11 +14,13 @@ protected:
   void set( const size_t id );
 
 public:
+  using Condition = std::function< bool( const Type & ) >;
   Stack();
   Stack( const size_t size );
 
   void push( const Type & next );
   void push( const Type * beg, const Type * end );
+  void push( const Type &, Condition );
 
   const Type & top() const;
   Type pop();

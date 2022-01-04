@@ -66,7 +66,10 @@ void GuideContainer<N>::nextSolution()
 template< cube_size N >
 void GuideContainer<N>::extend( GuideContainer::Guides& guides, const size_t step ) const
 {
-  guides.push( GSeq::get( step ), GSeq::get( step + 1 ) );
+  for ( auto next = GSeq::get( step ); next != GSeq::get( step + 1 ); ++ next )
+  {
+    guides.push( *next, [next]( const Guide & P ) { return next -> stricterThan( P ); } );
+  }
 }
 
 

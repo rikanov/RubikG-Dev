@@ -35,6 +35,20 @@ void Stack<Type>::push( const Type * beg, const Type * end )
 }
 
 template< typename Type >
+void Stack<Type>::push( const Type & next, Condition cond )
+{
+  for ( auto P: *this )
+  {
+    if ( cond( P ) )
+    {
+      P = next;
+      return;
+    }
+  }
+  push( next );
+}
+
+template< typename Type >
 const Type & Stack<Type>::top() const
 {
   return *( m_push - 1 );

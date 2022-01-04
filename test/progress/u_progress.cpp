@@ -107,7 +107,7 @@ bool UnitTests::unit_Progress() const
     test.addGuide( _Optional, corners );
     test.next( 10 );
 
-    test.start();
+    clog( "jessicaf:", test.start() );
 
     BitMap restrict = {
       CRotations<N>::GetRotID( _Y, 0, 1 ),
@@ -128,11 +128,44 @@ bool UnitTests::unit_Progress() const
       CRotations<N>::GetRotID( _Z, 2, 1 ),
       CRotations<N>::GetRotID( _Z, 2, 2 ),
       CRotations<N>::GetRotID( _Z, 2, 3 ),
-    }; // ToDo: add corner first solution test
+    };
+
+    clog( "corners first" );
+    Progress<N> cornerFirst;
+    testCube.shuffle();
+    testCube.print();
+    cornerFirst.toSolve( testCube );
+    cornerFirst.addGuide( _Scheduled, corners, Accept<N>::OnPlace );
+    cornerFirst.addGuide( _Optional, corners * Simplex::Tilt( _Y, 1 ), Accept<N>::OnPlace );
+    cornerFirst.addGuide( _Optional, corners * Simplex::Tilt( _Y, 2 ), Accept<N>::OnPlace );
+    cornerFirst.next( 10, restrict );
+
+    cornerFirst.addGuide( _Optional, cross, Accept<N>::OnPlace );
+    cornerFirst.addGuide( _Optional, cross * Simplex::Tilt( _Y, 1 ), Accept<N>::OnPlace );
+    cornerFirst.addGuide( _Optional, cross * Simplex::Tilt( _Y, 2 ), Accept<N>::OnPlace );
+    cornerFirst.addGuide( _Optional, cross * Simplex::Tilt( _Y, 3 ), Accept<N>::OnPlace );
+    cornerFirst.next( 11 );
+
+    cornerFirst.addGuide( _Optional, corners, Accept<N>::Normal );
+    cornerFirst.addGuide( _Optional, corners * Simplex::Tilt( _Y, 1 ), Accept<N>::Normal );
+    cornerFirst.addGuide( _Optional, corners * Simplex::Tilt( _Y, 2 ), Accept<N>::Normal );
+    cornerFirst.addGuide( _Optional, corners * Simplex::Tilt( _Y, 3 ), Accept<N>::Normal );
+    cornerFirst.next( 13, restrict );
+
+    cornerFirst.addGuide( _Optional, cross, Accept<N>::Normal );
+    cornerFirst.addGuide( _Optional, cross * Simplex::Tilt( _Y, 2 ), Accept<N>::Normal );
+    cornerFirst.next( 11 );
+
+    cornerFirst.addGuide( _Optional, cross * Simplex::Tilt( _Y, 1 ), Accept<N>::Normal );
+    cornerFirst.addGuide( _Optional, cross * Simplex::Tilt( _Y, 3 ), Accept<N>::Normal );
+    cornerFirst.next( 12 );
     stamp( test.consistency, success );
+
+    clog( cornerFirst.start() );
   }
 
     clog( ellapsed() );
+
   finish( "Progress", success );
 
   return success;

@@ -20,7 +20,7 @@ typename GuideFactory<N>::Guide GuideFactory<N>::getGuide( const Pattern<N> & pa
     if ( P.isTransposed( pattern, trans ) )
     {
       Guide result;
-      if( Accept<N>::Equal( P.acceptance(), af ) )
+      if( Accept<N>::EqualOn( pattern, P.acceptance(), af ) )
       {
         result = P;
         result.rebase( trans );

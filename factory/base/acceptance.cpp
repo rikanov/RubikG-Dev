@@ -54,9 +54,9 @@ BitMap32ID Accept<N>::OnPlace( PosID posID )
 }
 
 template< cube_size N >
-bool Accept<N>::Equal( AcceptFunction a1, AcceptFunction a2 )
+bool Accept<N>::EqualOn(const Pattern<N> & pattern, AcceptFunction a1, AcceptFunction a2 )
 {
-  all_posid( posID, N )
+  for ( auto posID: pattern )
   {
     if ( a1( posID ) != a2( posID ) )
     {
@@ -67,9 +67,9 @@ bool Accept<N>::Equal( AcceptFunction a1, AcceptFunction a2 )
 }
 
 template< cube_size N >
-bool Accept<N>::Stricter( AcceptFunction a1, AcceptFunction a2 )
+bool Accept<N>::StricterOn( const Pattern<N> & pattern, AcceptFunction a1, AcceptFunction a2 )
 {
-  all_posid( posID, N )
+  for ( auto posID: pattern )
   {
     if ( ( a1( posID ) & a2( posID ) ) != a1( posID ) )
     {

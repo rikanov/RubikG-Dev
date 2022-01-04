@@ -17,8 +17,8 @@ public:
   static BitMap32ID     Normal  ( PosID posID );
   static BitMap32ID     OnPlace ( PosID posID );
 
-  static bool Equal( AcceptFunction, AcceptFunction );
-  static bool Stricter( AcceptFunction, AcceptFunction );
+  static bool EqualOn( const Pattern<N> &, AcceptFunction, AcceptFunction );
+  static bool StricterOn( const Pattern<N> &, AcceptFunction, AcceptFunction );
 };
 
 // include template source file
