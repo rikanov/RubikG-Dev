@@ -8,6 +8,7 @@ template < cube_size N >
 class NodeInit: protected Symmetry<N>
 {
   Array<BitMapID>  m_allowedGradient;
+  bool m_symmetricSearch;
   static constexpr BitMapID NoRestriction = ( 1ULL << CRotations<N>::AllRotIDs ) - 1;
 
 protected:
@@ -16,7 +17,7 @@ protected:
 
   void initGradients( const size_t restriction = NoRestriction );
 
-  void setAsRoot ( Node * node, const bool ) const;
+  void setAsRoot ( Node * node, const bool, const bool );
   bool setAsChild( Node * node, const bool ) const;
 };
 
@@ -28,10 +29,12 @@ NodeInit<N>::NodeInit()
 }
 
 template< cube_size N >
-void NodeInit<N>::setAsRoot( Node* node, const bool optional ) const
+void NodeInit<N>::setAsRoot( Node* node, const bool optional, const bool symmetry )
 {
+  m_symmetricSearch = symmetry;
   if ( ! optional )
   {
+    node -> reverseSteps = 0;
     node -> gradient = m_allowedGradient[0];
     node -> target   = ( 1 << 24 ) - 1;
   }
@@ -40,10 +43,14 @@ void NodeInit<N>::setAsRoot( Node* node, const bool optional ) const
 template< cube_size N >
 bool NodeInit<N>::setAsChild( Node* node, const bool optional ) const
 {
+  if ( m_symmetricSearch )
+  {
+    node -> gradient.restrict( Symmetry<N>::Check( node - 1 ) ); clog( "ok", node -> depth, node -> asymmetry );
+  }
   if ( optional )
   {
     return node -> gradient.restrict( m_allowedGradient[ ( node - 1 ) -> rotate ] ) &&
-           node -> target.restrict(( node - 1 ) -> target );
+           node -> target.restrict( ( node - 1 ) -> target );
   }
   else
   {

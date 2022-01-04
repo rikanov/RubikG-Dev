@@ -23,7 +23,7 @@ protected:
   GuideManager();
   void restrict( const BitMapID );
   void setStep( const size_t );
-  bool setRoot ( Node * node );
+  bool setRoot ( Node * node, const bool );
   bool nextNode( Node * node );
   bool optional() const;
 
@@ -62,7 +62,7 @@ void GuideManager<N>::setStep( const size_t step )
 }
 
 template<cube_size N>
-bool GuideManager<N>::setRoot( Node * node )
+bool GuideManager<N>::setRoot( Node * node, const bool symmetricSearch )
 {
   if ( 0xFF == m_transposition )
   {
@@ -71,7 +71,7 @@ bool GuideManager<N>::setRoot( Node * node )
   }
   node -> reset();
 
-  NodeInit<N>::setAsRoot( node, optional() );
+  NodeInit<N>::setAsRoot( node, optional(), symmetricSearch );
 
   setOptionalRoot( node );
   return setScheduledRoot( node );

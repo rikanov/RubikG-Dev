@@ -22,7 +22,7 @@ protected:
 template< cube_size N > inline
 BitMapID Symmetry<N>::Mask( const RotID rotID )
 {
-  return 7ULL << ( rotID - CRotations<N>::Turn( rotID ) + 1 );
+  return 7ULL << ( rotID - CRotations<N>::GetTurn( rotID ) + 1 );
 }
 
 template< cube_size N > inline
@@ -50,12 +50,11 @@ BitMapID Symmetry<N>::Check( Node * node )
 template< cube_size N > inline
 void Symmetry<N>::SetNextNode( Node * node )
 {
-  const RotID rotID = CRotations<N>::GetInverse( node -> rotate );
-  const Turn turn = CRotations<N>::Turn( rotID );
+  const RotID rotID = CRotations<N>::GetInvRotID( node -> rotate );
   const BitMapID mask = Mask( rotID );
 
   Node * next = node + 1;
-  DistID & asymmetry = next -> asymmetry;
+  size_t & asymmetry = next -> asymmetry;
   BitMap inverse;
   if ( ! node -> reverseSteps.hasCommon( mask ) )
   {
@@ -65,7 +64,7 @@ void Symmetry<N>::SetNextNode( Node * node )
   else
   {
     // 4-cyclic Abelian group represented by bitwise operations in rotation id map
-    inverse.set( ( ( node -> reverseSteps & mask) ) << turn );
+    inverse.set( ( ( node -> reverseSteps & mask) ) << CRotations<N>::GetTurn( rotID ) );
     inverse.expand( inverse >> 4 );
     inverse.restrict( mask );
     asymmetry -= inverse == 0;
