@@ -8,6 +8,8 @@ struct Node
 {
   static constexpr size_t MaxPatterns = 200;
 
+  DistID    asymmetry;
+  BitMap    reverseSteps;
   BitMap    gradient;
   BitMap    target;
 

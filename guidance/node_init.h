@@ -2,11 +2,10 @@
 #define ___NODE_INIT__H
 
 #include <dynamic_array.h>
-#include <cube_rotations.h>
-#include <node.h>
+#include <symmetry.h>
 
 template < cube_size N >
-class NodeInit
+class NodeInit: protected Symmetry<N>
 {
   Array<BitMapID>  m_allowedGradient;
   static constexpr BitMapID NoRestriction = ( 1ULL << CRotations<N>::AllRotIDs ) - 1;
@@ -71,7 +70,7 @@ void NodeInit<N>::initGradients( const size_t restriction )
 
     if ( 1 == turn )
     {
-      const BitMapID mask = 7ULL << ( 3 * ( axis * N + layer ) + 1 );
+      const BitMapID mask = Symmetry<N>::Mask( axis, layer );
       allowed |= mask;
       allowed -= mask;
     }

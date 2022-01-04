@@ -1,0 +1,91 @@
+#ifndef ___SYMMETRY_COUNTER__H
+#define ___SYMMETRY_COUNTER__H
+
+#include <bitmap_set.h>
+#include <cube_rotations.h>
+#include <node.h>
+
+template< cube_size N >
+class Symmetry
+{
+  static constexpr BitMapID NoRestriction = ( 1ULL << CRotations<N>::AllRotIDs ) - 1;
+
+  static void SetNextNode( Node * );
+protected:
+  static BitMapID SameLayersAs( const BitMap rotSet );
+  static BitMapID Mask( const RotID );
+  static BitMapID Mask( const Axis, const Layer );
+  static BitMapID Check( Node * );
+
+};
+
+template< cube_size N > inline
+BitMapID Symmetry<N>::Mask( const RotID rotID )
+{
+  return 7ULL << ( rotID - CRotations<N>::Turn( rotID ) + 1 );
+}
+
+template< cube_size N > inline
+BitMapID Symmetry<N>::Mask( const Axis axis, const Layer layer )
+{
+  return 7ULL << ( 3 * ( axis * N + layer ) + 1 );
+}
+
+template< cube_size N >
+BitMapID Symmetry<N>::Check( Node * node )
+{
+  SetNextNode( node );
+  
+  switch ( node -> depth - node -> asymmetry )
+  {
+    case 0:
+      return node -> reverseSteps;
+    case 1:
+      return SameLayersAs( node -> reverseSteps );
+    default:
+      return NoRestriction;
+  }
+}
+
+template< cube_size N > inline
+void Symmetry<N>::SetNextNode( Node * node )
+{
+  const RotID rotID = CRotations<N>::GetInverse( node -> rotate );
+  const Turn turn = CRotations<N>::Turn( rotID );
+  const BitMapID mask = Mask( rotID );
+
+  Node * next = node + 1;
+  DistID & asymmetry = next -> asymmetry;
+  BitMap inverse;
+  if ( ! node -> reverseSteps.hasCommon( mask ) )
+  {
+    ++ asymmetry;
+    inverse.add( rotID );
+  }
+  else
+  {
+    // 4-cyclic Abelian group represented by bitwise operations in rotation id map
+    inverse.set( ( ( node -> reverseSteps & mask) ) << turn );
+    inverse.expand( inverse >> 4 );
+    inverse.restrict( mask );
+    asymmetry -= inverse == 0;
+  }
+
+  // set next node reverseSteps by the new inverse step
+  BitMap & reverseSteps = next -> reverseSteps;
+  reverseSteps = node -> reverseSteps;
+  reverseSteps.restrict( ~mask );
+  reverseSteps.expand( inverse );
+}
+
+template< cube_size N > inline
+BitMapID Symmetry<N>::SameLayersAs( const BitMap rotSet )
+{
+  BitMapID result = 0;
+  for ( RotID inv = 0; rotSet >> inv; )
+  {
+    result |= Mask( inv );
+  }
+  return result;
+}
+#endif  //  ! ___SYMMETRY_COUNTER__H
