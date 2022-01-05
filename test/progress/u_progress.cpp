@@ -88,7 +88,7 @@ bool UnitTests::unit_Progress() const
     timerOFF();
 
     test.toSolve( testCube );
-    for ( int i = 1; i <= 100 && test.consistency; ++ i )
+    for ( int i = 1; i <= 2 && test.consistency; ++ i )
     {
       testCube.shuffle();
       test.restart();

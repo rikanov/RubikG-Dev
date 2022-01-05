@@ -61,6 +61,7 @@ void clog_ (T t)
   {
     std::cout << t;
   }
+  std::cout << std::flush;
 }
 
 template <typename T, typename... Args>
@@ -69,7 +70,6 @@ void clog_ (T t, Args... args)
   OUT
   clog_ ( t );
   clog_ ( args... );
-  std::cout << std::flush;
 }
 
 template <typename T>
@@ -89,7 +89,7 @@ void clog (T t, Args... args) // recursive variadic function
 
  // basic text messages with given separator
 // -----------------------------------------
-template < typename T>
+template< typename T>
 void slog_ ( const char * sep, T t) 
 {
   OUT
@@ -102,7 +102,7 @@ void slog_ ( const char * sep, T t)
     std::cout << t;
   }
 }
-template < typename T, typename... Args>
+template< typename T, typename... Args>
 void slog_ ( const char * sep, T t, Args... args ) 
 {
   OUT
@@ -110,15 +110,15 @@ void slog_ ( const char * sep, T t, Args... args )
   slog_ ( sep, args... );
 }
 
-template < typename T >
+template< typename T >
 void slog ( const char * sep, T t) 
 {
   OUT
-  std::cout << t << std::endl ;
+  std::cout << t << sep << std::endl ;
 }
 
 template< typename T, typename... Args >
-void slog ( const char * sep, T t, Args... args) // recursive variadic function
+void slog( const char * sep, T t, Args... args) // recursive variadic function
 {
   OUT
   slog_ ( sep, t );

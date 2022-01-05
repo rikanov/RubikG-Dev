@@ -11,8 +11,8 @@ class Symmetry
   static constexpr BitMapID NoRestriction = ( 1ULL << CRotations<N>::AllRotIDs ) - 1;
 
   static void SetNextNode( Node * );
+  static BitMapID SameLayersAs( BitMap rotSet );
 protected:
-  static BitMapID SameLayersAs( const BitMap rotSet );
   static BitMapID Mask( const RotID );
   static BitMapID Mask( const Axis, const Layer );
   static BitMapID Check( Node * );
@@ -35,7 +35,6 @@ template< cube_size N >
 BitMapID Symmetry<N>::Check( Node * node )
 {
   SetNextNode( node );
-  
   switch ( node -> depth - node -> asymmetry )
   {
     case 0:
@@ -54,11 +53,10 @@ void Symmetry<N>::SetNextNode( Node * node )
   const BitMapID mask = Mask( rotID );
 
   Node * next = node + 1;
-  size_t & asymmetry = next -> asymmetry;
   BitMap inverse;
   if ( ! node -> reverseSteps.hasCommon( mask ) )
   {
-    ++ asymmetry;
+    next -> asymmetry = node -> asymmetry + 1;
     inverse.add( rotID );
   }
   else
@@ -67,9 +65,8 @@ void Symmetry<N>::SetNextNode( Node * node )
     inverse.set( ( ( node -> reverseSteps & mask) ) << CRotations<N>::GetTurn( rotID ) );
     inverse.expand( inverse >> 4 );
     inverse.restrict( mask );
-    asymmetry -= inverse == 0;
+    next -> asymmetry = node -> asymmetry - ( inverse == 0 );
   }
-
   // set next node reverseSteps by the new inverse step
   BitMap & reverseSteps = next -> reverseSteps;
   reverseSteps = node -> reverseSteps;
@@ -78,8 +75,9 @@ void Symmetry<N>::SetNextNode( Node * node )
 }
 
 template< cube_size N > inline
-BitMapID Symmetry<N>::SameLayersAs( const BitMap rotSet )
+BitMapID Symmetry<N>::SameLayersAs( BitMap rotSet )
 {
+  rotSet.remove( 0 );
   BitMapID result = 0;
   for ( RotID inv = 0; rotSet >> inv; )
   {
