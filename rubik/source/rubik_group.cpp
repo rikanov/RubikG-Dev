@@ -19,17 +19,18 @@ void RubikGroup<N>::init()
 
 template< cube_size N >
 void RubikGroup<N>::rotate( const RotID rotID )
-{
+{/*
   const Layer layer = CRotations<N>::GetLayer( rotID );
   const size_t size = ( 0 == layer || N - 1 == layer ) ? N * N : 4 * ( N - 1 );
-  size_t counter = 0;
+  size_t counter = 0;*/
   for( auto P = ArrayR::begin(); P != ArrayR::end(); ++ P )
   {
-    counter += P -> rotate( rotID );
-    if ( size == counter )
-    {
-      break;
-    }
+    P -> rotate( rotID );
+//     counter += P -> rotate( rotID );
+//     if ( size == counter )
+//     {
+//       break;
+//     }
   }
   Sequence::push( rotID );
 }

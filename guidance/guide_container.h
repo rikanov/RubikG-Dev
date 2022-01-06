@@ -46,14 +46,6 @@ GuideContainer<N>::GuideContainer()
 template< cube_size N >
 void GuideContainer<N>::add( const Guide & guide )
 {
-  for ( auto P = Guides::begin(); P != Guides::end(); ++ P )
-  {
-    if ( guide.stricterThan( *P ) )
-    {
-      *P = guide;
-      return;
-    }
-  }
   Guides::push( guide );
 }
 

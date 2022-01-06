@@ -36,7 +36,7 @@ void Stack<Type>::push( const Type * beg, const Type * end )
 
 template< typename Type >
 void Stack<Type>::push( const Type & next, Condition cond )
-{
+{/*
   for ( auto P: *this )
   {
     if ( cond( P ) )
@@ -44,7 +44,7 @@ void Stack<Type>::push( const Type & next, Condition cond )
       P = next;
       return;
     }
-  }
+  }*/
   push( next );
 }
 

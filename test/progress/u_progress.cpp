@@ -101,11 +101,11 @@ bool UnitTests::unit_Progress() const
 
     test.addGuide( _Scheduled, cross2, Accept<N>::RotAxis( _Z ) );
     test.addGuide( _Scheduled, corners, Accept<N>::RotAxis( _Z ) );
-    test.next( 10 );
+    test.next();
 
     test.addGuide( _Optional, cross2 );
     test.addGuide( _Optional, corners );
-    test.next( 10 );
+    test.next();
 
     clog( "jessicaf:", test.start() );
 
@@ -138,13 +138,13 @@ bool UnitTests::unit_Progress() const
     cornerFirst.addGuide( _Scheduled, corners, Accept<N>::OnPlace );
     cornerFirst.addGuide( _Optional, corners * Simplex::Tilt( _Y, 1 ), Accept<N>::OnPlace );
     cornerFirst.addGuide( _Optional, corners * Simplex::Tilt( _Y, 2 ), Accept<N>::OnPlace );
-    cornerFirst.next( 10, restrict );
+    cornerFirst.next( 13, restrict );
 
     cornerFirst.addGuide( _Optional, cross, Accept<N>::OnPlace );
     cornerFirst.addGuide( _Optional, cross * Simplex::Tilt( _Y, 1 ), Accept<N>::OnPlace );
     cornerFirst.addGuide( _Optional, cross * Simplex::Tilt( _Y, 2 ), Accept<N>::OnPlace );
     cornerFirst.addGuide( _Optional, cross * Simplex::Tilt( _Y, 3 ), Accept<N>::OnPlace );
-    cornerFirst.next( 11 );
+    cornerFirst.next();
 
     cornerFirst.addGuide( _Optional, corners, Accept<N>::Normal );
     cornerFirst.addGuide( _Optional, corners * Simplex::Tilt( _Y, 1 ), Accept<N>::Normal );
@@ -154,11 +154,9 @@ bool UnitTests::unit_Progress() const
 
     cornerFirst.addGuide( _Optional, cross, Accept<N>::Normal );
     cornerFirst.addGuide( _Optional, cross * Simplex::Tilt( _Y, 2 ), Accept<N>::Normal );
-    cornerFirst.next( 11 );
-
     cornerFirst.addGuide( _Optional, cross * Simplex::Tilt( _Y, 1 ), Accept<N>::Normal );
     cornerFirst.addGuide( _Optional, cross * Simplex::Tilt( _Y, 3 ), Accept<N>::Normal );
-    cornerFirst.next( 12 );
+    cornerFirst.next();
     stamp( test.consistency, success );
 
     clog( cornerFirst.start() );

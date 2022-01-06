@@ -39,7 +39,6 @@ void NodeInit<N>::setAsRoot( Node * node, const bool optional, const bool symmet
   {
     node -> asymmetry = 0;
     node -> reverseSteps = 0;
-    node -> gradient.restrict( Symmetry<N>::Check( node ) );
   }
 }
 

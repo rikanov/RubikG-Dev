@@ -14,7 +14,6 @@ class GuideManager:  public Scheduler<N>
   Stack<Guide> m_scheduled;
   Stack<Guide> m_optional;
   Stack<BitMapID> m_restrictions;
-  CubeID m_transposition;
 
 protected:
 
@@ -44,7 +43,7 @@ GuideManager<N>::GuideManager()
   , m_optional ( Node::MaxPatterns )
   , m_restrictions( Node::MaxPatterns )
 {
-  m_transposition = 0xFF;
+
 }
 
 template< cube_size N >
@@ -64,11 +63,6 @@ void GuideManager<N>::setStep( const size_t step )
 template<cube_size N>
 bool GuideManager<N>::setRoot( Node * node, const bool symmetricSearch )
 {
-  if ( 0xFF == m_transposition )
-  {
-    const Guide * first = m_scheduled.empty() ? m_optional.begin() : m_scheduled.begin();
-    m_transposition = first -> getTransposition( m_cube );
-  }
   node -> reset();
 
   NodeInit<N>::setAsRoot( node, optional(), symmetricSearch );
@@ -99,7 +93,7 @@ void GuideManager<N>::setOptionalRoot( Node * node )
 {
   for ( auto P = m_optional.begin(); P != m_optional.end(); ++ P )
   {
-    P -> setOptionalRoot( m_cube, node, m_transposition );
+    P -> setOptionalRoot( m_cube, node, 0 );
   }
 }
 
@@ -108,7 +102,7 @@ bool GuideManager<N>::setScheduledRoot( Node * node )
 {
   for ( auto P = m_scheduled.begin(); P != m_scheduled.end(); ++ P )
   {
-    if ( ! P -> setScheduledRoot( m_cube, node, m_transposition ) )
+    if ( ! P -> setScheduledRoot( m_cube, node, 0 ) )
     {
       return false;
     }
@@ -160,7 +154,6 @@ bool GuideManager<N>::emptyPool( Node * node )
 template< cube_size N >
 void GuideManager<N>::reset()
 {
-  m_transposition = 0xFF;
   m_scheduled = Stack<Guide>( Node::MaxPatterns );
   m_optional  = Stack<Guide>( Node::MaxPatterns );
 }

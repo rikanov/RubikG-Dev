@@ -49,26 +49,26 @@ BitMapID Symmetry<N>::Check( Node * node )
 template< cube_size N > inline
 void Symmetry<N>::SetNextNode( Node * node )
 {
-  const RotID rotID = CRotations<N>::GetInvRotID( node -> rotate );
+  const Node * prev = node - 1;
+  const RotID rotID = CRotations<N>::GetInvRotID( prev -> rotate );
   const BitMapID mask = Mask( rotID );
 
-  Node * next = node + 1;
   BitMap inverse;
-  if ( ! node -> reverseSteps.hasCommon( mask ) )
+  if ( ! prev -> reverseSteps.hasCommon( mask ) )
   {
-    next -> asymmetry = node -> asymmetry + 1;
+    node -> asymmetry = prev -> asymmetry + 1;
     inverse.add( rotID );
   }
   else
   {
     // 4-cyclic Abelian group represented by bitwise operations in rotation id map
-    inverse.set( ( ( node -> reverseSteps & mask) ) << CRotations<N>::GetTurn( rotID ) );
+    inverse.set( ( ( prev -> reverseSteps & mask) ) << CRotations<N>::GetTurn( rotID ) );
     inverse.expand( inverse >> 4 );
     inverse.restrict( mask );
-    next -> asymmetry = node -> asymmetry - ( inverse == 0 );
+    node -> asymmetry = prev -> asymmetry - ( inverse == 0 );
   }
   // set next node reverseSteps by the new inverse step
-  BitMap & reverseSteps = next -> reverseSteps;
+  BitMap & reverseSteps = node -> reverseSteps;
   reverseSteps = node -> reverseSteps;
   reverseSteps.restrict( ~mask );
   reverseSteps.expand( inverse );

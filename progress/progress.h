@@ -27,7 +27,7 @@ public:
   Progress(): m_numberOfSteps( 0 ), m_root( ProgressTree::root() ) {}
   bool consistency = true;
 
-  void next( const size_t maxHeight = 10, const BitMapID restriction = NoRestriction );
+  void next( const size_t maxHeight = 13, const BitMapID restriction = NoRestriction );
   void next( const size_t maxHeight, const BitMap & );
   void toSolve( Rubik<N> & );
   size_t start();
