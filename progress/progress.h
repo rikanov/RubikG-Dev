@@ -97,7 +97,7 @@ template<cube_size N> bool Progress<N>::startIDA()
   m_current = ProgressTree::root();
   for ( size_t height = 0; ! solved && height <= ProgressTree::height(); ++ height )
   {
-    ProgressTree::set( height );
+    ProgressTree::set( height ); clog_( '.', height );
     GuideManager<N>::setRoot( m_root, height > 9 );
     solved =  m_current -> solved() || progress();
   }

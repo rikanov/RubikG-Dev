@@ -15,7 +15,7 @@ class Symmetry
 protected:
   static BitMapID Mask( const RotID );
   static BitMapID Mask( const Axis, const Layer );
-  static BitMapID Check( Node * );
+  static bool Force( Node * );
 
 };
 
@@ -31,19 +31,22 @@ BitMapID Symmetry<N>::Mask( const Axis axis, const Layer layer )
   return 7ULL << ( 3 * ( axis * N + layer ) + 1 );
 }
 
-template< cube_size N >
-BitMapID Symmetry<N>::Check( Node * node )
+template< cube_size N > inline
+bool Symmetry<N>::Force( Node * node )
 {
   SetNextNode( node );
   switch ( node -> depth - node -> asymmetry )
   {
     case 0:
-      return node -> reverseSteps;
+      node -> gradient &= node -> reverseSteps;
+      break;
     case 1:
-      return SameLayersAs( node -> reverseSteps );
+      node -> gradient &= SameLayersAs( node -> reverseSteps );
+      break;
     default:
-      return NoRestriction;
+      ;
   }
+  return ! node -> gradient.empty();
 }
 
 template< cube_size N > inline
@@ -68,10 +71,7 @@ void Symmetry<N>::SetNextNode( Node * node )
     node -> asymmetry = prev -> asymmetry - ( inverse == 0 );
   }
   // set next node reverseSteps by the new inverse step
-  BitMap & reverseSteps = node -> reverseSteps;
-  reverseSteps = node -> reverseSteps;
-  reverseSteps.restrict( ~mask );
-  reverseSteps.expand( inverse );
+  node -> reverseSteps = inverse | ( prev -> reverseSteps & ~mask );
 }
 
 template< cube_size N > inline

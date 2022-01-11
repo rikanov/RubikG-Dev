@@ -113,7 +113,7 @@ bool GuideManager<N>::setScheduledRoot( Node * node )
 template< cube_size N >
 void GuideManager<N>::setOptionalNext( Node * next )
 {
-  for ( auto P = m_optional.begin(); P != m_optional.end(); ++ P)
+  for ( auto P = m_optional.begin(); P != m_optional.end() && next -> gradient != ( 1ULL << CRotations<N>::AllRotIDs ) - 1 ; ++ P)
   {
     P -> setOptionalNode( next );
   }

@@ -30,15 +30,12 @@ template< cube_size N >
 void NodeInit<N>::setAsRoot( Node * node, const bool optional, const bool symmetry )
 {
   m_symmetricSearch = symmetry;
+  node -> asymmetry = 0;
+  node -> reverseSteps = 1;
   if ( ! optional )
   {
     node -> gradient = m_allowedGradient[0];
     node -> target   = ( 1 << 24 ) - 1;
-  }
-  if ( symmetry )
-  {
-    node -> asymmetry = 0;
-    node -> reverseSteps = 0;
   }
 }
 
@@ -58,12 +55,10 @@ bool NodeInit<N>::setAsChild( Node* node, const bool optional ) const
   }
   if ( m_symmetricSearch )
   {
-    const BitMapID check = Symmetry<N>::Check( node );
-    node -> gradient.restrict( check );
+    result &= Symmetry<N>::Force( node );
   }
   return result;;
 }
-
 
 template< cube_size N >
 void NodeInit<N>::initGradients( const size_t restriction )
