@@ -136,7 +136,7 @@ bool UnitTests::unit_Progress() const
     testCube.print();
     cornerFirst.toSolve( testCube );
     cornerFirst.addGuide( _Scheduled, corners, Accept<N>::OnPlace );
-    cornerFirst.addGuide( _Optional, corners * Simplex::Tilt( _Y, 1 ), Accept<N>::OnPlace );
+//    cornerFirst.addGuide( _Optional, corners * Simplex::Tilt( _Y, 1 ), Accept<N>::OnPlace );
     cornerFirst.addGuide( _Optional, corners * Simplex::Tilt( _Y, 2 ), Accept<N>::OnPlace );
     cornerFirst.next( 13, restrict );
 
@@ -147,10 +147,10 @@ bool UnitTests::unit_Progress() const
     cornerFirst.next();
 
     cornerFirst.addGuide( _Optional, corners, Accept<N>::Normal );
-    cornerFirst.addGuide( _Optional, corners * Simplex::Tilt( _Y, 1 ), Accept<N>::Normal );
+ //   cornerFirst.addGuide( _Optional, corners * Simplex::Tilt( _Y, 1 ), Accept<N>::Normal );
     cornerFirst.addGuide( _Optional, corners * Simplex::Tilt( _Y, 2 ), Accept<N>::Normal );
-    cornerFirst.addGuide( _Optional, corners * Simplex::Tilt( _Y, 3 ), Accept<N>::Normal );
-    cornerFirst.next( 13, restrict );
+ //   cornerFirst.addGuide( _Optional, corners * Simplex::Tilt( _Y, 3 ), Accept<N>::Normal );
+    cornerFirst.next();
 
     cornerFirst.addGuide( _Optional, cross, Accept<N>::Normal );
     cornerFirst.addGuide( _Optional, cross * Simplex::Tilt( _Y, 2 ), Accept<N>::Normal );
