@@ -13,34 +13,20 @@ BitMap::BitMap( const BitMap::Init & iList )
 
 uint8_t BitMap::next()
 {
-  BitMapID step = 1ULL << m_nextID;
-  // skip zero valued bits
-  for( ; ( m_dataSet & step ) == 0; step <<= 1 )
-  {
-     ++ m_nextID;
-  }
-
-  m_dataSet -= step;
-
-  return m_nextID ++ ;
+  // the rightmost high bit ie the smallest member of the set
+  const uint64_t least =  __builtin_ctz( m_dataSet );
+  m_dataSet -= ( 1ULL << least );
+  return least;
 }
 
 bool BitMap::next( uint8_t & nextID )
 {
-  if( 0 == m_dataSet )
+  if ( 0 == m_dataSet )
   {
     return false;
   }
 
-  BitMapID step = 1ULL << m_nextID;
-  // skip zero valued bits
-  for( ; ( m_dataSet & step ) == 0; step <<= 1 )
-  {
-     ++ m_nextID;
-  }
-
-  m_dataSet -= step;
-  nextID = m_nextID ++;
+  nextID = next();
   return true;
 }
 

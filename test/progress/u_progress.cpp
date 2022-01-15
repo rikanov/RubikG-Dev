@@ -108,7 +108,7 @@ bool UnitTests::unit_Progress() const
     test.next();
 
     clog( "jessicaf:", test.start() );
-
+/*
     BitMap restrict = {
       CRotations<N>::GetRotID( _Y, 0, 1 ),
       CRotations<N>::GetRotID( _Y, 0, 2 ),
@@ -159,7 +159,7 @@ bool UnitTests::unit_Progress() const
     cornerFirst.next();
     stamp( test.consistency, success );
 
-    clog( cornerFirst.start() );
+    clog( cornerFirst.start() );*/
   }
 
     clog( ellapsed() );
